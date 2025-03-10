@@ -3,6 +3,10 @@ import numpy as np
 from astropy.table import Table, Column, unique
 
 import qol.mesa.const as const
+import qol.paths as paths
+
+int_to_string = lambda x: f'{x:d}'
+float_to_string = lambda x: format(x, '.15e').replace('e', 'D')
 
 class MesaTable(Table):
     """
@@ -14,23 +18,26 @@ class MesaTable(Table):
         attr: dict of other information
         tabtype: type of MESA data, either 'history', 'profile', 'index', 'model'
         """
+        self.tab = tab
         self.attr = attr
         self.tabtype = tabtype
 
         super().__init__(tab)
+        self.update_attributes()
 
+    def update_attributes(self):
         # save some additional attributes, depending on tabtype
-        match tabtype:
+        match self.tabtype:
             case 'history':
                 pass
             case 'profile':
-                self.attributes_for_profile()
+                self.update_attributes_for_profile()
             case 'index':
                 pass
             case 'model':
-                self.attributes_for_model()
+                self.update_attributes_for_model()
 
-    def attributes_for_profile(self):
+    def update_attributes_for_profile(self):
         if 'mass' in self.keys():
             self.mass = self.M_in_Msun = self['mass']
             self.dM_in_Msun = -np.diff(self.M_in_Msun, append=0)
@@ -66,7 +73,7 @@ class MesaTable(Table):
 
         # brunt_N2?
 
-    def attributes_for_model(self):
+    def update_attributes_for_model(self):
         if 'lnd' in self.keys():
             self.lnd = self.lnRho = self['lnd']
             self.logRho = self.lnd / const.ln10
@@ -101,6 +108,74 @@ class MesaTable(Table):
 
                 self.dM = self.dM_in_Msun / const.Msun
                 self.M = self.M_in_Msun / const.Msun
+        
+        if 'conv_vel' in self.keys():
+            self.conv_vel = self['conv_vel']
+        if 'mlt_vc' in self.keys():
+            self.mlt_vc = self['mlt_vc']
+
+    def write_model(self, fname, model_setting=36):
+        """
+        model_setting is the integer option at the top of the model file
+        """
+        assert self.tabtype == 'model' # for now, only writing something which was already a model is supported
+
+        # Update attributes, in case tab attribute has been modified by user
+        self.update_attributes()
+
+        match model_setting:
+            case 36:
+                template_path = f'{paths.qol_path}/mesa/templates/model/model36.mod'
+
+                version_number = self.attr['version_number']
+                M_in_Msun = self.attr['M/Msun']
+                initial_z = self.attr['initial_z']
+                model_number = 1
+                star_age = 0
+                N_shells = previous_N_shells = len(self)
+                net_name = self.attr['net_name']
+                species = self.attr['species']
+                time = 0
+                previous_mass_grams = const.Msun * M_in_Msun
+                timestep_seconds = dt_next_seconds = 100 * const.secyer # arbitrary
+
+                with open(template_path, 'r') as f:
+                    text = f.read()
+                
+                text = text.replace('<<VERSION_NUMBER>>', version_number)
+                text = text.replace('<<M_IN_MSUN>>', float_to_string(M_in_Msun))
+                text = text.replace('<<INITIAL_Z>>', float_to_string(initial_z))
+                text = text.replace('<<MODEL_NUMBER>>', int_to_string(model_number))
+                text = text.replace('<<STAR_AGE>>', float_to_string(star_age))
+                text = text.replace('<<N_SHELLS>>', int_to_string(N_shells))
+                text = text.replace('<<NET_NAME>>', net_name)
+                text = text.replace('<<SPECIES>>', int_to_string(species))
+                text = text.replace('<<TIME>>', float_to_string(time))
+                text = text.replace('<<PREVIOUS_N_SHELLS>>', int_to_string(previous_N_shells))
+                text = text.replace('<<PREVIOUS_MASS_GRAMS>>', float_to_string(previous_mass_grams))
+                text = text.replace('<<TIMESTEP_SECONDS>>', float_to_string(timestep_seconds))
+                text = text.replace('<<DT_NEXT_SECONDS>>', float_to_string(dt_next_seconds))
+
+                # Format and write table
+                model_table = ' ' + ' '.join(self.colnames) + ' \n'
+                model_table += ''.join(f' {ii+1} ' + ' '.join([float_to_string(self[colname][ii]) \
+                                                for colname in self.colnames]) + ' \n' \
+                                                for ii in range(len(self)))
+                text = text.replace('<<MODEL_TABLE>>', model_table)
+
+            case _:
+                raise ValueError(f'model_setting={model_setting} is not supported yet')
+
+        # Write model file
+        with open(fname, 'w') as f:
+            f.write(text)
+
+
+
+
+
+
+
 
 
 
