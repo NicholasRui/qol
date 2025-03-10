@@ -28,7 +28,8 @@ model_attr_data_raw = \
  'timestep (seconds)': 'float',
   'dt_next (seconds)': 'float',
            'R_center': 'float',
-             'xmstar': 'float'}
+             'xmstar': 'float',
+               'time': 'float'}
 
 model_attr_data_underscores = {key.replace(' ', '_'): value for key, value in zip(model_attr_data_raw.keys(), model_attr_data_raw.values())}
 
@@ -160,9 +161,9 @@ def read_mod(fname):
             continue
 
         # log setting for column data if not logged yet
-        if ('setting' not in attr.keys()) and ('--' in items):
-            setting = int(items[0])
-            attr['setting'] = setting
+        if ('model_setting' not in attr.keys()) and ('--' in items):
+            model_setting = int(items[0])
+            attr['model_setting'] = model_setting
             continue
         
         # log other attributes
