@@ -2,12 +2,121 @@ from qol.mesa.read import read_mod
 import qol.mesa.const as const
 from qol.mesa.data import MesaTable
 
+import qol.paths as paths
+import qol.config as config
+import qol.helper.formatter as formatter
+
 from astropy.table import vstack
 
 import numpy as np
 from scipy.integrate import cumulative_trapezoid
 
 import warnings
+
+class MesaInlistControl:
+    """
+    Simple class which stores a single MESA control
+    """
+    def __init__(self, section, control, value, category=None):
+        """
+        section: e.g., star_job, controls, etc.
+        control: name of inlist option
+        value: value of option
+        category: optional -- allows grouping of options together under comment string given by this input
+        """
+        self.section = section
+        self.control = control
+        self.value = value
+        self.category = category
+
+    def inlist_string(self):
+        """
+        Return the string which should appear in inlist
+        """
+        fortran_value = formatter.to_fortran(self.value)
+        return f'{self.control} = {fortran_value}'
+
+
+
+
+class MesaInlistProjectFile:
+    """
+    Stores inlist information for MESA 
+    """
+    def __init__(self, inlist_name='inlist_project', mesa_version=config.mesa_version):
+        self.inlist_name = inlist_name
+        self.mesa_version = mesa_version
+
+        self.inlist_controls = []
+
+    def create_pre_main_sequence_model(self, value=True):
+        inlist_control = MesaInlistControl(section='star_job', 
+                control='create_pre_main_sequence_model',
+                value=value,
+                category='create initial model')
+
+        self.inlist_controls.append(inlist_control)
+
+
+
+
+
+
+        # todo
+        # - save model, starting model
+        # - save gyre, model with profile, etc.
+        # - gold tolerances setting
+        # - convergence equL residuals setting
+        # - categorize options by star_job, controls, etc., and categories
+        # - internal boundary condition relax, incl. dlgm_per_step
+        # - mass_change? max or min star etc..
+        # - enable hydrodynamics
+        # --- enable hydrodynamical drag
+        # - disable burning, or set max_abar_for_burning
+        # - saving an inlist should add comments at the top about how this was generated, and what version
+        # - initial_y, initial_z (warn if initial_y is unused)
+        # - terminate at max age
+        # - energy_eqn_option
+        # - limit_for_rel_error_in_energy_conservation
+        # - relax_max_number_retries
+        # - max_number_retries
+        # - min_timestep_limit
+        # - mesh_delta_coeff
+        # - min_D_mix
+
+        # - pgstar enable
+
+        # - net!!
+        # - opacities
+        # - overshoot
+        # - disable mixing
+        # - 
+
+
+class MesaWorkDirectory:
+    """
+    Stores information for creating a custom MESA work directory
+    """
+
+    # - inlist pgstar
+
+    # - save shell for running, according to template
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def create_shell_burning_remnant(write_mod_fname, core_mod_fname, env_mod_fname,
