@@ -4,9 +4,7 @@ from astropy.table import Table, Column, unique
 
 import qol.mesa.const as const
 import qol.paths as paths
-
-int_to_string = lambda x: f'{x:d}'
-float_to_string = lambda x: format(x, '.15e').replace('e', 'D')
+import qol.helper.formatter as formatter
 
 class MesaTable(Table):
     """
@@ -143,22 +141,22 @@ class MesaTable(Table):
                     text = f.read()
                 
                 text = text.replace('<<VERSION_NUMBER>>', version_number)
-                text = text.replace('<<M_IN_MSUN>>', float_to_string(M_in_Msun))
-                text = text.replace('<<INITIAL_Z>>', float_to_string(initial_z))
-                text = text.replace('<<MODEL_NUMBER>>', int_to_string(model_number))
-                text = text.replace('<<STAR_AGE>>', float_to_string(star_age))
-                text = text.replace('<<N_SHELLS>>', int_to_string(N_shells))
+                text = text.replace('<<M_IN_MSUN>>', formatter.to_fortran(M_in_Msun))
+                text = text.replace('<<INITIAL_Z>>', formatter.to_fortran(initial_z))
+                text = text.replace('<<MODEL_NUMBER>>', formatter.to_fortran(model_number))
+                text = text.replace('<<STAR_AGE>>', formatter.to_fortran(star_age))
+                text = text.replace('<<N_SHELLS>>', formatter.to_fortran(N_shells))
                 text = text.replace('<<NET_NAME>>', net_name)
-                text = text.replace('<<SPECIES>>', int_to_string(species))
-                text = text.replace('<<TIME>>', float_to_string(time))
-                text = text.replace('<<PREVIOUS_N_SHELLS>>', int_to_string(previous_N_shells))
-                text = text.replace('<<PREVIOUS_MASS_GRAMS>>', float_to_string(previous_mass_grams))
-                text = text.replace('<<TIMESTEP_SECONDS>>', float_to_string(timestep_seconds))
-                text = text.replace('<<DT_NEXT_SECONDS>>', float_to_string(dt_next_seconds))
+                text = text.replace('<<SPECIES>>', formatter.to_fortran(species))
+                text = text.replace('<<TIME>>', formatter.to_fortran(time))
+                text = text.replace('<<PREVIOUS_N_SHELLS>>', formatter.to_fortran(previous_N_shells))
+                text = text.replace('<<PREVIOUS_MASS_GRAMS>>', formatter.to_fortran(previous_mass_grams))
+                text = text.replace('<<TIMESTEP_SECONDS>>', formatter.to_fortran(timestep_seconds))
+                text = text.replace('<<DT_NEXT_SECONDS>>', formatter.to_fortran(dt_next_seconds))
 
                 # Format and write table
                 model_table = ' ' + ' '.join(self.colnames) + ' \n'
-                model_table += ''.join(f' {ii+1} ' + ' '.join([float_to_string(self[colname][ii]) \
+                model_table += ''.join(f' {ii+1} ' + ' '.join([formatter.to_fortran(self[colname][ii]) \
                                                 for colname in self.colnames]) + ' \n' \
                                                 for ii in range(len(self)))
                 text = text.replace('<<MODEL_TABLE>>', model_table)
