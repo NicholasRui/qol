@@ -1,4 +1,5 @@
 # Handles conversion between formats
+import warnings
 
 def to_fortran(value):
     """
@@ -13,3 +14,8 @@ def to_fortran(value):
             return '.true.' if value else '.false.'
         case str():
             return value
+        case None:
+            warnings.warn('to_fortran: tried to convert None, returning empty string')
+            return ''
+        case _:
+            raise ValueError(f'to_fortran: invalid type {type(value)}')

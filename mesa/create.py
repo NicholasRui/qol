@@ -11,30 +11,40 @@ from astropy.table import vstack
 import numpy as np
 from scipy.integrate import cumulative_trapezoid
 
+import os; import shutil
+
 import warnings
 
 class MesaInlistControl:
     """
     Simple class which stores a single MESA control
     """
-    def __init__(self, section, control, value, category=None):
+    def __init__(self, section, control, value, category=None, comment=None):
         """
         section: e.g., star_job, controls, etc.
         control: name of inlist option
         value: value of option
         category: optional -- allows grouping of options together under comment string given by this input
+        comment: optional -- add trailing comment
         """
         self.section = section
         self.control = control
         self.value = value
         self.category = category
+        self.comment = comment
 
     def inlist_string(self):
         """
         Return the string which should appear in inlist
         """
         fortran_value = formatter.to_fortran(self.value)
-        return f'{self.control} = {fortran_value}'
+        
+        if self.comment is not None:
+            comment_str = f' ! {self.comment}'
+        else:
+            comment_str = None
+
+        return f'{self.control} = {fortran_value}{comment_str}'
 
 
 
@@ -49,40 +59,24 @@ class MesaInlistProjectFile:
 
         self.inlist_controls = []
 
-    def create_pre_main_sequence_model(self, value=True):
-        inlist_control = MesaInlistControl(section='star_job', 
-                control='create_pre_main_sequence_model',
-                value=value,
-                category='create initial model')
-
-        self.inlist_controls.append(inlist_control)
+        # defaults
+        self.make_pre_ms = False
 
 
-
-
-
-
-        # todo
-        # - save model, starting model
+        # TODO
+        # - disable specific nuclear reactions (or groups, like pp chain)
         # - save gyre, model with profile, etc.
-        # - gold tolerances setting
-        # - convergence equL residuals setting
-        # - categorize options by star_job, controls, etc., and categories
-        # - internal boundary condition relax, incl. dlgm_per_step
         # - mass_change? max or min star etc..
-        # - enable hydrodynamics
-        # --- enable hydrodynamical drag
+        # - add easy function for making a wind
+        # - define metal fractions
+
         # - disable burning, or set max_abar_for_burning
         # - saving an inlist should add comments at the top about how this was generated, and what version
-        # - initial_y, initial_z (warn if initial_y is unused)
         # - terminate at max age
-        # - energy_eqn_option
         # - limit_for_rel_error_in_energy_conservation
-        # - relax_max_number_retries
-        # - max_number_retries
-        # - min_timestep_limit
-        # - mesh_delta_coeff
-        # - min_D_mix
+
+
+        # - writeout interval
 
         # - pgstar enable
 
@@ -93,17 +87,223 @@ class MesaInlistProjectFile:
         # - 
 
 
+    def add_control(self, section, control, value, category=None, skip_if_None=False):
+        """
+        skip_if_None: if True and value is None, do nothing (for optional keywords)
+        """
+        if skip_if_None and value is None:
+            return
+
+        inlist_control = MesaInlistControl(section=section, 
+                control=control,
+                value=value,
+                category=value)
+        
+        self.inlist_controls.append(inlist_control)
+
+
+
+    #############################################
+    ###### Preset combinations of controls ######
+    #############################################
+    def load_model(self, fname):
+        section = 'star_job'
+        category = 'load initial model'
+
+        self.add_control(section=section, category=category,
+                control='load_saved_model', value=True)
+        self.add_control(section=section, category=category,
+                control='load_model_filename', value=fname)
+        
+    def save_final_model(self, fname):
+        section = 'star_job'
+        category = 'save final model'
+
+        self.add_control(section=section, category=category,
+                control='save_model_when_terminate', value=True)
+        self.add_control(section=section, category=category,
+                control='save_model_filename', value=fname)
+
+    def enable_hydrodynamics(self):
+        section = 'star_job'
+        category = 'enable hydrodynamics'
+
+        self.add_control(section=section, category=category,
+                control='change_v_flag', value=True)
+        self.add_control(section=section, category=category,
+                control='change_initial_v_flag', value=True)
+        self.add_control(section=section, category=category,
+                control='new_v_flag', value=True)
+
+    def set_Zbase(self, Zbase=0.02):
+        section = 'kap'
+        
+        self.add_control(section=section,
+                control='use_Type2_opacities', value=True)
+        self.add_control(section=section,
+                control='Zbase', value=Zbase)
+
+    def change_net(self, net_name):
+        section = 'star_job'
+        category = 'reaction network'
+
+        self.add_control(section=section, category=category,
+                control='change_initial_net', value=True)
+        self.add_control(section=section, category=category,
+                control='new_net_name', value=net_name)
+
+    def relax_to_inner_BC(self, M_new_Msun=None, R_center_Rsun=None, L_center_Lsun=None,
+            dlgm_per_step=None, dlgR_per_step=None, dlgL_per_step=None,
+            relax_M_center_dt=None, relax_R_center_dt=None, relax_L_center_dt=None):
+        """
+        Relax to inner boundary condition
+        """
+        section = 'star_job'
+
+        if M_new_Msun is not None:
+            category = 'relax to inner BC: M_center'
+            comment = 'total mass in Msun'
+
+            self.add_control(section=section, category=category,
+                    control='relax_M_center', value=True)
+            self.add_control(section=section, category=category,
+                    control='new_mass', value=M_new_Msun, comment=comment)
+            
+            self.add_control(section=section, category=category, skip_if_None=True,
+                    control='dlgm_per_step', value=dlgm_per_step)
+            self.add_control(section=section, category=category, comment='sec', skip_if_None=True,
+                    control='relax_M_center_dt', value=relax_M_center_dt)
+
+        if R_center_Rsun is not None:
+            category = 'relax to inner BC: R_center'
+            R_center_cgs = R_center_Rsun * const.Rsun
+            comment = f'cm = {formatter.to_fortran(R_center_Rsun)} ! Rsun'
+
+            self.add_control(section=section, category=category,
+                    control='relax_R_center', value=True)
+            self.add_control(section=section, category=category,
+                    control='new_R_center', value=R_center_cgs, comment=comment)
+            
+            self.add_control(section=section, category=category, skip_if_None=True,
+                    control='dlgR_per_step', value=dlgR_per_step)
+            self.add_control(section=section, category=category, comment='sec', skip_if_None=True,
+                    control='relax_R_center_dt', value=relax_R_center_dt)    
+        
+        if L_center_Lsun is not None:
+            category = 'relax to inner BC: L_center'
+            L_center_cgs = L_center_Lsun * const.Lsun
+            comment = f'erg s-1 = {formatter.to_fortran(L_center_Lsun)} ! Lsun'
+
+            self.add_control(section=section, category=category,
+                    control='relax_L_center', value=True)
+            self.add_control(section=section, category=category,
+                    control='new_L_center', value=L_center_cgs, comment=comment)
+            
+            self.add_control(section=section, category=category, skip_if_None=True,
+                    control='dlgL_per_step', value=dlgL_per_step)
+            self.add_control(section=section, category=category, comment='sec', skip_if_None=True,
+                    control='relax_L_center_dt', value=relax_L_center_dt)
+
+    def drag_for_HSE(self, drag_coefficient, use_drag_energy=False):
+        """
+        For hydrodynamical mode, add extra drag coefficient
+        in order to relax model into HSE
+        """
+        section = 'controls'
+        category = 'artificial drag to relax into HSE'
+
+        self.add_control(section=section, category=category,
+                control='use_drag_energy', value=use_drag_energy)
+        self.add_control(section=section, category=category,
+                control='drag_coefficient', value=drag_coefficient)
+
+    def set_min_D_mix(self, min_D_mix,
+            mass_lower_limit_for_min_D_mix=None, mass_upper_limit_for_min_D_mix=None):
+        section = 'controls'
+        category = 'mixing: minimum mixing coefficient'
+
+        self.add_control(section=section, category=category,
+                control='set_min_D_mix', value=True)
+        self.add_control(section=section, category=category,
+                control='min_D_mix', value=min_D_mix)
+        
+        self.add_control(section=section, category=category, skip_if_None=True,
+                control='mass_lower_limit_for_min_D_mix', value=mass_lower_limit_for_min_D_mix)
+        self.add_control(section=section, category=category, skip_if_None=True,
+                control='mass_upper_limit_for_min_D_mix', value=mass_upper_limit_for_min_D_mix)
+
+    def set_max_num_retries(self, value):
+        self.add_control(section='controls', category='retry limit',
+            control='max_number_retries', value=value)
+        self.add_control(section='controls', category='retry limit',
+            control='relax_max_number_retries', value=value)
+
+
+
+    ###########################################
+    ###### Shortcuts for common controls ######
+    ###########################################
+    def create_pre_main_sequence_model(self, value=True):
+        self.add_control(section='star_job', category='create initial model',
+                control='create_pre_main_sequence_model', value=value)
+        
+        self.make_pre_ms = True
+
+    def use_gold_tolerances(self, value=True):
+        self.add_control(section='controls', category='solver',
+                control='use_gold_tolerances', value=value)
+    
+    def energy_eqn_option(self, value='dedt'):
+        """
+        either dedt or eps_grav
+        """
+        self.add_control(section='controls', category='solver',
+                control='energy_eqn_option', value=value)
+
+    def convergence_ignore_equL_residuals(self, value=True):
+        self.add_control(section='controls', category='solver',
+                control='convergence_ignore_equL_residuals', value=value)
+
+    def mesh_delta_coeff(self, value):
+        self.add_control(section='controls', category='resolution',
+                control='mesh_delta_coeff', value=value)
+    
+    def min_timestep_limit(self, value):
+        self.add_control(section='controls', category='timestepping',
+                control='min_timestep_limit', value=value)
+
+    def initial_y(self, value):
+        self.add_control(section='controls', category='initial composition',
+                control='initial_y', value=value)
+        
+        if not self.make_pre_ms:
+            warnings.warn('not used yet, need to make model from scratch (e.g., pre-MS)')
+    
+    def initial_z(self, value):
+        self.add_control(section='controls', category='initial composition',
+                control='initial_z', value=value)
+
+
 class MesaWorkDirectory:
     """
     Stores information for creating a custom MESA work directory
     """
+    def __init__(self):
+        ...
+        # - inlist pgstar
 
-    # - inlist pgstar
-
-    # - save shell for running, according to template
+        # - save shell for running, according to template
 
 
 
+    def save_directory(path):
+        """
+        Create MESA directory
+        """
+        # copy working directory
+
+
+        ...
 
 
 
