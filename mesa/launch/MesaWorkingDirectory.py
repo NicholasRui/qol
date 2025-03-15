@@ -4,7 +4,7 @@ import qol.paths as paths
 import numpy as np
 
 import matplotlib.pyplot as plt
-import networkx
+import networkx as nx
 
 import os
 import shutil
@@ -247,6 +247,7 @@ class MesaWorkingDirectory:
                     sorted_tasks.append(task)
                     level_products += task.products
                     hlevels.append(hlevel)
+                    vlevels.append(vlevel)
 
                     hlevel += 1
                     new_tasks += 1
@@ -268,6 +269,90 @@ class MesaWorkingDirectory:
         with open(f'{run_path}rn', 'w') as f:
             f.write(rn_text)
         
-        # make flowchart
+
+        # if desired, make flowchart which plots all of the tasks
+        # and shows dependencies of different inputs and outputs
         if make_flowchart:
-            ...
+            task_shape = 'o'
+            task_color = 'xkcd:golden yellow'
+            product_shape = 's'
+            product_color = 'xkcd:carolina blue'
+
+            # create directed graph where nodes are tasks or prereqs / products
+            G = nx.Graph()
+
+            # add nodes and edges
+            node_names = []
+            node_positions = {}
+            node_shapes = {}
+            node_colors = {}
+            edges = []
+
+            h, v = 0, -0.5
+
+            for rel_path in self.rel_paths_root_prereq: # add nodes for root prereqs
+                node_names.append(rel_path)
+                node_positions[rel_path] = (h, -2*v) # minus sign to make earlier levels higher on plot, 2* to make room for intermediate products
+                node_shapes[rel_path] = product_shape
+                node_colors[rel_path] = product_color
+
+                h += 1
+
+            v_current, h_product = 0, 0
+            for ii, task in enumerate(sorted_tasks): # add nodes and edges for tasks and their products
+                h, v = hlevels[ii], vlevels[ii]
+
+                task_node_name = f'({ii+1}) {task.rel_path}'
+
+                node_names.append(task_node_name)
+                node_positions[task_node_name] = (h, -2*v)
+                node_shapes[task_node_name] = task_shape
+                node_colors[task_node_name] = task_color
+
+                # for edge purposes, check if next vlevel achieved and update accordingly
+                if v != v_current:
+                    v_current = v
+                    h_product = 0
+
+                # add node for each product
+                for product in task.products:
+                    node_names.append(product)
+                    node_positions[product] = (h_product, -2*v-1) # minus sign to make earlier levels higher on plot
+                    node_shapes[product] = product_shape
+                    node_colors[product] = product_color
+
+                    h_product += 1
+                
+                # add edges
+                for prereq in task.prereqs:
+                    edges.append((task_node_name, prereq))
+                for product in task.products:
+                    edges.append((task_node_name, product))
+            
+            G.add_nodes_from(node_names)
+            G.add_edges_from(edges)
+
+            plt.close()
+            plt.figure(figsize=(10, 10))
+
+            # draw edges
+            nx.draw_networkx_edges(G, node_positions, edge_color='k', width=2)
+
+            # draw nodes
+            for node_name in node_names:
+                nx.draw_networkx_nodes(G, node_positions, nodelist=[node_name],
+                                      node_color=node_colors[node_name],
+                                      node_shape=node_shapes[node_name],
+                                      node_size=10000,
+                                      edgecolors='k')
+            
+            # draw labels
+            nx.draw_networkx_labels(G, node_positions, font_size=14, font_color='k')
+
+            # format figure
+            plt.axis('off')
+
+            plt.tight_layout()
+
+
+            plt.savefig(f'{run_path}/flowchart.png', bbox_inches='tight')
