@@ -186,7 +186,7 @@ def read_mod(fname):
 
                     match attr_type:
                         case 'str':
-                            attr_entry = str(attr_entry.replace('"', ''))
+                            attr_entry = str(attr_entry.replace('"', '').replace("'", ''))
                             
                         case 'float':
                             attr_entry = attr_entry.lower()

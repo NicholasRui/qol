@@ -13,7 +13,7 @@ def to_fortran(value):
         case float():
             return format(value, '.15e').replace('e', 'D')
         case str():
-            return value
+            return f"'{value}'"
         case None:
             warnings.warn('to_fortran: tried to convert None, returning empty string')
             return ''

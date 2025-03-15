@@ -140,13 +140,13 @@ class MesaTable(Table):
                 with open(template_path, 'r') as f:
                     text = f.read()
                 
-                text = text.replace('<<VERSION_NUMBER>>', version_number)
+                text = text.replace('<<VERSION_NUMBER>>', formatter.to_fortran(version_number))
                 text = text.replace('<<M_IN_MSUN>>', formatter.to_fortran(M_in_Msun))
                 text = text.replace('<<INITIAL_Z>>', formatter.to_fortran(initial_z))
                 text = text.replace('<<MODEL_NUMBER>>', formatter.to_fortran(model_number))
                 text = text.replace('<<STAR_AGE>>', formatter.to_fortran(star_age))
                 text = text.replace('<<N_SHELLS>>', formatter.to_fortran(N_shells))
-                text = text.replace('<<NET_NAME>>', net_name)
+                text = text.replace('<<NET_NAME>>', formatter.to_fortran(net_name))
                 text = text.replace('<<SPECIES>>', formatter.to_fortran(species))
                 text = text.replace('<<TIME>>', formatter.to_fortran(time))
                 text = text.replace('<<PREVIOUS_N_SHELLS>>', formatter.to_fortran(previous_N_shells))
