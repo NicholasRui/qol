@@ -1,7 +1,7 @@
 import numpy as np
 from astropy.table import Table, Column, unique
 
-from qol.mesa.data import MesaTable
+from qol.mesa.data.MesaTable import MesaTable
 
 # Attributes to look for and store
 model_attr_data_raw = \
