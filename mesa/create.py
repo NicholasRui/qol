@@ -6,12 +6,36 @@ import qol.paths as paths
 import qol.config as config
 import qol.helper.formatter as formatter
 
+from qol.mesa.launch.MesaInlist import MesaInlist
+
 import numpy as np
 from astropy.table import vstack
 
 import warnings
 
 
+def create_env_inlist_from_core(run_path, rel_path, core_mod_fname, M_env_Msun):
+    """
+    Given a core model, save an inlist which implements boundary conditions for corresponding envelope
+    This is meant to be called when creating an inlist as a prereq, i.e., when M_center and R_center are not known in advance of the run
+      but depend on the output of another run. If this is not the case, just use MesaInlist.relax_to_inner_BC by itself.
+    """
+    # Read models
+    core_model = read_mod(core_mod_fname)
+
+    # Calculate enclosed radius and mass needed
+    M_center_Msun = core_model.M_in_Msun[0]
+    R_center_Rsun = core_model.R_in_Rsun[0]
+    dlgR_per_step = 0.1 # by default: increase dlgR
+
+    # Create inlist
+    inlist = MesaInlist(rel_path, LOGS_dir=None)
+    inlist.relax_to_inner_BC(M_new_Msun=M_env_Msun+M_center_Msun,
+                             R_center_Rsun=R_center_Rsun,
+                             dlgR_per_step=dlgR_per_step)
+
+    # Save inlist
+    inlist.save(run_path)
 
 
 

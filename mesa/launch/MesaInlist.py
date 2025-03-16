@@ -1,5 +1,5 @@
 
-from qol.mesa.launch.MesaInlistControl import MesaInlistControl
+from qol.mesa.launch.MesaControl import MesaControl
 import qol.config as config
 import qol.mesa.const as const
 import qol.helper.formatter as formatter
@@ -10,7 +10,7 @@ import warnings
 
 
 
-class MesaInlistProjectFile:
+class MesaInlist:
     """
     Stores inlist information for MESA 
     """
@@ -26,14 +26,19 @@ class MesaInlistProjectFile:
         self.prereqs = [] # model files and other things which are required for this to work
         self.products = [] # model files and other things which are saved by this inlist
 
-        # Mandatory controls
-        if LOGS_dir[-1] != '/':
-            LOGS_dir += '/'
-        self.add_control(namelist='controls', control='log_directory', value=LOGS_dir)
+        if LOGS_dir is not None: # unless LOGS_dir is explicitly set to None, automatically define it
+            if LOGS_dir[-1] != '/':
+                LOGS_dir += '/'
+            self.add_control(namelist='controls', control='log_directory', value=LOGS_dir)
 
         # defaults
-        self.make_pre_ms = False
+        self.make_new_model = False
         self.use_pgstar = False # if True, also copy in qol preset inlist_pgstar
+
+        self.num_extra_star_job_inlists = 0
+        self.num_extra_controls_inlists = 0
+        # self.num_extra_pgstar_inlists = 0
+
 
         # TODO
         # - disable specific nuclear reactions (or groups, like pp chain)
@@ -41,6 +46,10 @@ class MesaInlistProjectFile:
         # - mass_change? max or min star etc..
         # - add easy function for making a wind
         # - define metal fractions
+
+        # - core definitions
+
+        # automate settling, overshoot
 
         # - saving an inlist should add comments at the top about how this was generated, and what version
         # - limit_for_rel_error_in_energy_conservation
@@ -64,7 +73,7 @@ class MesaInlistProjectFile:
         if skip_if_None and value is None:
             return
 
-        inlist_control = MesaInlistControl(namelist=namelist, 
+        inlist_control = MesaControl(namelist=namelist, 
                 control=control,
                 value=value,
                 category=category,
@@ -81,6 +90,10 @@ class MesaInlistProjectFile:
         if abs_path is None, still return the text but don't save anything
         """
         namelist_names = ['star_job', 'eos', 'kap', 'controls']
+        
+        if not self.enable_pgstar: # kludge to make a blank pgstar section
+            namelist_names += ['pgstar']
+
         namelist_texts = []
 
         # grab attributes from existing inlist controls
@@ -187,6 +200,47 @@ class MesaInlistProjectFile:
         self.add_control(namelist=namelist, category=category,
                 control='new_net_name', value=net_name)
 
+    def read_extra_inlist(self, namelist, rel_path, category=None, comment=None):
+        """
+        read extra inlist (used specifically in the case that it is a prereq)
+
+        namelist is either 'star_job' or 'controls' for now
+        """
+        match namelist:
+            case 'star_job':
+                self.num_extra_star_job_inlists += 1
+                control_bool = f'read_extra_star_job_inlist({self.num_extra_star_job_inlists})'
+                control_path = f'extra_star_job_inlist_name({self.num_extra_star_job_inlists})'
+
+            case 'controls':
+                self.num_extra_controls_inlists += 1
+                control_bool = f'read_extra_controls_inlist({self.num_extra_controls_inlists})'
+                control_path = f'extra_controls_inlist_name({self.num_extra_controls_inlists})'
+        
+            case 'pgstar':
+                raise ValueError('namelist not yet supported: pgstar')
+
+            case _:
+                raise ValueError(f'invalid namelist: {namelist}')
+
+        self.add_control(namelist=namelist, category=category, comment=comment,
+                control=control_bool, value=True)
+        self.add_control(namelist=namelist, category=category, comment=comment,
+                control=control_path, value=rel_path)
+
+        self.prereqs.append(rel_path)
+
+    def create_initial_model(self, M_in_Msun, R_in_Rsun):
+        self.add_control(namelist='star_job', category='create initial model',
+                control='create_initial_model', value=True)
+        
+        self.add_control(namelist='star_job', category='create initial model',
+                control='mass_in_gm_for_create_initial_model', value=M_in_Msun * const.Msun)
+        self.add_control(namelist='star_job', category='create initial model',
+                control='radius_in_cm_for_create_initial_model', value=R_in_Rsun * const.Rsun)
+        
+        self.make_new_model = True
+
     def relax_to_inner_BC(self, M_new_Msun=None, R_center_Rsun=None, L_center_Lsun=None,
             dlgm_per_step=None, dlgR_per_step=None, dlgL_per_step=None,
             relax_M_center_dt=None, relax_R_center_dt=None, relax_L_center_dt=None):
@@ -239,7 +293,7 @@ class MesaInlistProjectFile:
             self.add_control(namelist=namelist, category=category, comment='sec', skip_if_None=True,
                     control='relax_L_center_dt', value=relax_L_center_dt)
 
-    def drag_for_HSE(self, drag_coefficient, use_drag_energy=False):
+    def add_drag_for_HSE(self, drag_coefficient, use_drag_energy=False):
         """
         For hydrodynamical mode, add extra drag coefficient
         in order to relax model into HSE
@@ -273,6 +327,27 @@ class MesaInlistProjectFile:
         self.add_control(namelist='controls', category='retry limit',
             control='relax_max_number_retries', value=value)
 
+    def reset_age(self):
+        self.add_control(namelist='star_job', category='reset age',
+            control='set_initial_age', value=True)
+        self.add_control(namelist='star_job', category='reset age',
+            control='initial_age', value=0.)
+
+    def reset_model_number(self):
+        self.add_control(namelist='star_job', category='reset age',
+            control='set_initial_model_number', value=True)
+        self.add_control(namelist='star_job', category='reset age',
+            control='initial_model_number', value=0)
+
+    def relax_initial_mass(self, M_new_Msun, lg_max_abs_mdot=None):
+        self.add_control(namelist='star_job', category='relax mass',
+            control='relax_initial_mass', value=True)
+        self.add_control(namelist='star_job', category='relax mass',
+            control='new_mass', value=M_new_Msun)
+        
+        self.add_control(namelist='star_job', category='relax mass', skip_if_None=True,
+            control='lg_max_abs_mdot', value=lg_max_abs_mdot)
+
     ###########################################
     ###### Shortcuts for common controls ######
     ###########################################
@@ -280,7 +355,7 @@ class MesaInlistProjectFile:
         self.add_control(namelist='star_job', category='create initial model',
                 control='create_pre_main_sequence_model', value=value)
         
-        self.make_pre_ms = True
+        self.make_new_model = True
 
     def use_gold_tolerances(self, value=True):
         self.add_control(namelist='controls', category='solver',
@@ -297,23 +372,35 @@ class MesaInlistProjectFile:
         self.add_control(namelist='controls', category='solver',
                 control='convergence_ignore_equL_residuals', value=value)
 
+    def limit_for_rel_error_in_energy_conservation(self, value):
+        self.add_control(namelist='controls', category='solver',
+                control='limit_for_rel_error_in_energy_conservation', value=value)
+
     def mesh_delta_coeff(self, value):
         self.add_control(namelist='controls', category='resolution',
                 control='mesh_delta_coeff', value=value)
     
+    def min_dq(self, value):
+        self.add_control(namelist='controls', category='resolution',
+                control='min_dq', value=value)
+
     def min_timestep_limit(self, value):
         self.add_control(namelist='controls', category='timestepping',
                 control='min_timestep_limit', value=value)
 
+    def initial_mass(self, value):
+        self.add_control(namelist='controls', category='initial mass and composition',
+                control='initial_mass', value=value)
+
     def initial_y(self, value):
-        self.add_control(namelist='controls', category='initial composition',
+        self.add_control(namelist='controls', category='initial mass and composition',
                 control='initial_y', value=value)
         
-        if not self.make_pre_ms:
+        if not self.make_new_model:
             warnings.warn('not used yet, need to make model from scratch (e.g., pre-MS)')
     
     def initial_z(self, value):
-        self.add_control(namelist='controls', category='initial composition',
+        self.add_control(namelist='controls', category='initial mass and composition',
                 control='initial_z', value=value)
     
     def disable_mixing(self):
@@ -336,6 +423,42 @@ class MesaInlistProjectFile:
         self.add_control(namelist='controls', category='termination conditions', comment='yr',
                 control='max_age', value=value)
     
+    def Teff_upper_limit(self, value):
+        self.add_control(namelist='controls', category='termination conditions',
+                control='Teff_upper_limit', value=value)
+
+    def Teff_lower_limit(self, value):
+        self.add_control(namelist='controls', category='termination conditions',
+                control='Teff_lower_limit', value=value)
+    
+    def max_model_number(self, value):
+        self.add_control(namelist='controls', category='termination conditions',
+                control='max_model_number', value=value)
+    
+    def he_core_mass_limit(self, value):
+        self.add_control(namelist='controls', category='termination conditions',
+                control='he_core_mass_limit', value=value)
+    
+    def co_core_mass_limit(self, value):
+        self.add_control(namelist='controls', category='termination conditions',
+                control='co_core_mass_limit', value=value)
+    
+    def one_core_mass_limit(self, value):
+        self.add_control(namelist='controls', category='termination conditions',
+                control='one_core_mass_limit', value=value)
+
+    def he_core_boundary_h1_fraction(self, value):
+        self.add_control(namelist='controls', category='core definition',
+                control='he_core_boundary_h1_fraction', value=value)
+    
+    def co_core_boundary_he4_fraction(self, value):
+        self.add_control(namelist='controls', category='core definition',
+                control='co_core_boundary_he4_fraction', value=value)
+    
+    def one_core_boundary_he4_c12_fraction(self, value):
+        self.add_control(namelist='controls', category='core definition',
+                control='one_core_boundary_he4_c12_fraction', value=value)
+
     def show_pgstar(self, abs_path=None):
         self.add_control(namelist='star_job', category='enable pgstar',
                 control='pgstar_flag', value=True)
@@ -347,3 +470,10 @@ class MesaInlistProjectFile:
 
         # Store information about pgstar path, if specified
         self.inlist_pgstar_path = abs_path
+
+    def write_model_with_profile(self):
+        self.add_control(namelist='controls', category='write-out',
+                control='write_model_with_profile', value=True)
+
+
+
