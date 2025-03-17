@@ -3,7 +3,7 @@ Purpose: Class keeps track of seismic quantities and performs common calculation
 """
 from qol.mesa.data.MesaTable import MesaTable
 import qol.mesa.const as const
-from qol.helper.integrate import trapz_cond
+from qol.tools.integrate import trapz_cond
 
 import numpy as np
 from scipy.integrate import cumulative_trapezoid
@@ -32,11 +32,6 @@ def get_magnetic_acrit(l, m=None, acrit_ref='F+15'):
             raise ValueError(f'ac_ref is not valid: {acrit_ref}')
 
     return acrit
-
-
-
-
-
 
 class Seismology:
     """
@@ -102,6 +97,7 @@ class Seismology:
     ##############################
     ##### READ IN QUANTITIES #####
     ##############################
+
     def initialize_R(self, R, R_in_Rsun):
         self.R = np.array(R) if R is not None else None
     
@@ -238,6 +234,7 @@ class Seismology:
     ############################
     ##### HELPER FUNCTIONS #####
     ############################
+
     def get_ω(self, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
         """
         Helper method which allows other methods to take a frequency in multiple formats,
@@ -256,6 +253,7 @@ class Seismology:
     ##############################################
     ##### CALCULATE BASIC SEISMIC QUANTITIES #####
     ##############################################
+
     def get_is_prop(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, proptype=None):
         """
         Return array of Booleans which says whether a mode with a given frequency is propagating or not
@@ -466,8 +464,44 @@ class Seismology:
 
         return δν_mag_uHz
 
+    ################################################
+    ##### SEISMIC ROTATION MEASUREMENT METHODS #####
+    ################################################
+
+    def get_avg_Ωrot_g(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
+        """
+        Average of Ωrot over the g-mode cavity, as sensed by a given mode
+        
+        If Ωrot was given as a float, just return it as-is
+        """
+        assert self.Ωrot is not None
+
+        if type(self.Ωrot) == float:
+            return self.Ωrot
+        
+        is_g = self.get_is_prop(l=l, ω=ω, proptype='g')
+        avg_Ωrot_g = trapz_cond(x=self.R, y=self.N * self.Ωrot / self.R, c=is_g)
+
+        return avg_Ωrot_g
 
 
+
+# ........................................................................................................................
+
+
+
+
+
+
+    def get_δν_mag(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
+        """
+        Calls get_ωB but converts output to different units
+        """
+        δω_mag = self.get_δω_mag(l=l, ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
+        δν_mag = δω_mag / 2 / np.pi
+
+        return δν_mag
+    
 
 
 
