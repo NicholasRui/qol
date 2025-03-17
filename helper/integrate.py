@@ -1,20 +1,21 @@
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
-import pdb
+# import pdb
 
 
-def cumtrapz_cond(x, y, c=None):
+def trapz_cond(x, y, c=None):
     """
-    Do cumtrapz over the function y,
-    possibly conditioned upon condition c > 0.
+    Do trapz over the function y,
+    possibly conditioned upon condition c (array of bool).
 
     All must be equal-sized arrays
     """
     # Make sure things are arrays
     x, y = np.array(x), np.array(y)
     if c is not None:
-        c = np.array(c)
+        assert c.dtype == np.bool_
+        c = np.array(c).astype(int)
     else:
         c = np.ones(len(x))
     
@@ -47,8 +48,6 @@ def cumtrapz_cond(x, y, c=None):
 
     int_y_dx = np.sum(y_dx)
 
-    print(dx)
-
     return int_y_dx
 
 
@@ -57,28 +56,28 @@ def cumtrapz_cond(x, y, c=None):
 # y = x ** 2
 # c = x - 2
 
-x = np.array([0, 1])
-y = np.array([0, 1])
-c = np.array([1, -1])
+# x = np.array([0, 1])
+# y = np.array([0, 1])
+# c = np.array([1, -1])
 
-int_y_dx_old = []
-int_y_dx_new = []
-int_y_dx_newf = []
-for ii in range(len(x)):
-    int_y_dx_old.append(np.trapz(x=x[:ii+1][c[:ii+1]>0], y=y[:ii+1][c[:ii+1]>0]))
-    int_y_dx_new.append(cumtrapz_cond(x[:ii+1], y[:ii+1], c[:ii+1]))
+# int_y_dx_old = []
+# int_y_dx_new = []
+# int_y_dx_newf = []
+# for ii in range(len(x)):
+#     int_y_dx_old.append(np.trapz(x=x[:ii+1][c[:ii+1]>0], y=y[:ii+1][c[:ii+1]>0]))
+#     int_y_dx_new.append(cumtrapz_cond(x[:ii+1], y[:ii+1], c[:ii+1]))
 
-    int_y_dx_newf.append(cumtrapz_cond(np.flip(x[:ii+1]), np.flip(y[:ii+1]), np.flip(c[:ii+1])))
-# int_y_dx_the = x ** 3 / 3 - 8 / 3
-# int_y_dx_the[c<0] = 0
+#     int_y_dx_newf.append(cumtrapz_cond(np.flip(x[:ii+1]), np.flip(y[:ii+1]), np.flip(c[:ii+1])))
+# # int_y_dx_the = x ** 3 / 3 - 8 / 3
+# # int_y_dx_the[c<0] = 0
 
-plt.close()
-plt.scatter(x, int_y_dx_old, label='old', s=1)
-plt.scatter(x, int_y_dx_new, label='new', s=1)
-plt.scatter(x, int_y_dx_newf, label='newf', s=1)
-# plt.scatter(x, int_y_dx_the, label='theory', s=1)
-plt.legend(loc='upper left')
-plt.show()
+# plt.close()
+# plt.scatter(x, int_y_dx_old, label='old', s=1)
+# plt.scatter(x, int_y_dx_new, label='new', s=1)
+# plt.scatter(x, int_y_dx_newf, label='newf', s=1)
+# # plt.scatter(x, int_y_dx_the, label='theory', s=1)
+# plt.legend(loc='upper left')
+# plt.show()
 
 
 
