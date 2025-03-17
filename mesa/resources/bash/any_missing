@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Given a list, check if all of those files exist. Return 0 if yes and 1 if no.
+
+missing=0
+
+for file in "$@"; do
+    if [ -e "$file" ]; then
+        echo "  QOL: '$file' exists."
+    else
+        echo "  QOL: '$file' does not exist."
+        ((missing++))
+    fi
+done
+
+if [ $missing -eq 0 ]; then
+    echo 'QOL: Found all files checked!'
+    exit 0
+else
+    echo 'QOL: Missing at least one file checked.'
+    exit 1
+fi

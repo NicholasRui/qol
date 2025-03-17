@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# Run a MESA inlist ($1) after deleting the previous LOGS file produced by it ($2)
+
 function check_okay {
     if [ $? -ne 0 ]; then
             exit 1

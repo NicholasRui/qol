@@ -1,5 +1,6 @@
 import qol.config as config
 import qol.paths as paths
+import qol.tools.formatter as formatter
 
 import numpy as np
 
@@ -112,36 +113,11 @@ class MesaWorkingDirectory:
         else:
             raise ValueError(f'No path found: {abs_path}')
 
-    # def copy_inlist_pgstar(self, abs_path=None):
-    #     """
-    #     Copy inlist_pgstar file from abs_path
-
-    #     None means try to find a preset one defined in qol.
-    #     """
-    #     if os.path.exists(abs_path):
-    #         self.inlist_pgstar_path = abs_path
-    #     else:
-    #         raise ValueError(f'No path found: {abs_path}')
-
-    # def check_and_sort(self):
-    #     """
-    #     Make sure output and LOGS names do not overlap, and
-    #     that each inlist will eventually have its prereqs
-    #     """
-    #     # loop through until either everything is counted or the number of things doesn't change
-
-    #     ...
-
-    # def save_flowchart(self):
-    #     """
-    #     Make flowchart which shows what is run in which order,
-    #     and which outputs are being used as inputs
-    #     """
-    #     ...
-
-    def save_directory(self, make_flowchart=True):
+    def save_directory(self, grant_perms=False, make_flowchart=True):
         """
         Create MESA directory
+
+        grant_perms: if True, grants permissions for bash files that need to be run
         """
         # CREATE NEW MESA DIRECTORY
         run_path = self.run_path
@@ -206,11 +182,51 @@ class MesaWorkingDirectory:
         # if self.inlist_pgstar_path is not None:
         #     shutil.copy(self.inlist_pgstar_path, f'{run_path}inlist_pgstar')
 
-        # copy over other files
-        shutil.copy(f'{paths.qol_path}/mesa/resources/do_one', f'{run_path}do_one')
-        shutil.copy(f'{paths.qol_path}/mesa/resources/re', f'{run_path}re')
+        # copy over helper files
+        shutil.copy(f'{paths.qol_path}/mesa/resources/bash/do_one', f'{run_path}do_one')
+        shutil.copy(f'{paths.qol_path}/mesa/resources/bash/any_missing', f'{run_path}any_missing')
 
-        # save all root prereqs
+        # create rn and re
+        # rn will call any_missing and do things if False, and terminate if not
+        # re will call any_missing and do things if True, and skip if true
+
+        # helper lambda which writes an if statement based on check_exists
+        check_missing_template = ''
+        check_missing_template += './any_missing <<FILES>>\n'
+        check_missing_template += 'missing=$?\n'
+        check_missing_template += 'if [ $missing -eq 0 ]; then\n'
+        check_missing_template += '    <<NONE_MISSING>>\n'
+        check_missing_template += 'else\n'
+        check_missing_template += '    <<SOME_MISSING>>\n'
+        check_missing_template += 'fi\n\n'
+
+        check_if_missing = lambda fname_list, if_none_missing, if_some_missing: \
+          check_missing_template.replace('<<FILES>>', ' '.join([formatter.to_fortran(fname) for fname in fname_list])) \
+                                .replace('<<NONE_MISSING>>', if_none_missing) \
+                                .replace('<<SOME_MISSING>>', if_some_missing)
+
+        ### Start rn text
+        rn_text = ''
+        rn_text += '#!/bin/bash\n\n'
+        rn_text += '# rn script\n\n'
+
+        # root prereqs
+        rn_text += '# Check root prereqs\n'
+        rn_text += check_if_missing(fname_list=self.rel_paths_root_prereq, \
+                if_none_missing="echo 'QOL: ALL ROOT PREREQS FOUND, CONTINUE!'", \
+                if_some_missing="echo 'QOL: SOME ROOT PREREQS MISSING, EXIT'\n    exit 1")
+
+        ### Start re text
+        re_text = ''
+        re_text += '#!/bin/bash\n\n'
+        re_text += '# re script\n\n'
+
+        re_text += '# Check root prereqs\n'
+        re_text += check_if_missing(fname_list=self.rel_paths_root_prereq, \
+                if_none_missing="echo 'QOL: ALL ROOT PREREQS FOUND, CONTINUE!'", \
+                if_some_missing="echo 'QOL: SOME ROOT PREREQS MISSING, EXIT'\n    exit 1")
+
+        # copy all root prereqs
         for ii, rel_path in enumerate(self.rel_paths_root_prereq):
             copy_from_abs_path = self.copy_from_path_root_prereqs[ii]
             shutil.copy(copy_from_abs_path, f'{self.run_path}/{rel_path}')
@@ -227,8 +243,6 @@ class MesaWorkingDirectory:
         task_ids = [] # dummy index to skip tasks which have been handled
         vlevel, hlevel = 0, 0
 
-        rn_text = ''
-
         while True:
             new_tasks = 0
 
@@ -240,7 +254,21 @@ class MesaWorkingDirectory:
                 # if all prereqs are in existing_products exist,
                 # run task, then add task to sorted_tasks and increment
                 if np.in1d(task.prereqs, existing_products).all():
-                    rn_text += f'{task.rn_string()}\n' # add to rn_text
+                    # Add strings to rn and re
+                    full_rn_string = f'# Try to run {task.rel_path}\n'
+                    full_re_string = f'# Try to run {task.rel_path}\n'
+
+                    full_rn_string += check_if_missing(fname_list=task.prereqs, \
+                            if_none_missing=task.rn_string(), \
+                            if_some_missing=f"echo 'QOL: SOME PREREQS MISSING FOR {task.rel_path}, EXIT'\n    exit 1")
+                    full_re_string += check_if_missing(fname_list=task.products, \
+                            if_none_missing=f"echo 'QOL: ALL PRODUCTS FOUND, SKIPPING {task.rel_path}'", \
+                            if_some_missing=task.rn_string())
+                    
+                    rn_text += full_rn_string
+                    re_text += full_re_string
+
+                    # Save task
                     task.save(run_path=run_path)
 
                     task_ids.append(ii)
@@ -265,10 +293,25 @@ class MesaWorkingDirectory:
             if len(sorted_tasks) == len(self.tasks):
                 break
 
-        # save rn file
+        ### End rn text and save rn file
+        rn_text += "echo 'QOL: All tasks successfully completed!'\n"
+        rn_text += 'exit 0\n'
+
         with open(f'{run_path}rn', 'w') as f:
             f.write(rn_text)
         
+        ### End re text and save rn file
+        re_text += "echo 'QOL: All tasks successfully completed!'\n"
+        re_text += 'exit 0\n'
+
+        with open(f'{run_path}re', 'w') as f:
+            f.write(re_text)
+        
+        if grant_perms:
+            os.chmod(f'{run_path}do_one', 0o755)
+            os.chmod(f'{run_path}any_missing', 0o755)
+            os.chmod(f'{run_path}rn', 0o755)
+            os.chmod(f'{run_path}re', 0o755)
 
         # if desired, make flowchart which plots all of the tasks
         # and shows dependencies of different inputs and outputs
