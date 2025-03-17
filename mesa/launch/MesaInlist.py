@@ -75,11 +75,11 @@ class MesaInlist:
         """
         return f'./do_one {self.rel_path} {self.LOGS_dir}'
 
-    def add_control(self, namelist, control, value, category=None, comment=None, skip_if_None=False):
+    def add_control(self, namelist, control, value, category=None, comment=None, optional=False):
         """
-        skip_if_None: if True and value is None, do nothing (for optional keywords)
+        optional: if True and value is None, do nothing (for optional keywords)
         """
-        if skip_if_None and value is None:
+        if optional and value is None:
             return
 
         inlist_control = MesaControl(namelist=namelist, 
@@ -205,6 +205,20 @@ class MesaInlist:
     he_core_mass_limit = terminate.he_core_mass_limit
     co_core_mass_limit = terminate.co_core_mass_limit
     one_core_mass_limit = terminate.one_core_mass_limit
+    stop_near_zams = terminate.stop_near_zams
+    stop_at_phase_PreMS = terminate.stop_at_phase_PreMS
+    stop_at_phase_ZAMS = terminate.stop_at_phase_ZAMS
+    stop_at_phase_IAMS = terminate.stop_at_phase_IAMS
+    stop_at_phase_TAMS = terminate.stop_at_phase_TAMS
+    stop_at_phase_He_Burn = terminate.stop_at_phase_He_Burn
+    stop_at_phase_ZACHeB = terminate.stop_at_phase_ZACHeB
+    stop_at_phase_TACHeB = terminate.stop_at_phase_TACHeB
+    stop_at_phase_TP_AGB = terminate.stop_at_phase_TP_AGB
+    stop_at_phase_C_Burn = terminate.stop_at_phase_C_Burn
+    stop_at_phase_Ne_Burn = terminate.stop_at_phase_Ne_Burn
+    stop_at_phase_O_Burn = terminate.stop_at_phase_O_Burn
+    stop_at_phase_Si_Burn = terminate.stop_at_phase_Si_Burn
+    stop_at_phase_WDCS = terminate.stop_at_phase_WDCS
 
     show_pgstar = pgstar.show_pgstar
     enable_pgstar = pgstar.enable_pgstar

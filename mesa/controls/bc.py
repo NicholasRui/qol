@@ -17,9 +17,9 @@ def relax_to_inner_BC(self, M_new_Msun=None, R_center_Rsun=None, L_center_Lsun=N
         self.add_control(namelist=namelist, category=category,
                 control='new_mass', value=M_new_Msun, comment=comment)
         
-        self.add_control(namelist=namelist, category=category, skip_if_None=True,
+        self.add_control(namelist=namelist, category=category, optional=True,
                 control='dlgm_per_step', value=dlgm_per_step)
-        self.add_control(namelist=namelist, category=category, comment='sec', skip_if_None=True,
+        self.add_control(namelist=namelist, category=category, comment='sec', optional=True,
                 control='relax_M_center_dt', value=relax_M_center_dt)
 
     if R_center_Rsun is not None:
@@ -32,9 +32,9 @@ def relax_to_inner_BC(self, M_new_Msun=None, R_center_Rsun=None, L_center_Lsun=N
         self.add_control(namelist=namelist, category=category,
                 control='new_R_center', value=R_center_cgs, comment=comment)
         
-        self.add_control(namelist=namelist, category=category, skip_if_None=True,
+        self.add_control(namelist=namelist, category=category, optional=True,
                 control='dlgR_per_step', value=dlgR_per_step)
-        self.add_control(namelist=namelist, category=category, comment='sec', skip_if_None=True,
+        self.add_control(namelist=namelist, category=category, comment='sec', optional=True,
                 control='relax_R_center_dt', value=relax_R_center_dt)    
     
     if L_center_Lsun is not None:
@@ -47,8 +47,8 @@ def relax_to_inner_BC(self, M_new_Msun=None, R_center_Rsun=None, L_center_Lsun=N
         self.add_control(namelist=namelist, category=category,
                 control='new_L_center', value=L_center_cgs, comment=comment)
         
-        self.add_control(namelist=namelist, category=category, skip_if_None=True,
+        self.add_control(namelist=namelist, category=category, optional=True,
                 control='dlgL_per_step', value=dlgL_per_step)
-        self.add_control(namelist=namelist, category=category, comment='sec', skip_if_None=True,
+        self.add_control(namelist=namelist, category=category, comment='sec', optional=True,
                 control='relax_L_center_dt', value=relax_L_center_dt)
 

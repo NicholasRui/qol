@@ -39,7 +39,7 @@ def relax_initial_mass(self, M_new_Msun, lg_max_abs_mdot=None):
     self.add_control(namelist='star_job', category='relax mass',
         control='new_mass', value=M_new_Msun)
         
-    self.add_control(namelist='star_job', category='relax mass', skip_if_None=True,
+    self.add_control(namelist='star_job', category='relax mass', optional=True,
         control='lg_max_abs_mdot', value=lg_max_abs_mdot)
 
 def reset_age(self):
