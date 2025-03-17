@@ -35,6 +35,21 @@ class MesaTable(Table):
             case 'model':
                 self.update_attributes_for_model()
 
+    def update_attributes_for_history(self):
+        # TODO: add other useful stuff
+
+
+        if 'delta_nu' in self.keys():
+            self.delta_nu_in_uHz = self['delta_nu']
+            self.delta_nu = 1e-6 * self.delta_nu_in_uHz
+
+        if 'delta_Pg' in self.keys():
+            self.delta_Pg = self['delta_Pg']
+
+        if 'nu_max' in self.keys():
+            self.nu_max_in_uHz = self['nu_max']
+            self.nu_max = 1e-6 * self.nu_max_in_uHz
+
     def update_attributes_for_profile(self):
         if 'mass' in self.keys():
             self.mass = self.M_in_Msun = self['mass']
@@ -69,7 +84,70 @@ class MesaTable(Table):
             self.lnP = const.ln10 * self.logP
             self.P = 10 ** self.logP
 
-        # brunt_N2?
+        if 'brunt_N2' in self.keys():
+            self.N2 = self['brunt_N2']
+            self.N = np.clip(self.brunt_N2, a_min=0, a_max=None) # Brunt zeroed out at imaginary values
+
+            self.N_div_2pi = self.N / (2 * const.pi)
+            self.N_in_uHz = 1e6 * self.N
+            self.N_div_2pi_in_uHz = 1e6 * self.N_div_2pi
+
+        if 'brunt_N2_structure_term' in self.keys():
+            self.N2_structure_term = self['brunt_N2_structure_term']
+            self.N_structure_term = np.clip(self.brunt_N2_structure_term, a_min=0, a_max=None) # Brunt zeroed out at imaginary values
+
+            self.N_structure_term_div_2pi = self.N_structure_term / (2 * const.pi)
+            self.N_structure_term_in_uHz = 1e6 * self.N_structure_term
+            self.N_structure_term_div_2pi_in_uHz = 1e6 * self.N_structure_term_div_2pi
+
+        if 'brunt_N2_composition_term' in self.keys():
+            self.N2_composition_term = self['brunt_N2_composition_term']
+            self.N_composition_term = np.clip(self.brunt_N2_composition_term, a_min=0, a_max=None) # Brunt zeroed out at imaginary values
+
+            self.N_composition_term_div_2pi = self.N_composition_term / (2 * const.pi)
+            self.N_composition_term_in_uHz = 1e6 * self.N_composition_term
+            self.N_composition_term_div_2pi_in_uHz = 1e6 * self.N_composition_term_div_2pi
+        
+        if 'csound' in self.keys():
+            self.csound = self['csound']
+
+        have_S = False
+        if 'lamb_S2' in self.keys():
+            self.Sl1_2 = self['lamb_S2']
+            self.Sl1 = np.sqrt(self.Sl1_2)
+
+            have_S = True
+        elif 'lamb_S': # MESA writes this in Hz by default
+            self.Sl1 = self['lamb_S']
+            self.Sl1_2 = self.Sl1 ** 2
+
+            have_S = True
+        elif 'lamb_Sl1': # MESA writes this in uHz by default, so need to convert
+            self.Sl1 = 1e-6 * self['lamb_Sl1']
+            self.Sl1_2 = self.Sl1 ** 2
+
+            have_S = True
+        elif ('csound' in self.keys()) and ('logR' in self.keys()):
+            self.Sl1 = const.sqrt2 * self.csound / self.R
+            self.Sl1_2 = self.Sl1 ** 2
+
+            have_S = True
+
+        if have_S: # if have Lamb frequency somehow, calculate some more stuff
+            self.Sl2 = np.sqrt(3) * self.Sl1
+            self.Sl3 = np.sqrt(6) * self.Sl1
+
+            self.Sl1_div_2pi = self.Sl1 / (2 * const.pi)
+            self.Sl2_div_2pi = self.Sl2 / (2 * const.pi)
+            self.Sl3_div_2pi = self.Sl3 / (2 * const.pi)
+
+            self.Sl1_in_uHz = 1e6 * self.Sl1
+            self.Sl2_in_uHz = 1e6 * self.Sl2
+            self.Sl3_in_uHz = 1e6 * self.Sl3
+
+            self.Sl1_div_2pi_in_uHz = 1e6 * self.Sl1_div_2pi
+            self.Sl2_div_2pi_in_uHz = 1e6 * self.Sl2_div_2pi
+            self.Sl3_div_2pi_in_uHz = 1e6 * self.Sl3_div_2pi
 
     def update_attributes_for_model(self):
         if 'lnd' in self.keys():
