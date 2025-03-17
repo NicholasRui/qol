@@ -3,8 +3,6 @@
 
 Make some code for prop diagrams with different x axis options
 
-have a file with all of mesa’s constants in it
-
 Makes magnetic quantities and does some integrals better
 
 Subclass of ax that can easily make them fancy and make log spaced ticks that are good
@@ -12,6 +10,7 @@ Subclass of ax that can easily make them fancy and make log spaced ticks that ar
 Make hr diagram easily
 
 
+- .sh files for launching jobs
 
 
 for mesatoolkit package:
@@ -53,4 +52,13 @@ test points and stuff for figure development in package
 In package, automatically plot magnetic white dwarfs B&L style
 
 package should be able to import both histories and profile at the same time
+
+
+
+
+
+
+
+Draw plot locations for grid spec in ascii symbols
+
 
