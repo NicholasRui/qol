@@ -19,6 +19,21 @@ import warnings
 class Seismology:
     """
     """
+    # Import attributes from other files
+    get_is_prop = methods_prop.get_is_prop
+    get_int_N_div_r_dr = methods_prop.get_int_N_div_r_dr
+    get_delta_Pg = methods_prop.get_delta_Pg
+    
+    get_magnetic_K = methods_mag.get_magnetic_K
+    get_magnetic_cumK = methods_mag.get_magnetic_cumK
+    get_magnetic_scriptI = methods_mag.get_magnetic_scriptI
+    get_Bcrit = methods_mag.get_Bcrit
+    get_ωB = methods_mag.get_ωB
+    get_avg_Br2 = methods_mag.get_avg_Br2
+    get_δω_mag = methods_mag.get_δω_mag
+
+    get_Ωrot_g = methods_rot.get_Ωrot_g
+
     def __init__(self,
             mesa_table: MesaTable = None,
             R: np.ndarray = None, R_in_Rsun: np.ndarray = None,
@@ -77,21 +92,6 @@ class Seismology:
         if type(self.Ωrot) in [np.ndarray, list]:
             assert len(self.R) == len(self.Ωrot)
 
-        # Import attributes from other files
-        get_is_prop = methods_prop.get_is_prop
-        get_int_N_div_r_dr = methods_prop.get_int_N_div_r_dr
-        get_delta_Pg = methods_prop.get_delta_Pg
-        
-        get_magnetic_K = methods_mag.get_magnetic_K
-        get_magnetic_cumK = methods_mag.get_magnetic_cumK
-        get_magnetic_scriptI = methods_mag.get_magnetic_scriptI
-        get_Bcrit = methods_mag.get_Bcrit
-        get_ωB = methods_mag.get_ωB
-        get_avg_Br2 = methods_mag.get_avg_Br2
-        get_δω_mag = methods_mag.get_δω_mag
-
-        get_Ωrot_g = methods_rot.get_Ωrot_g
-
 
 
     ##############################
@@ -105,7 +105,7 @@ class Seismology:
         if (self.R is not None) and (R_in_Rsun is not None):
             warnings.warn('Both R and R_in_Rsun specified: defaulting to former')
 
-        self.R = const.Rsun * np.array(R_in_Rsun) if self.R is None else self.R
+        self.R = const.Rsun * np.array(R_in_Rsun) if self.R is None and R_in_Rsun is not None else self.R
 
         if hasattr(self.mesa_table, 'R'):
             if self.R is not None:
@@ -125,7 +125,7 @@ class Seismology:
             warnings.warn('Both N and N_in_uHz specified: defaulting to former')
         
         # Alternative inputs
-        self.N = 1e-6 * np.array(N_in_uHz) if self.N is None else self.N
+        self.N = 1e-6 * np.array(N_in_uHz) if self.N is None and N_in_uHz is not None else self.N
 
         if hasattr(self.mesa_table, 'N'):
             if self.N is not None:
@@ -152,7 +152,7 @@ class Seismology:
             warnings.warn('Both Sl1 and Sl1_in_uHz specified: defaulting to former')
 
         # Alternative inputs
-        self.Sl1 = 1e-6 * np.array(Sl1_in_uHz) if self.Sl1 is None else self.Sl1
+        self.Sl1 = 1e-6 * np.array(Sl1_in_uHz) if self.Sl1 is None and Sl1_in_uHz is not None else self.Sl1
 
         if hasattr(self.mesa_table, 'Sl1'):
             if self.Sl1 is not None:
@@ -195,8 +195,8 @@ class Seismology:
             warnings.warn('Both Br_kG and Br_MG specified: defaulting to former') 
 
         # Alternative inputs
-        self.Br = 1e3 * np.array(self.Br_kG) if self.Br is None else self.Br
-        self.Br = 1e6 * np.array(self.Br_MG) if self.Br is None else self.Br
+        self.Br = 1e3 * np.array(Br_kG) if self.Br is None and Br_kG is not None else self.Br
+        self.Br = 1e6 * np.array(Br_MG) if self.Br is None and Br_MG is not None else self.Br
 
     def initialize_Ωrot(self, Ωrot, νrot, Ωrot_uHz, νrot_uHz, Prot, Prot_d):
         """
@@ -225,10 +225,10 @@ class Seismology:
         Prot_d = np.array(Prot_d) if type(Prot_d) in [np.ndarray, list] else Prot_d
 
         # Alternative inputs
-        self.Ωrot = 2 * np.pi * νrot if self.Ωrot is None else self.Ωrot
-        self.Ωrot = 1e-6 * Ωrot_uHz if self.Ωrot is None else self.Ωrot
-        self.Ωrot = 2 * np.pi * 1e-6 * νrot_uHz if self.Ωrot is None else self.Ωrot
-        self.Ωrot = 2 * np.pi / Prot if self.Ωrot is None else self.Ωrot
-        self.Ωrot = 2 * np.pi / (const.secday * Prot_d) if self.Ωrot is None else self.Ωrot
+        self.Ωrot = 2 * np.pi * νrot if self.Ωrot is None and νrot is not None else self.Ωrot
+        self.Ωrot = 1e-6 * Ωrot_uHz if self.Ωrot is None and Ωrot_uHz is not None else self.Ωrot
+        self.Ωrot = 2 * np.pi * 1e-6 * νrot_uHz if self.Ωrot is None and νrot_uHz is not None else self.Ωrot
+        self.Ωrot = 2 * np.pi / Prot if self.Ωrot is None and Prot is not None else self.Ωrot
+        self.Ωrot = 2 * np.pi / (const.secday * Prot_d) if self.Ωrot is None and Prot_d is not None else self.Ωrot
 
 
