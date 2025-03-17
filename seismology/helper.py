@@ -8,13 +8,14 @@ def get_ω(ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
     Method which allows other methods to take a frequency in multiple formats,
         and asserts that the user has only specified one of them
     """
-    provided_args = [ω, ν, ω_uHz, ν_uHz, P]
+    args = [ω, ν, ω_uHz, ν_uHz, P]
+    provided_args = sum([1 if arg is not None else 0 for arg in args])
     assert provided_args == 1
 
-    ω = 2 * np.pi * ν if ω is None else ω
-    ω = 1e-6 * ω_uHz if ω is None else ω
-    ω = 2 * np.pi * 1e-6 * ν_uHz if ω is None else ω
-    ω = 2 * np.pi / P if ω is None else ω
+    ω = 2 * np.pi * ν if ω is None and ν is not None else ω
+    ω = 1e-6 * ω_uHz if ω is None and ω_uHz is not None else ω
+    ω = 2 * np.pi * 1e-6 * ν_uHz if ω is None and ν_uHz is not None else ω
+    ω = 2 * np.pi / P if ω is None and P is not None else ω
 
     return ω
 
