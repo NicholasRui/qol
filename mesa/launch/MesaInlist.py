@@ -17,6 +17,7 @@ import mesa.controls.resolution as resolution
 import mesa.controls.solver as solver
 import mesa.controls.timestep as timestep
 import mesa.controls.coredef as coredef
+import mesa.controls.wind as wind
 
 import numpy as np
 
@@ -51,6 +52,14 @@ class MesaInlist:
         self.num_extra_star_job_inlists = 0
         self.num_extra_controls_inlists = 0
         # self.num_extra_pgstar_inlists = 0
+
+        self.Reimers_scaling_factor = None
+        self.Blocker_scaling_factor = None
+        self.de_Jager_scaling_factor = None
+        self.van_Loon_scaling_factor = None
+        self.Nieuwenhuijzen_scaling_factor = None
+        self.Dutch_scaling_factor = None
+
 
 
         # TODO
@@ -226,4 +235,11 @@ class MesaInlist:
     he_core_boundary_h1_fraction = coredef.he_core_boundary_h1_fraction
     co_core_boundary_he4_fraction = coredef.co_core_boundary_he4_fraction
     one_core_boundary_he4_c12_fraction = coredef.one_core_boundary_he4_c12_fraction
+
+    get_update_wind_scaling_factor = wind.get_update_wind_scaling_factor # helper
+    update_wind_scaling_factor = wind.update_wind_scaling_factor # helper
+    get_wind_scaling_factor_control = wind.get_wind_scaling_factor_control # helper
+    cool_wind_RGB = wind.cool_wind_RGB
+    cool_wind_AGB = wind.cool_wind_AGB
+    RGB_to_AGB_wind_switch = wind.RGB_to_AGB_wind_switch
 

@@ -1,0 +1,104 @@
+import warnings
+
+# TODO add hot wind
+
+def get_update_wind_scaling_factor(self, scheme, scaling_factor):
+    """
+    Helper function which sorts wind options, makes sure they are valid, and that a scaling factor is not being overwritten
+    """
+    match scheme:
+        case 'Reimers':
+            current_scaling_factor = self.Reimers_scaling_factor
+        case 'Blocker':
+            current_scaling_factor = self.Blocker_scaling_factor
+        case 'de Jager':
+            current_scaling_factor = self.de_Jager_scaling_factor
+        case 'van Loon':
+            current_scaling_factor = self.van_Loon_scaling_factor
+        case 'Nieuwenhuijzen':
+            current_scaling_factor = self.Nieuwenhuijzen_scaling_factor
+        case 'Dutch_scaling_factor':
+            current_scaling_Factor = self.Dutch_scaling_factor
+        case _:
+            raise ValueError(f'wind schemne not found or supported yet: {scheme}')
+
+    if (current_scaling_factor is not None) and (scaling_factor != current_scaling_factor):
+        warnings.warn(f'Attempted to update scaling_factor for scheme {scheme} to {scaling_factor}, but it is already set to {current_scaling_factor}, so default to previous value')
+        return False
+    else:
+        return True
+
+def update_wind_scaling_factor(self, scheme, scaling_factor):
+    """
+    Helper function which updates the wind scaling factor
+    """
+    match scheme:
+        case 'Reimers':
+            self.Reimers_scaling_factor = scaling_factor
+        case 'Blocker':
+            self.Blocker_scaling_factor = scaling_factor
+        case 'de Jager':
+            self.de_Jager_scaling_factor = scaling_factor
+        case 'van Loon':
+            self.van_Loon_scaling_factor = scaling_factor
+        case 'Nieuwenhuijzen':
+            self.Nieuwenhuijzen_scaling_factor = scaling_factor
+        case 'Dutch_scaling_factor':
+            self.Dutch_scaling_factor = scaling_factor
+        case _:
+            raise ValueError(f'wind schemne not found or supported yet: {scheme}')
+
+def get_wind_scaling_factor_control(self, scheme):
+    """
+    Helper function which retrieves the name of the MESA control for the desired wind scheme
+    """
+    match scheme:
+        case 'Reimers': # suggested: 0.5
+            scaling_factor_control = 'Reimers_scaling_factor'
+        case 'Blocker': # suggested: 0.1
+            scaling_factor_control = 'Blocker_scaling_factor'
+        case 'de Jager':
+            scaling_factor_control = 'de_Jager_scaling_factor'
+        case 'van Loon':
+            scaling_factor_control = 'van_Loon_scaling_factor'
+        case 'Nieuwenhuijzen':
+            scaling_factor_control = 'Nieuwenhuijzen_scaling_factor'
+        case 'Dutch_scaling_factor':
+            scaling_factor_control = 'Dutch_scaling_factor'
+        case _:
+            raise ValueError(f'wind schemne not found or supported yet: {scheme}')
+
+    return scaling_factor_control
+
+# Methods handling controls about winds
+
+def cool_wind_RGB(self, scheme, scaling_factor):
+    update_wind_scaling_factor = self.get_update_wind_scaling_factor(scheme, scaling_factor)
+    scaling_factor_control = self.get_wind_scaling_factor_control(scheme)
+
+    self.add_control(namelist='controls', category='wind',
+            control='cool_wind_RGB_scheme', value=scheme)
+    
+    if update_wind_scaling_factor:
+        scaling_factor_control = self.get_wind_scaling_factor_control(scheme)
+        self.add_control(namelist='controls', category='wind',
+                control=scaling_factor_control, value=scaling_factor)
+        self.update_wind_scaling_factor(scheme, scaling_factor)
+
+def cool_wind_AGB(self, scheme, scaling_factor):
+    update_wind_scaling_factor = self.get_update_wind_scaling_factor(scheme, scaling_factor)
+    scaling_factor_control = self.get_wind_scaling_factor_control(scheme)
+
+    self.add_control(namelist='controls', category='wind',
+            control='cool_wind_AGB_scheme', value=scheme)
+    
+    if update_wind_scaling_factor:
+        scaling_factor_control = self.get_wind_scaling_factor_control(scheme)
+        self.add_control(namelist='controls', category='wind',
+                control=scaling_factor_control, value=scaling_factor)
+        self.update_wind_scaling_factor(scheme, scaling_factor)
+
+def RGB_to_AGB_wind_switch(self, value):
+        self.add_control(namelist='controls', category='wind',
+            control='RGB_to_AGB_wind_switch', value=value)
+
