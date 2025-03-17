@@ -1,6 +1,6 @@
 import qol.tools.formatter as formatter
 
-class MesaInlistControl:
+class MesaControl:
     """
     Simple class which stores a single MESA control
     """

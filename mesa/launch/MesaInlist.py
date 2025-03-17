@@ -4,20 +4,20 @@ import qol.config as config
 import qol.mesa.const as const
 import qol.tools.formatter as formatter
 
-import mesa.controls.io as io
-import mesa.controls.init as init
-import mesa.controls.hydro as hydro
-import mesa.controls.kap as kap
-import mesa.controls.mix as mix
-import mesa.controls.net as net
+import qol.mesa.controls.io as io
+import qol.mesa.controls.init as init
+import qol.mesa.controls.hydro as hydro
+import qol.mesa.controls.kap as kap
+import qol.mesa.controls.mix as mix
+import qol.mesa.controls.net as net
 import qol.mesa.controls.terminate as terminate
-import mesa.controls.bc as bc
-import mesa.controls.pgstar as pgstar
-import mesa.controls.resolution as resolution
-import mesa.controls.solver as solver
-import mesa.controls.timestep as timestep
-import mesa.controls.coredef as coredef
-import mesa.controls.wind as wind
+import qol.mesa.controls.bc as bc
+import qol.mesa.controls.pgstar as pgstar
+import qol.mesa.controls.resolution as resolution
+import qol.mesa.controls.solver as solver
+import qol.mesa.controls.timestep as timestep
+import qol.mesa.controls.coredef as coredef
+import qol.mesa.controls.wind as wind
 
 import numpy as np
 
@@ -66,7 +66,6 @@ class MesaInlist:
         # - disable specific nuclear reactions (or groups, like pp chain)
         # - save gyre, model with profile, etc.
         # - mass_change? max or min star etc..
-        # - add easy function for making a wind
         # - define metal fractions
 
         # automate settling, overshoot
