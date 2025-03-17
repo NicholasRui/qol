@@ -372,5 +372,5 @@ class MesaWorkingDirectory:
             plt.axis('off')
             plt.tight_layout()
 
-            plt.savefig(f'{run_path}/flowchart.png')
+            plt.savefig(f'{run_path}/flowchart.pdf')
             plt.close()
