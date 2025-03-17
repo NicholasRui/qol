@@ -4,7 +4,7 @@ from qol.mesa.data.MesaTable import MesaTable
 
 import qol.paths as paths
 import qol.config as config
-import qol.helper.formatter as formatter
+import qol.tools.formatter as formatter
 
 from qol.mesa.launch.MesaInlist import MesaInlist
 

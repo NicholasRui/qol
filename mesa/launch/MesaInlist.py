@@ -2,7 +2,7 @@
 from qol.mesa.launch.MesaControl import MesaControl
 import qol.config as config
 import qol.mesa.const as const
-import qol.helper.formatter as formatter
+import qol.tools.formatter as formatter
 
 import numpy as np
 

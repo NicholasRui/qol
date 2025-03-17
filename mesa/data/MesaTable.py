@@ -4,7 +4,7 @@ from astropy.table import Table, Column, unique
 
 import qol.mesa.const as const
 import qol.paths as paths
-import qol.helper.formatter as formatter
+import qol.tools.formatter as formatter
 
 class MesaTable(Table):
     """

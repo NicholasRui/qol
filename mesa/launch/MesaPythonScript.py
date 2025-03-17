@@ -1,4 +1,4 @@
-import qol.helper.formatter as formatter
+import qol.tools.formatter as formatter
 
 import shutil
 
