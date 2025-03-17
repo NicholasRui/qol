@@ -5,33 +5,16 @@ from qol.mesa.data.MesaTable import MesaTable
 import qol.mesa.const as const
 from qol.tools.integrate import trapz_cond
 
+import qol.seismology.methods_prop as methods_prop
+import qol.seismology.methods_mag as methods_mag
+import qol.seismology.methods_rot as methods_rot
+
 import numpy as np
-from scipy.integrate import cumulative_trapezoid
 
 from typing import Union
 import warnings
 
-############################
-##### HELPER FUNCTIONS #####
-############################
 
-def get_magnetic_acrit(l, m=None, acrit_ref='F+15'):
-    """
-    acrit_ref: sets uncertain dimensionless parameter for magnetic g-mode suppression,
-              with 'a' defined in RF+23
-       'F+15': Fuller+2015 normalization
-    """
-    match acrit_ref: # critical a_c parameter, which is fixed by certain papers but not known
-        case 'F+15':
-            acrit = 0.5 / np.sqrt(l * (l + 1))
-        case 'L+17':
-            raise NotImplementedError('acrit_ref for L+17 option not implemented yet') # TODO
-        case 'RF+23':
-            raise NotImplementedError('acrit_ref for RF+23 option not implemented yet') # TODO
-        case _:
-            raise ValueError(f'ac_ref is not valid: {acrit_ref}')
-
-    return acrit
 
 class Seismology:
     """
@@ -93,6 +76,23 @@ class Seismology:
             assert len(self.R) == len(self.Br)
         if type(self.Ωrot) in [np.ndarray, list]:
             assert len(self.R) == len(self.Ωrot)
+
+        # Import attributes from other files
+        get_is_prop = methods_prop.get_is_prop
+        get_int_N_div_r_dr = methods_prop.get_int_N_div_r_dr
+        get_delta_Pg = methods_prop.get_delta_Pg
+        
+        get_magnetic_K = methods_mag.get_magnetic_K
+        get_magnetic_cumK = methods_mag.get_magnetic_cumK
+        get_magnetic_scriptI = methods_mag.get_magnetic_scriptI
+        get_Bcrit = methods_mag.get_Bcrit
+        get_ωB = methods_mag.get_ωB
+        get_avg_Br2 = methods_mag.get_avg_Br2
+        get_δω_mag = methods_mag.get_δω_mag
+
+        get_Ωrot_g = methods_rot.get_Ωrot_g
+
+
 
     ##############################
     ##### READ IN QUANTITIES #####
@@ -228,320 +228,7 @@ class Seismology:
         self.Ωrot = 2 * np.pi * νrot if self.Ωrot is None else self.Ωrot
         self.Ωrot = 1e-6 * Ωrot_uHz if self.Ωrot is None else self.Ωrot
         self.Ωrot = 2 * np.pi * 1e-6 * νrot_uHz if self.Ωrot is None else self.Ωrot
-        self.Ωrot = 1 / Prot if self.Ωrot is None else self.Ωrot
-        self.Ωrot = 1 / (const.secday * Prot_d) if self.Ωrot is None else self.Ωrot
-
-    ############################
-    ##### HELPER FUNCTIONS #####
-    ############################
-
-    def get_ω(self, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
-        """
-        Helper method which allows other methods to take a frequency in multiple formats,
-          and asserts that the user has only specified one of them
-        """
-        provided_args = [ω, ν, ω_uHz, ν_uHz, P]
-        assert provided_args == 1
-
-        ω = 2 * np.pi * ν if ω is None else ω
-        ω = 1e-6 * ω_uHz if ω is None else ω
-        ω = 2 * np.pi * 1e-6 * ν_uHz if ω is None else ω
-        ω = 2 * np.pi / P if ω is None else ω
-
-        return ω
-
-    ##############################################
-    ##### CALCULATE BASIC SEISMIC QUANTITIES #####
-    ##############################################
-
-    def get_is_prop(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, proptype=None):
-        """
-        Return array of Booleans which says whether a mode with a given frequency is propagating or not
-
-        if proptype is specified and is either 'p' or 'g', return boolean
-          showing only whether a mode would be propagating with that particular character
-        """
-        ω = self.get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-
-        above_Sl1 = (ω >= self.Sl(l))
-        above_N = (ω >= self.N)
-        
-        match proptype:
-            case None:
-                return (above_Sl1 & above_N) & (~above_Sl1 & ~above_N)
-            case 'p':
-                return (above_Sl1 & above_N)
-            case 'g':
-                return (~above_Sl1 & ~above_N)
-            case _:
-                raise ValueError(f'invalid proptype: {proptype}')
-
-    def get_int_N_div_r_dr(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
-        """
-        Calculate int_N_div_r_dr over g-propagating regions (no cavity contiguity enforced)
-        """
-        ω = self.get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-        is_g = self.get_is_prop(l=l, ω=ω, proptype='g')
-
-        int_N_div_r_dr = trapz_cond(x=self.R, y=self.N / self.R, c=is_g)
-
-        return int_N_div_r_dr
-    
-    def get_delta_Pg(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
-        """
-        Calculate g-mode period spacing
-        """
-        int_N_div_r_dr = self.get_int_N_div_r_dr(l=l, ω=ω)
-        delta_Pg = 2 * np.pi ** 2 / int_N_div_r_dr / np.sqrt(l * (l + 1))
-
-        return delta_Pg
-    
-    ########################################
-    ##### SEISMIC MAGNETOMETRY METHODS #####
-    ########################################
-
-    def get_magnetic_K(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, normed=True):
-        """
-        Magnetic weight function N^3 / Rho R^3, set to 0 outside of g-mode propagating region
-
-        if normed, normalize K to unit-integral
-        """
-        assert self.Rho is not None
-
-        ω = self.get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-        is_g = self.get_is_prop(l=l, ω=ω, proptype='g')
-
-        magnetic_K = self.N ** 3 / self.Rho / self.R ** 3
-        magnetic_K[~is_g] = 0
-
-        if normed:
-            magnetic_K /= trapz_cond(x=self.R, y=magnetic_K)
-        
-        return magnetic_K
-
-    def get_magnetic_cumK(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, normed=True):
-        """
-        Cumulative integral of magnetic weight function, starting from center
-        """
-        ω = self.get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-        magnetic_K = self.get_magnetic_K(l=l, ω=ω, normed=normed)
-
-        if self.increasing_R:
-            magnetic_cumK = cumulative_trapezoid(x=self.R, y=magnetic_K)
-        if self.increasing_R:
-            magnetic_cumK = np.flip(cumulative_trapezoid(x=np.flip(self.R), y=np.flip(magnetic_K)))
-        
-        return magnetic_cumK
-    
-    def get_magnetic_scriptI(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
-        """
-        Magnetic sensitivity function \mathscr{I} = int_N3_div_Rho_R3_dr / int_N_div_r_dr
-        """
-        ω = self.get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-
-        magnetic_K_unnorm = self.get_magnetic_K(l=l, ω=ω, normed=False)
-        int_N3_div_Rho_R3_dr = trapz_cond(x=self.R, y=magnetic_K_unnorm)
-        int_N_div_r_dr = self.get_int_N_div_r_dr(l, ω=ω)
-
-        magnetic_scriptI = int_N3_div_Rho_R3_dr / int_N_div_r_dr
-
-        return magnetic_scriptI
-
-    def get_Bcrit(self, l, m=None, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, acrit_ref='F+15'):
-        """
-        Calculate critical (radial) magnetic field Bcrit needed to suppress g modes,
-          according to Fuller et al. 2015 (F+15)
-        """
-        assert self.Rho is not None
-
-        ω = self.get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-        acrit = get_magnetic_acrit(l=l, m=m, acrit_ref=acrit_ref)
-        
-        Bcrit = acrit * np.sqrt(4 * np.pi * self.Rho) * ω ** 2 * self.R / self.N
-
-        # If not propagating as g mode, just set Bcrit to infinity
-        is_g = self.get_is_prop(l=l, ω=ω, proptype='g')
-        Bcrit[~is_g] = np.inf
-
-        return Bcrit
-    
-    def get_ωB(self, l, m=None, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, acrit_ref='F+15'):
-        """
-        Get maximum suppressed frequency ωB (this is the RF+23 definition, NOT the Li et al. 2022 one)
-
-        See documentation for get_Bcrit for a description of ac_ref
-        """
-        assert self.Rho is not None
-        assert self.Br is not None
-
-        acrit = get_magnetic_acrit(l=l, m=m, acrit_ref=acrit_ref)
-        ωB = np.sqrt(self.N * self.Br / acrit / np.sqrt(4 * np.pi * self.Rho) / self.R)
-
-        # If not propagating as a g mode, just set ωB to 0
-        is_g = self.get_is_prop(l=l, ω=ω, proptype='g')
-        ωB[~is_g] = np.inf
-
-        return ωB
-
-    def get_ωB_uHz(self, l, m=None, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, acrit_ref='F+15'):
-        """
-        Calls get_ωB but converts output to different units
-        """
-        ωB = self.get_ωB(l=l, m=m, ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P, acrit_ref=acrit_ref)
-        ωB_uHz = 1e6 * ωB
-
-        return ωB_uHz
-    
-    def get_νB(self, l, m=None, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, acrit_ref='F+15'):
-        """
-        Calls get_ωB but converts output to different units
-        """
-        ωB = self.get_ωB(l=l, m=m, ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P, acrit_ref=acrit_ref)
-        νB = ωB / 2 / np.pi
-
-        return νB
-    
-    def get_νB_uHz(self, l, m=None, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, acrit_ref='F+15'):
-        """
-        Calls get_ωB but converts output to different units
-        """
-        ωB = self.get_ωB(l=l, m=m, ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P, acrit_ref=acrit_ref)
-        νB_uHz = 1e6 * ωB / 2 / np.pi
-
-        return νB_uHz
-
-    def get_avg_Br2(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
-        """
-        Get average <Br^2> wrt. magnetic K function
-        """
-        assert self.Br is not None
-
-        ω = self.get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-        is_g = self.get_is_prop(l=l, ω=ω, proptype='g')
-        magnetic_K_norm = self.get_magnetic_K(l=l, ω=ω, normed=True)
-
-        avg_Br2 = trapz_cond(x=self.R, y=magnetic_K_norm * self.Br ** 2)
-
-        return avg_Br2
-
-    def get_δω_mag(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
-        """
-        Get δω_mag (called ωB in Li+2022)
-        """
-        ω = self.get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-
-        magnetic_scriptI = self.get_magnetic_scriptI(l=l, ω=ω)
-        avg_Br2 = self.get_avg_Br2(l=l, ω=ω)
-
-        δω_mag = magnetic_scriptI * avg_Br2 / 4 / np.pi / ω ** 3
-
-        return δω_mag
-
-    def get_δν_mag(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
-        """
-        Calls get_ωB but converts output to different units
-        """
-        δω_mag = self.get_δω_mag(l=l, ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-        δν_mag = δω_mag / 2 / np.pi
-
-        return δν_mag
-    
-    def get_δω_mag_uHz(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
-        """
-        Calls get_ωB but converts output to different units
-        """
-        δω_mag = self.get_δω_mag(l=l, ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-        δω_mag_uHz = 1e6 * δω_mag_uHz
-
-        return δω_mag_uHz
-
-    def get_δν_mag_uHz(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
-        """
-        Calls get_ωB but converts output to different units
-        """
-        δω_mag = self.get_δω_mag(l=l, ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-        δν_mag_uHz = 1e6 * δω_mag / 2 / np.pi
-
-        return δν_mag_uHz
-
-    ################################################
-    ##### SEISMIC ROTATION MEASUREMENT METHODS #####
-    ################################################
-
-    def get_avg_Ωrot_g(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
-        """
-        Average of Ωrot over the g-mode cavity, as sensed by a given mode
-        
-        If Ωrot was given as a float, just return it as-is
-        """
-        assert self.Ωrot is not None
-
-        if type(self.Ωrot) == float:
-            return self.Ωrot
-        
-        is_g = self.get_is_prop(l=l, ω=ω, proptype='g')
-        avg_Ωrot_g = trapz_cond(x=self.R, y=self.N * self.Ωrot / self.R, c=is_g)
-
-        return avg_Ωrot_g
-
-
-
-# ........................................................................................................................
-
-
-
-
-
-
-    def get_δν_mag(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
-        """
-        Calls get_ωB but converts output to different units
-        """
-        δω_mag = self.get_δω_mag(l=l, ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-        δν_mag = δω_mag / 2 / np.pi
-
-        return δν_mag
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        self.Ωrot = 2 * np.pi / Prot if self.Ωrot is None else self.Ωrot
+        self.Ωrot = 2 * np.pi / (const.secday * Prot_d) if self.Ωrot is None else self.Ωrot
 
 
