@@ -54,7 +54,7 @@ In package, automatically plot magnetic white dwarfs B&L style
 package should be able to import both histories and profile at the same time
 
 
-
+# add something which automatically keeps track of fourier transforms for fft
 
 
 
