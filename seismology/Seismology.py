@@ -1,7 +1,7 @@
 """
 Purpose: Class keeps track of seismic quantities and performs common calculations
 """
-from qol.mesa.data.MesaTable import MesaTable
+from qol.mesa.table.MesaTable import MesaTable
 import qol.mesa.const as const
 from qol.tools.integrate import trapz_cond
 

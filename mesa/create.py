@@ -1,6 +1,6 @@
 from qol.mesa.read import read_mod
 import qol.mesa.const as const
-from qol.mesa.data.MesaTable import MesaTable
+from qol.mesa.table.MesaTable import MesaTable
 
 import qol.paths as paths
 import qol.config as config
