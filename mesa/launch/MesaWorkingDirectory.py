@@ -33,7 +33,6 @@ class MesaWorkingDirectory:
 
         self.history_columns_path = None
         self.profile_columns_path = None
-        # self.inlist_pgstar = None
 
         self.copy_from_path_root_prereqs = []
         self.rel_paths_root_prereq = []
@@ -178,9 +177,6 @@ class MesaWorkingDirectory:
             shutil.copy(self.history_columns_path, f'{run_path}history_columns.list')
         if self.profile_columns_path is not None:
             shutil.copy(self.profile_columns_path, f'{run_path}profile_columns.list')
-        # and inlist_pgstar
-        # if self.inlist_pgstar_path is not None:
-        #     shutil.copy(self.inlist_pgstar_path, f'{run_path}inlist_pgstar')
 
         # copy over helper files
         shutil.copy(f'{paths.qol_path}/mesa/resources/bash/do_one', f'{run_path}do_one')
@@ -213,7 +209,7 @@ class MesaWorkingDirectory:
         # root prereqs
         rn_text += '# Check root prereqs\n'
         rn_text += check_if_missing(fname_list=self.rel_paths_root_prereq, \
-                if_none_missing="echo 'QOL: ALL ROOT PREREQS FOUND, CONTINUE!'", \
+                if_none_missing="echo 'QOL: All root prereqs found, continue!'", \
                 if_some_missing="echo 'QOL: SOME ROOT PREREQS MISSING, EXIT'\n    exit 1")
 
         ### Start re text
@@ -223,7 +219,7 @@ class MesaWorkingDirectory:
 
         re_text += '# Check root prereqs\n'
         re_text += check_if_missing(fname_list=self.rel_paths_root_prereq, \
-                if_none_missing="echo 'QOL: ALL ROOT PREREQS FOUND, CONTINUE!'", \
+                if_none_missing="echo 'QOL: All root prereqs found, continue!'", \
                 if_some_missing="echo 'QOL: SOME ROOT PREREQS MISSING, EXIT'\n    exit 1")
 
         # copy all root prereqs
@@ -262,7 +258,7 @@ class MesaWorkingDirectory:
                             if_none_missing=task.rn_string(), \
                             if_some_missing=f"echo 'QOL: SOME PREREQS MISSING FOR {task.rel_path}, EXIT'\n    exit 1")
                     full_re_string += check_if_missing(fname_list=task.products, \
-                            if_none_missing=f"echo 'QOL: ALL PRODUCTS FOUND, SKIPPING {task.rel_path}'", \
+                            if_none_missing=f"echo 'QOL: All products found, skipping {task.rel_path}'", \
                             if_some_missing=task.rn_string())
                     
                     rn_text += full_rn_string

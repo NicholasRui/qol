@@ -51,7 +51,6 @@ class MesaInlist:
 
         self.num_extra_star_job_inlists = 0
         self.num_extra_controls_inlists = 0
-        # self.num_extra_pgstar_inlists = 0
 
         self.Reimers_scaling_factor = None
         self.Blocker_scaling_factor = None
@@ -59,6 +58,8 @@ class MesaInlist:
         self.van_Loon_scaling_factor = None
         self.Nieuwenhuijzen_scaling_factor = None
         self.Dutch_scaling_factor = None
+
+        self.Grid1_plot_coords = []
 
 
 
@@ -106,11 +107,7 @@ class MesaInlist:
 
         if abs_path is None, still return the text but don't save anything
         """
-        namelist_names = ['star_job', 'eos', 'kap', 'controls']
-        
-        if not self.enable_pgstar: # kludge to make a blank pgstar section
-            namelist_names += ['pgstar']
-
+        namelist_names = ['star_job', 'eos', 'kap', 'controls', 'pgstar']
         namelist_texts = []
 
         # grab attributes from existing inlist controls
@@ -125,6 +122,7 @@ class MesaInlist:
             # get all controls matching namelist
             in_namelist = (item_namelists == namelist_name)
             item_categories_in_namelist = np.unique(item_categories[in_namelist])
+            item_categories_in_namelist = np.sort(item_categories_in_namelist) # alphabetize for consistency
 
             # if None is in item_categories_in_namelist, sort it to the front
             # this is to take uncategorized controls and write them first
@@ -150,12 +148,6 @@ class MesaInlist:
 
         preface = f'! inlist created using qol package for MESA version {self.mesa_version}\n\n'
         inlist_text = preface + ''.join(namelist_texts)
-
-        if self.use_pgstar and self.inlist_pgstar_path is not None:
-            with open(self.inlist_pgstar_path, 'r') as f:
-                pgstar_text = f.read()
-            
-            inlist_text += pgstar_text
 
         abs_path = f'{run_path}/{self.rel_path}'
         if abs_path is not None:
@@ -229,7 +221,9 @@ class MesaInlist:
     stop_at_phase_WDCS = terminate.stop_at_phase_WDCS
 
     show_pgstar = pgstar.show_pgstar
-    enable_pgstar = pgstar.enable_pgstar
+    pgstar_Grid1_enable = pgstar.pgstar_Grid1_enable
+    pgstar_Grid1_add_plot = pgstar.pgstar_Grid1_add_plot
+    pgstar_Grid1_qol_default = pgstar.pgstar_Grid1_qol_default
 
     he_core_boundary_h1_fraction = coredef.he_core_boundary_h1_fraction
     co_core_boundary_he4_fraction = coredef.co_core_boundary_he4_fraction
