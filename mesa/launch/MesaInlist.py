@@ -184,6 +184,10 @@ class MesaInlist:
 
     set_min_D_mix = mix.set_min_D_mix
     disable_mixing = mix.disable_mixing
+    use_Ledoux_criterion = mix.use_Ledoux_criterion
+    alpha_semiconvection = mix.alpha_semiconvection
+    thermohaline_coeff = mix.thermohaline_coeff
+    gravitational_settling = mix.gravitational_settling
 
     relax_to_inner_BC = bc.relax_to_inner_BC
 
@@ -195,6 +199,7 @@ class MesaInlist:
 
     mesh_delta_coeff = resolution.mesh_delta_coeff
     min_dq = resolution.min_dq
+    max_surface_cell_dq = resolution.max_surface_cell_dq
 
     min_timestep_limit = timestep.min_timestep_limit
 
@@ -235,4 +240,6 @@ class MesaInlist:
     cool_wind_RGB = wind.cool_wind_RGB
     cool_wind_AGB = wind.cool_wind_AGB
     RGB_to_AGB_wind_switch = wind.RGB_to_AGB_wind_switch
+    cool_wind_full_on_T = wind.cool_wind_full_on_T
+    hot_wind_full_on_T = wind.hot_wind_full_on_T
 

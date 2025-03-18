@@ -8,3 +8,7 @@ def min_dq(self, value):
     self.add_control(namelist='controls', category='resolution',
             control='min_dq', value=value)
 
+def max_surface_cell_dq(self, value):
+    self.add_control(namelist='controls', category='resolution',
+            control='max_surface_cell_dq', value=value)
+

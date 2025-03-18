@@ -99,6 +99,15 @@ def cool_wind_AGB(self, scheme, scaling_factor):
         self.update_wind_scaling_factor(scheme, scaling_factor)
 
 def RGB_to_AGB_wind_switch(self, value):
-        self.add_control(namelist='controls', category='wind',
+    self.add_control(namelist='controls', category='wind',
             control='RGB_to_AGB_wind_switch', value=value)
+
+def cool_wind_full_on_T(self, value):
+    self.add_control(namelist='controls', category='wind',
+            control='cool_wind_full_on_T', value=value)
+
+def hot_wind_full_on_T(self, value):
+    self.add_control(namelist='controls', category='wind',
+            control='hot_wind_full_on_T', value=value)
+
 

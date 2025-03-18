@@ -101,8 +101,6 @@ def pgstar_Grid1_qol_default(self, write_path):
     """
     Implement default qol settings for Grid1
     """
-    self.show_pgstar()
-
     self.pgstar_Grid1_enable(num_cols=3, num_rows=2,
         Grid1_win_width=14, Grid1_win_aspect_ratio=0.5,
         write_path=write_path,
