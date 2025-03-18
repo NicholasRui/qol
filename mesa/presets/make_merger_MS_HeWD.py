@@ -44,7 +44,7 @@ def make_merger_MS_HeWD(
     work.add_task(task_zacheb_to_co_wd)
     work.add_task(task_cool_co_wd)
 
-    work.save_directory(grant_perms=True, slurm_job_name=f'M{MMS_in_Msun:.2f}+HeWD{MWD_in_Msun:.2f}TWD{T_WD/1000.:.2f}')
+    work.save_directory(grant_perms=True, slurm_job_name=f'M{MMS_in_Msun:.2f}+HeWD{MWD_in_Msun:.2f}TWD{T_WD/1000.:.1f}')
 
 
 ##########################################################
