@@ -1,6 +1,7 @@
 import qol.config as config
 import qol.paths as paths
 import qol.tools.formatter as formatter
+from qol.slurm.SlurmBashScript import SlurmBashScript
 
 import numpy as np
 
@@ -112,11 +113,12 @@ class MesaWorkingDirectory:
         else:
             raise ValueError(f'No path found: {abs_path}')
 
-    def save_directory(self, grant_perms=False, make_flowchart=True):
+    def save_directory(self, grant_perms=False, make_flowchart=True, slurm_job_name=None):
         """
         Create MESA directory
 
         grant_perms: if True, grants permissions for bash files that need to be run
+        slurm_job_name: if not None, saves a bash script for sending this job with this arg as job_name
         """
         # CREATE NEW MESA DIRECTORY
         run_path = self.run_path
@@ -413,3 +415,40 @@ class MesaWorkingDirectory:
 
             plt.savefig(f'{run_path}/flowchart.pdf')
             plt.close()
+
+        # if desired, save bash scripts
+        if slurm_job_name is not None:
+            # script to start job
+            slurm_bash_script = SlurmBashScript(
+                 job_name=slurm_job_name,
+                 time='2-00:00:00',
+                 ntasks=1, nodes=1,
+                 mem_per_cpu='10G',
+                 output='output.out', error='error.out', # absolute paths
+                 mail_user='nrui.mailing.list@gmail.com', # email address
+                 mail_type='BEGIN,FAIL,END' # conditions for emailing
+                 )
+            
+            slurm_bash_script.add_task(f'cd {run_path}')
+            slurm_bash_script.add_task(f'./mk')
+            slurm_bash_script.add_task(f'./rn')
+
+            slurm_bash_script.save(f'{run_path}/submit_job.sh')
+
+            # script to restart job
+            slurm_bash_script = SlurmBashScript(
+                 job_name=slurm_job_name,
+                 time='2-00:00:00',
+                 ntasks=1, nodes=1,
+                 mem_per_cpu='10G',
+                 output='output.out', error='error.out', # absolute paths
+                 mail_user='nrui.mailing.list@gmail.com', # email address
+                 mail_type='BEGIN,FAIL,END' # conditions for emailing
+                 )
+            
+            slurm_bash_script.add_task(f'cd {run_path}')
+            slurm_bash_script.add_task(f'./mk')
+            slurm_bash_script.add_task(f'./re')
+
+            slurm_bash_script.save(f'{run_path}/restart_job.sh')
+
