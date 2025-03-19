@@ -1,5 +1,8 @@
 # Methods handling controls about boundary conditions
 
+import qol.tools.formatter as formatter
+import qol.mesa.const as const
+
 def relax_to_inner_BC(self, M_new_Msun=None, R_center_Rsun=None, L_center_Lsun=None,
         dlgm_per_step=None, dlgR_per_step=None, dlgL_per_step=None,
         relax_M_center_dt=None, relax_R_center_dt=None, relax_L_center_dt=None):
