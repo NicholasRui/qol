@@ -430,7 +430,7 @@ class MesaWorkingDirectory:
                  time='2-00:00:00',
                  ntasks=1, nodes=1,
                  mem_per_cpu='10G',
-                 output='output.out', error='error.out', # absolute paths
+                 output=f'{run_path}/output.out', error=f'{run_path}/error.out', # absolute paths
                  mail_user='nrui.mailing.list@gmail.com', # email address
                  mail_type='BEGIN,FAIL,END' # conditions for emailing
                  )
