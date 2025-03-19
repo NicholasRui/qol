@@ -1,13 +1,4 @@
+import qol
 
-
-qol_path = '/Users/nrui/Desktop/pythonpath/qol/'
-
-# make dictionary for MESA paths
-mesa_paths = {}
-
-mesa_paths['r24.08.1'] = '/Users/nrui/mesa-r24.08.1/'
-
-
-
-
-
+# main qol directory
+qol_path = qol.__file__.replace('__init__.py', '')

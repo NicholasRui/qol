@@ -201,7 +201,7 @@ class MesaTable(Table):
 
         match model_setting:
             case 36:
-                template_path = f'{paths.qol_path}/mesa/templates/model/model36.mod'
+                template_path = f'{paths.qol_path}mesa/templates/model/model36.mod'
 
                 version_number = self.attr['version_number']
                 M_in_Msun = self.attr['M/Msun']

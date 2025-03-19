@@ -51,6 +51,7 @@ class MesaInlist:
 
         self.num_extra_star_job_inlists = 0
         self.num_extra_controls_inlists = 0
+        self.num_extra_pgstar_inlists = 0
 
         self.Reimers_scaling_factor = None
         self.Blocker_scaling_factor = None
@@ -225,10 +226,12 @@ class MesaInlist:
     stop_at_phase_Si_Burn = terminate.stop_at_phase_Si_Burn
     stop_at_phase_WDCS = terminate.stop_at_phase_WDCS
 
-    show_pgstar = pgstar.show_pgstar
+    enable_pgstar = pgstar.enable_pgstar
+    use_qol_pgstar = pgstar.use_qol_pgstar
     pgstar_Grid1_enable = pgstar.pgstar_Grid1_enable
     pgstar_Grid1_add_plot = pgstar.pgstar_Grid1_add_plot
     pgstar_Grid1_qol_default = pgstar.pgstar_Grid1_qol_default
+    save_pgstar = pgstar.save_pgstar
 
     he_core_boundary_h1_fraction = coredef.he_core_boundary_h1_fraction
     co_core_boundary_he4_fraction = coredef.co_core_boundary_he4_fraction

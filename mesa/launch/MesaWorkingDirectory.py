@@ -62,6 +62,12 @@ class MesaWorkingDirectory:
 
         self.tasks.append(task)
 
+    def load_qol_pgstar(self):
+        """
+        load default qol inlist_pgstar, need to do this before doing use_qol_pgstar
+        """
+        self.add_root_prereq(copy_from_abs_path=f'{paths.qol_path}mesa/resources/r24.08.1/inlist_pgstar', rel_path='inlist_pgstar')
+
     def check_needed_prereqs(self, task):
         """
         Check if, with addition of new task, prereqs exist, and throw error if not
@@ -133,7 +139,7 @@ class MesaWorkingDirectory:
         os.mkdir(f'{run_path}make')
         os.mkdir(f'{run_path}src')
 
-        mesadir = paths.mesa_paths[self.mesa_version]
+        mesadir = config.mesa_paths[self.mesa_version]
         workdir = f'{mesadir}/star/work/'
 
         shutil.copy(f'{workdir}clean', f'{run_path}clean')
@@ -181,8 +187,8 @@ class MesaWorkingDirectory:
             shutil.copy(self.profile_columns_path, f'{run_path}profile_columns.list')
 
         # copy over helper files
-        shutil.copy(f'{paths.qol_path}/mesa/resources/bash/do_one', f'{run_path}do_one')
-        shutil.copy(f'{paths.qol_path}/mesa/resources/bash/any_missing', f'{run_path}any_missing')
+        shutil.copy(f'{paths.qol_path}mesa/resources/bash/do_one', f'{run_path}do_one')
+        shutil.copy(f'{paths.qol_path}mesa/resources/bash/any_missing', f'{run_path}any_missing')
 
         # create rn and re
         # rn will call any_missing and do things if False, and terminate if not

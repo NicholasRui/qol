@@ -1,18 +1,41 @@
 # Methods handling controls about pgstar
 
-def show_pgstar(self, abs_path=None):
+import qol.paths as paths
+
+def enable_pgstar(self, abs_path=None):
     self.add_control(namelist='star_job', category='enable pgstar',
             control='pgstar_flag', value=True)
 
+def use_qol_pgstar(self):    
+    self.read_extra_inlist(namelist='pgstar', rel_path='inlist_pgstar', category='default qol pgstar inlist')
+
+def save_pgstar(self, write_path,
+        Grid1_file_prefix='Grid1_', Grid1_file_interval=5, Grid1_file_width=-1, Grid1_file_aspect_ratio=-1):
+    """
+    save pgstar
+    """
+    if write_path[-1] != '/':
+            write_path += '/'
+
+    self.add_control(namelist='pgstar', category='Grid1: save',
+            control='Grid1_file_flag', value=True)
+    self.add_control(namelist='pgstar', category='Grid1: save',
+            control='Grid1_file_dir', value=write_path)
+    self.add_control(namelist='pgstar', category='Grid1: save',
+            control='Grid1_file_prefix', value=Grid1_file_prefix)
+    self.add_control(namelist='pgstar', category='Grid1: save',
+            control='Grid1_file_interval', value=Grid1_file_interval) # ! output when mod(model_number,Grid1_file_interval)==0
+    self.add_control(namelist='pgstar', category='Grid1: save',
+            control='Grid1_file_width', value=Grid1_file_width) # (inches) negative means use same value as for window
+    self.add_control(namelist='pgstar', category='Grid1: save',
+            control='Grid1_file_aspect_ratio', value=Grid1_file_aspect_ratio)
+
+
 def pgstar_Grid1_enable(self, num_cols, num_rows, reset=False,
-        Grid1_win_width=14, Grid1_win_aspect_ratio=0.5,
-        write_path=None,
-        Grid1_file_prefix='Grid1_', Grid1_file_interval=5, Grid1_file_width=-1, Grid1_file_aspect_ratio=-1,
+        Grid1_win_width=14, Grid1_win_aspect_ratio=0.5
         ):
     """
     Enable use of Grid1 pgstar plot
-
-    if writedir is not None, save plots to that path
 
     Make animation with:
     ffmpeg -r 10 -pattern_type glob -i "Grid1_*.png" -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" -c:v libx264 -profile:v high -crf 25 -pix_fmt yuv420p Grid1_anim.mp4
@@ -29,23 +52,6 @@ def pgstar_Grid1_enable(self, num_cols, num_rows, reset=False,
             control='Grid1_num_rows', value=num_rows)
     self.add_control(namelist='pgstar', category='Grid1', comment='<= 10',
             control='Grid1_num_plots', value=num_cols*num_rows)
-
-    if write_path is not None:
-        if write_path[-1] != '/':
-           write_path += '/'
-        
-        self.add_control(namelist='pgstar', category='Grid1: save',
-                control='Grid1_file_flag', value=True)
-        self.add_control(namelist='pgstar', category='Grid1: save',
-                control='Grid1_file_dir', value=write_path)
-        self.add_control(namelist='pgstar', category='Grid1: save',
-                control='Grid1_file_prefix', value=Grid1_file_prefix)
-        self.add_control(namelist='pgstar', category='Grid1: save',
-                control='Grid1_file_interval', value=Grid1_file_interval) # ! output when mod(model_number,Grid1_file_interval)==0
-        self.add_control(namelist='pgstar', category='Grid1: save',
-                control='Grid1_file_width', value=Grid1_file_width) # (inches) negative means use same value as for window
-        self.add_control(namelist='pgstar', category='Grid1: save',
-                control='Grid1_file_aspect_ratio', value=Grid1_file_aspect_ratio)
     
     # Reset defaults
     if reset:

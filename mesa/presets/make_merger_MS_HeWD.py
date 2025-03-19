@@ -6,31 +6,32 @@ def make_merger_MS_HeWD(
         MWD_in_Msun, # WD mass
         MMS_in_Msun, # MS mass
         T_WD,        # temperature of WD
-        net_name='cno_extras_o18_to_mg26.net', # net
+        net_name='pp_cno_extras_o18_ne22.net', #'cno_extras_o18_to_mg26.net', # net
         ringdown_time_yr=1e5, # ringdown timescale to HSE
-        show_pgstar=False,
+        enable_pgstar=False,
         ):
     """
     Make merger between HeWD and MS
     This is reproducing what was done in m_plus_wd (Rui & Fuller 2024, OJAp) but going further
     """
     # generate tasks
-    task_evolve_rg = helper_merger_MS_HeWD_evolve_rg(show_pgstar=show_pgstar, net_name=net_name, MWD_in_Msun=MWD_in_Msun)
-    task_strip_rg = helper_merger_MS_HeWD_strip_rg(show_pgstar=show_pgstar, MWD_in_Msun=MWD_in_Msun)
-    task_cool_he_wd = helper_merger_MS_HeWD_cool_he_wd(show_pgstar=show_pgstar, T_WD=T_WD)
-    task_inner_bc = helper_merger_MS_HeWD_inner_bc(show_pgstar=show_pgstar, MMS_in_Msun=MMS_in_Msun)
-    task_env_to_th_eq = helper_merger_MS_HeWD_env_to_th_eq(show_pgstar=show_pgstar, net_name=net_name, MMS_in_Msun=MMS_in_Msun)
-    task_merge = helper_merger_MS_HeWD_merge(show_pgstar=show_pgstar)
-    task_remnant_ringdown = helper_merger_MS_HeWD_remnant_ringdown(show_pgstar=show_pgstar, ringdown_time_yr=ringdown_time_yr)
-    task_remnant_to_trgb = helper_merger_MS_HeWD_remnant_to_trgb(show_pgstar=show_pgstar)
-    task_trgb_to_zacheb = helper_merger_MS_HeWD_trgb_to_zacheb(show_pgstar=show_pgstar)
-    task_zacheb_to_co_wd = helper_merger_MS_HeWD_zacheb_to_co_wd(show_pgstar=show_pgstar)
-    task_cool_co_wd = helper_merger_MS_HeWD_cool_co_wd(show_pgstar=show_pgstar)
+    task_evolve_rg = helper_merger_MS_HeWD_evolve_rg(enable_pgstar=enable_pgstar, net_name=net_name, MWD_in_Msun=MWD_in_Msun)
+    task_strip_rg = helper_merger_MS_HeWD_strip_rg(enable_pgstar=enable_pgstar, MWD_in_Msun=MWD_in_Msun)
+    task_cool_he_wd = helper_merger_MS_HeWD_cool_he_wd(enable_pgstar=enable_pgstar, T_WD=T_WD)
+    task_inner_bc = helper_merger_MS_HeWD_inner_bc(enable_pgstar=enable_pgstar, MMS_in_Msun=MMS_in_Msun)
+    task_env_to_th_eq = helper_merger_MS_HeWD_env_to_th_eq(enable_pgstar=enable_pgstar, net_name=net_name, MMS_in_Msun=MMS_in_Msun)
+    task_merge = helper_merger_MS_HeWD_merge(enable_pgstar=enable_pgstar)
+    task_remnant_ringdown = helper_merger_MS_HeWD_remnant_ringdown(enable_pgstar=enable_pgstar, ringdown_time_yr=ringdown_time_yr)
+    task_remnant_to_trgb = helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar=enable_pgstar)
+    task_trgb_to_zacheb = helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar=enable_pgstar)
+    task_zacheb_to_co_wd = helper_merger_MS_HeWD_zacheb_to_co_wd(enable_pgstar=enable_pgstar)
+    task_cool_co_wd = helper_merger_MS_HeWD_cool_co_wd(enable_pgstar=enable_pgstar)
 
     # create and save work directory
     work = MesaWorkingDirectory(run_path=run_path)
-    work.copy_history_columns_list(f'{paths.qol_path}/mesa/resources/r24.08.1/history_columns.list')
-    work.copy_profile_columns_list(f'{paths.qol_path}/mesa/resources/r24.08.1/profile_columns.list')
+    work.copy_history_columns_list(f'{paths.qol_path}mesa/resources/r24.08.1/history_columns.list')
+    work.copy_profile_columns_list(f'{paths.qol_path}mesa/resources/r24.08.1/profile_columns.list')
+    work.load_qol_pgstar()
 
     work.add_task(task_evolve_rg)
     work.add_task(task_strip_rg)
@@ -51,14 +52,15 @@ def make_merger_MS_HeWD(
 ###### HELPER FUNCTIONS FOR CREATING REQUIRED TASKS ######
 ##########################################################
 
-def helper_merger_MS_HeWD_evolve_rg(show_pgstar, net_name, MWD_in_Msun):
+def helper_merger_MS_HeWD_evolve_rg(enable_pgstar, net_name, MWD_in_Msun):
     """
     make RG, evolve to desired core mass
     """
     inlist = MesaInlist('inlist_evolve_rg', LOGS_dir='LOGS/evolve_rg/')
-    if show_pgstar:
-        inlist.show_pgstar()
-    inlist.pgstar_Grid1_qol_default(write_path='Grid1/evolve_rg/')
+    if enable_pgstar:
+        inlist.enable_pgstar()
+    inlist.save_pgstar(write_path='Grid1/evolve_rg/')
+    inlist.use_qol_pgstar()
 
     # 1.2 Msun RG
     inlist.initial_mass(1.2)
@@ -74,14 +76,14 @@ def helper_merger_MS_HeWD_evolve_rg(show_pgstar, net_name, MWD_in_Msun):
 
     return inlist
 
-def helper_merger_MS_HeWD_strip_rg(show_pgstar, MWD_in_Msun):
+def helper_merger_MS_HeWD_strip_rg(enable_pgstar, MWD_in_Msun):
     """
     remove mass from RG
     """
     inlist = MesaInlist('inlist_strip_rg', LOGS_dir='LOGS/strip_rg/')
-    if show_pgstar:
-        inlist.show_pgstar()
-    inlist.pgstar_Grid1_qol_default(write_path='Grid1/strip_rg/')
+    if enable_pgstar:
+        inlist.enable_pgstar()
+    inlist.save_pgstar(write_path='Grid1/strip_rg/')
 
     # remove envelope by relaxation
     inlist.load_model('rg.mod')
@@ -97,14 +99,15 @@ def helper_merger_MS_HeWD_strip_rg(show_pgstar, MWD_in_Msun):
 
     return inlist
 
-def helper_merger_MS_HeWD_cool_he_wd(show_pgstar, T_WD):
+def helper_merger_MS_HeWD_cool_he_wd(enable_pgstar, T_WD):
     """
     cool He WD to desired temperature
     """
     inlist = MesaInlist('inlist_cool_he_wd', LOGS_dir='LOGS/cool_he_wd/')
-    if show_pgstar:
-        inlist.show_pgstar()
-    inlist.pgstar_Grid1_qol_default(write_path='Grid1/cool_he_wd/')
+    if enable_pgstar:
+        inlist.enable_pgstar()
+    inlist.save_pgstar(write_path='Grid1/cool_he_wd/')
+    inlist.use_qol_pgstar()
 
     inlist.load_model('hot_he_wd.mod')
     inlist.set_Zbase(0.02)
@@ -121,24 +124,25 @@ def helper_merger_MS_HeWD_cool_he_wd(show_pgstar, T_WD):
 
     return inlist
 
-def helper_merger_MS_HeWD_inner_bc(show_pgstar, MMS_in_Msun):
+def helper_merger_MS_HeWD_inner_bc(enable_pgstar, MMS_in_Msun):
     """
     create envelope matching core model
     """
     script = MesaPythonScript('inner_bc.py',
-            template=f'{paths.qol_path}/mesa/templates/scripts/call_create_env_inlist_from_core.py',
+            template=f'{paths.qol_path}mesa/templates/scripts/call_create_env_inlist_from_core.py',
               const_args=[MMS_in_Msun], prereqs=['cool_he_wd.mod'], products=['inlist_env_inner_bc'])
     
     return script
 
-def helper_merger_MS_HeWD_env_to_th_eq(show_pgstar, net_name, MMS_in_Msun):
+def helper_merger_MS_HeWD_env_to_th_eq(enable_pgstar, net_name, MMS_in_Msun):
     """
     run envelope model to thermal equilibrium (no dxdt_nuc)
     """
     inlist = MesaInlist('inlist_env_to_th_eq', LOGS_dir='LOGS/env_to_th_eq/')
-    if show_pgstar:
-        inlist.show_pgstar()
-    inlist.pgstar_Grid1_qol_default(write_path='Grid1/env_to_th_eq/')
+    if enable_pgstar:
+        inlist.enable_pgstar()
+    inlist.save_pgstar(write_path='Grid1/env_to_th_eq/')
+    inlist.use_qol_pgstar()
 
     # set inner boundary condition
     inlist.read_extra_inlist(namelist='star_job', rel_path='inlist_env_inner_bc', category='relax inner BC to accommodate core model')
@@ -166,25 +170,26 @@ def helper_merger_MS_HeWD_env_to_th_eq(show_pgstar, net_name, MMS_in_Msun):
     return inlist
 
 
-def helper_merger_MS_HeWD_merge(show_pgstar):
+def helper_merger_MS_HeWD_merge(enable_pgstar):
     """
     stitch core and envelope together
     """
     script = MesaPythonScript(rel_path='merge.py',
-            template=f'{paths.qol_path}/mesa/templates/scripts/call_create_shell_burning_remnant.py',
+            template=f'{paths.qol_path}mesa/templates/scripts/call_create_shell_burning_remnant.py',
             prereqs=['cool_he_wd.mod', 'env_th_eq.mod'],
             products=['remnant_init.mod'])
     
     return script
 
-def helper_merger_MS_HeWD_remnant_ringdown(show_pgstar, ringdown_time_yr):
+def helper_merger_MS_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr):
     """
     run remnant into HSE
     """
     inlist = MesaInlist('inlist_remnant_ringdown', LOGS_dir='LOGS/remnant_ringdown/')
-    if show_pgstar:
-        inlist.show_pgstar()
-    inlist.pgstar_Grid1_qol_default(write_path='Grid1/remnant_ringdown/')
+    if enable_pgstar:
+        inlist.enable_pgstar()
+    inlist.save_pgstar(write_path='Grid1/remnant_ringdown/')
+    inlist.use_qol_pgstar()
 
     inlist.load_model('remnant_init.mod')
     inlist.set_Zbase(0.02)
@@ -206,14 +211,15 @@ def helper_merger_MS_HeWD_remnant_ringdown(show_pgstar, ringdown_time_yr):
 
     return inlist
 
-def helper_merger_MS_HeWD_remnant_to_trgb(show_pgstar):
+def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar):
     """
     run remnant to tRGB
     """
     inlist = MesaInlist('inlist_remnant_to_trgb', LOGS_dir='LOGS/evolve_remnant/')
-    if show_pgstar:
-        inlist.show_pgstar()
-    inlist.pgstar_Grid1_qol_default(write_path='Grid1/remnant_to_trgb/')
+    if enable_pgstar:
+        inlist.enable_pgstar()
+    inlist.save_pgstar(write_path='Grid1/remnant_to_trgb/')
+    inlist.use_qol_pgstar()
 
     inlist.load_model('remnant_hse.mod')
     inlist.set_Zbase(0.02)
@@ -231,14 +237,15 @@ def helper_merger_MS_HeWD_remnant_to_trgb(show_pgstar):
 
     return inlist
 
-def helper_merger_MS_HeWD_trgb_to_zacheb(show_pgstar):
+def helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar):
     """
     run remnant through He flash to ZACHeB
     """
     inlist = MesaInlist('inlist_trgb_to_zacheb', LOGS_dir='LOGS/trgb_to_zacheb/')
-    if show_pgstar:
-        inlist.show_pgstar()
-    inlist.pgstar_Grid1_qol_default(write_path='Grid1/trgb_to_zacheb/')
+    if enable_pgstar:
+        inlist.enable_pgstar()
+    inlist.save_pgstar(write_path='Grid1/trgb_to_zacheb/')
+    inlist.use_qol_pgstar()
 
     inlist.load_model('remnant_trgb.mod')
     inlist.he_core_boundary_h1_fraction(1e-3)
@@ -263,14 +270,15 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(show_pgstar):
 
     return inlist
 
-def helper_merger_MS_HeWD_zacheb_to_co_wd(show_pgstar):
+def helper_merger_MS_HeWD_zacheb_to_co_wd(enable_pgstar):
     """
     run remnant from ZACHEB to CO WD
     """
     inlist = MesaInlist('inlist_zacheb_to_co_wd', LOGS_dir='LOGS/zacheb_to_co_wd/')
-    if show_pgstar:
-        inlist.show_pgstar()
-    inlist.pgstar_Grid1_qol_default(write_path='Grid1/zacheb_to_co_wd/')
+    if enable_pgstar:
+        inlist.enable_pgstar()
+    inlist.save_pgstar(write_path='Grid1/zacheb_to_co_wd/')
+    inlist.use_qol_pgstar()
 
     inlist.load_model('remnant_zacheb.mod')
     inlist.he_core_boundary_h1_fraction(1e-3)
@@ -293,14 +301,15 @@ def helper_merger_MS_HeWD_zacheb_to_co_wd(show_pgstar):
 
     return inlist
 
-def helper_merger_MS_HeWD_cool_co_wd(show_pgstar):
+def helper_merger_MS_HeWD_cool_co_wd(enable_pgstar):
     """
     cool leftover CO WD for a long time
     """
     inlist = MesaInlist('inlist_cool_co_wd', LOGS_dir='LOGS/cool_co_wd/')
-    if show_pgstar:
-        inlist.show_pgstar()
-    inlist.pgstar_Grid1_qol_default(write_path='Grid1/cool_co_wd/')
+    if enable_pgstar:
+        inlist.enable_pgstar()
+    inlist.save_pgstar(write_path='Grid1/cool_co_wd/')
+    inlist.use_qol_pgstar()
 
     inlist.load_model('hot_co_wd.mod')
     inlist.he_core_boundary_h1_fraction(1e-3)

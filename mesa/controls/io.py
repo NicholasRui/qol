@@ -40,7 +40,9 @@ def read_extra_inlist(self, namelist, rel_path, category=None, comment=None):
             control_path = f'extra_controls_inlist_name({self.num_extra_controls_inlists})'
     
         case 'pgstar':
-            raise ValueError('namelist not yet supported: pgstar')
+            self.num_extra_pgstar_inlists += 1
+            control_bool = f'read_extra_pgstar_inlist({self.num_extra_pgstar_inlists})'
+            control_path = f'extra_pgstar_inlist_name({self.num_extra_pgstar_inlists})'
 
         case _:
             raise ValueError(f'invalid namelist: {namelist}')
@@ -50,7 +52,8 @@ def read_extra_inlist(self, namelist, rel_path, category=None, comment=None):
     self.add_control(namelist=namelist, category=category, comment=comment,
             control=control_path, value=rel_path)
 
-    self.prereqs.append(rel_path)
+    if rel_path not in self.prereqs: # only add prereq if not already there
+        self.prereqs.append(rel_path)
 
 def write_model_with_profile(self):
     self.add_control(namelist='controls', category='write-out',
