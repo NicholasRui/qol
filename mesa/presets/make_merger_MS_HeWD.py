@@ -9,6 +9,7 @@ def make_merger_MS_HeWD(
         net_name='pp_cno_extras_o18_ne22.net', #'cno_extras_o18_to_mg26.net', # net
         ringdown_time_yr=1e5, # ringdown timescale to HSE
         enable_pgstar=False,
+        rgb_wind=True,
         ):
     """
     Make merger between HeWD and MS
@@ -22,8 +23,8 @@ def make_merger_MS_HeWD(
     task_env_to_th_eq = helper_merger_MS_HeWD_env_to_th_eq(enable_pgstar=enable_pgstar, net_name=net_name, MMS_in_Msun=MMS_in_Msun)
     task_merge = helper_merger_MS_HeWD_merge(enable_pgstar=enable_pgstar)
     task_remnant_ringdown = helper_merger_MS_HeWD_remnant_ringdown(enable_pgstar=enable_pgstar, ringdown_time_yr=ringdown_time_yr)
-    task_remnant_to_trgb = helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar=enable_pgstar)
-    task_trgb_to_zacheb = helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar=enable_pgstar)
+    task_remnant_to_trgb = helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar=enable_pgstar, rgb_wind=rgb_wind)
+    task_trgb_to_zacheb = helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar=enable_pgstar, rgb_wind=rgb_wind)
     task_zacheb_to_co_wd = helper_merger_MS_HeWD_zacheb_to_co_wd(enable_pgstar=enable_pgstar)
     task_cool_co_wd = helper_merger_MS_HeWD_cool_co_wd(enable_pgstar=enable_pgstar)
 
@@ -211,7 +212,7 @@ def helper_merger_MS_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr):
 
     return inlist
 
-def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar):
+def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar, rgb_wind):
     """
     run remnant to tRGB
     """
@@ -227,9 +228,10 @@ def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar):
     inlist.energy_eqn_option('eps_grav')
 
     # wind
-    inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
-    inlist.cool_wind_AGB(scheme='Blocker', scaling_factor=0.1)
-    inlist.RGB_to_AGB_wind_switch(1e-4)
+    if rgb_wind:
+        inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
+        inlist.cool_wind_AGB(scheme='Blocker', scaling_factor=0.1)
+        inlist.RGB_to_AGB_wind_switch(1e-4)
 
     # evolve remnant up to tRGB
     inlist.stop_at_phase_He_Burn()
@@ -237,7 +239,7 @@ def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar):
 
     return inlist
 
-def helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar):
+def helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar, rgb_wind):
     """
     run remnant through He flash to ZACHeB
     """
@@ -260,9 +262,10 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar):
     inlist.set_max_num_retries(3000)
 
     # wind
-    inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
-    inlist.cool_wind_AGB(scheme='Blocker', scaling_factor=0.1)
-    inlist.RGB_to_AGB_wind_switch(1e-4)
+    if rgb_wind:
+        inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
+        inlist.cool_wind_AGB(scheme='Blocker', scaling_factor=0.1)
+        inlist.RGB_to_AGB_wind_switch(1e-4)
 
     # stop at ZACHEB
     inlist.stop_at_phase_ZACHeB()
