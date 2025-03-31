@@ -20,7 +20,7 @@ vis_tick_length = 5
 vis_axis_border_width = 1
 
 vis_grid_width = 0.2
-vis_grid_alpha = 0.6
+vis_grid_alpha = 0.3
 
 vis_plot_linewidth = 3
 
