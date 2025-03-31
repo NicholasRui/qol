@@ -29,6 +29,12 @@ def get_is_prop(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, pro
         case _:
             raise ValueError(f'invalid proptype: {proptype}')
 
+def get_is_g(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
+    return self.get_is_prop(l, ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P, proptype='g')
+
+def get_is_p(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
+    return self.get_is_prop(l, ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P, proptype='p')
+
 def get_int_N_div_r_dr(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
     """
     Calculate int_N_div_r_dr over g-propagating regions (no cavity contiguity enforced)
