@@ -53,6 +53,27 @@ def subplot(*args, **kwargs) -> FancyAxes:
 
     return ax
 
+def subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True, width_ratios=None, height_ratios=None, subplot_kw=None, gridspec_kw=None, **fig_kw):
+    fig, axs = plt.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey,
+                            squeeze=squeeze, width_ratios=width_ratios, height_ratios=height_ratios,
+                            subplot_kw=subplot_kw, gridspec_kw=gridspec_kw, **fig_kw)
+    
+    if nrows == ncols == 1:
+        ax = axs
+        ax.__class__ = FancyAxes
+        ax.fancy_formatting()
+    elif nrows == 1 or ncols == 1:
+        for ax in axs:
+            ax.__class__ = FancyAxes
+            ax.fancy_formatting()
+    else:
+        for _, axs_row in enumerate(axs):
+            for ax in axs_row:
+                ax.__class__ = FancyAxes
+                ax.fancy_formatting()
+    
+    return fig, axs
+
 ###########################
 ###### NEW FUNCTIONS ######
 ###########################
