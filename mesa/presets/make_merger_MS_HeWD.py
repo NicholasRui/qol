@@ -57,7 +57,7 @@ def helper_merger_MS_HeWD_evolve_rg(enable_pgstar, net_name, MWD_in_Msun):
     """
     make RG, evolve to desired core mass
     """
-    inlist = MesaInlist('inlist_evolve_rg', LOGS_dir='LOGS/evolve_rg/')
+    inlist = MesaInlist('inlist_evolve_rg', LOGS_dir='LOGS/evolve_rg/', photos_dir='photos/evolve_rg/')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/evolve_rg/')
@@ -81,7 +81,7 @@ def helper_merger_MS_HeWD_strip_rg(enable_pgstar, MWD_in_Msun):
     """
     remove mass from RG
     """
-    inlist = MesaInlist('inlist_strip_rg', LOGS_dir='LOGS/strip_rg/')
+    inlist = MesaInlist('inlist_strip_rg', LOGS_dir='LOGS/strip_rg/', photos_dir='photos/strip_rg/')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/strip_rg/')
@@ -104,7 +104,7 @@ def helper_merger_MS_HeWD_cool_he_wd(enable_pgstar, T_WD):
     """
     cool He WD to desired temperature
     """
-    inlist = MesaInlist('inlist_cool_he_wd', LOGS_dir='LOGS/cool_he_wd/')
+    inlist = MesaInlist('inlist_cool_he_wd', LOGS_dir='LOGS/cool_he_wd/', photos_dir='photos/cool_he_wd/')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/cool_he_wd/')
@@ -139,7 +139,7 @@ def helper_merger_MS_HeWD_env_to_th_eq(enable_pgstar, net_name, MMS_in_Msun):
     """
     run envelope model to thermal equilibrium (no dxdt_nuc)
     """
-    inlist = MesaInlist('inlist_env_to_th_eq', LOGS_dir='LOGS/env_to_th_eq/')
+    inlist = MesaInlist('inlist_env_to_th_eq', LOGS_dir='LOGS/env_to_th_eq/', photos_dir='photos/env_to_th_eq/')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/env_to_th_eq/')
@@ -186,7 +186,7 @@ def helper_merger_MS_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr):
     """
     run remnant into HSE
     """
-    inlist = MesaInlist('inlist_remnant_ringdown', LOGS_dir='LOGS/remnant_ringdown/')
+    inlist = MesaInlist('inlist_remnant_ringdown', LOGS_dir='LOGS/remnant_ringdown/', photos_dir='photos/remnant_ringdown/')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/remnant_ringdown/')
@@ -216,7 +216,7 @@ def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar, rgb_wind):
     """
     run remnant to tRGB
     """
-    inlist = MesaInlist('inlist_remnant_to_trgb', LOGS_dir='LOGS/evolve_remnant/')
+    inlist = MesaInlist('inlist_remnant_to_trgb', LOGS_dir='LOGS/evolve_remnant/', photos_dir='photos/evolve_remnant/')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/remnant_to_trgb/')
@@ -243,7 +243,7 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar, rgb_wind):
     """
     run remnant through He flash to ZACHeB
     """
-    inlist = MesaInlist('inlist_trgb_to_zacheb', LOGS_dir='LOGS/trgb_to_zacheb/')
+    inlist = MesaInlist('inlist_trgb_to_zacheb', LOGS_dir='LOGS/trgb_to_zacheb/', photos_dir='photos/trgb_to_zacheb/')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/trgb_to_zacheb/')
@@ -277,7 +277,7 @@ def helper_merger_MS_HeWD_zacheb_to_co_wd(enable_pgstar):
     """
     run remnant from ZACHEB to CO WD
     """
-    inlist = MesaInlist('inlist_zacheb_to_co_wd', LOGS_dir='LOGS/zacheb_to_co_wd/')
+    inlist = MesaInlist('inlist_zacheb_to_co_wd', LOGS_dir='LOGS/zacheb_to_co_wd/', photos_dir='photos/zacheb_to_co_wd/')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/zacheb_to_co_wd/')
@@ -308,7 +308,7 @@ def helper_merger_MS_HeWD_cool_co_wd(enable_pgstar):
     """
     cool leftover CO WD for a long time
     """
-    inlist = MesaInlist('inlist_cool_co_wd', LOGS_dir='LOGS/cool_co_wd/')
+    inlist = MesaInlist('inlist_cool_co_wd', LOGS_dir='LOGS/cool_co_wd/', photos_dir='photos/cool_co_wd/')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/cool_co_wd/')

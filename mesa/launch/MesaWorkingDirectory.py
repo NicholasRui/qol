@@ -39,13 +39,17 @@ class MesaWorkingDirectory:
         self.rel_paths_root_prereq = []
         self.tasks = []
 
+        # store certain path names to make sure they aren't referred to twice
+        self.LOGS_dirs = []
+        self.photos_dirs = []
+
     def add_root_prereq(self, copy_from_abs_path, rel_path):
         """
         Add a model file which serves as a "root prereq"
         (something used by an inlist which is there from the beginning,
                     not outputted as an intermediate product by a task)
         
-        Copy from copy_from_abs_path (absolute path) to rel_path (relative path in work directory)
+        Copy from copy_from_abs_path (absolute path) to rel_path (relative path in prereqs_products subdirectory of work directory)
         """
         if not os.path.exists(copy_from_abs_path):
             raise ValueError(f'Path not found: {copy_from_abs_path}')
@@ -57,10 +61,20 @@ class MesaWorkingDirectory:
         """
         Add a task to the task list, after determining the prereqs already exist
         """
+        # Check no conflicts
         self.check_needed_prereqs(task)
         self.check_fname_conflicts(task)
+        if task.LOGS_dir is not None: # make sure the LOGS_dir doesn't conflict with an existing one
+            assert task.LOGS_dir not in self.LOGS_dirs
+        if task.photos_dir is not None: # same with photos_dir
+            assert task.photos_dir not in self.photos_dirs
 
+        # Store tasks and relevant info
         self.tasks.append(task)
+        if task.LOGS_dir is not None:
+            self.LOGS_dirs.append(task.LOGS_dir)
+        if task.photos_dir is not None:
+            self.photos_dirs.append(task.photos_dir)
 
     def load_qol_pgstar(self):
         """
@@ -93,10 +107,15 @@ class MesaWorkingDirectory:
         for task in self.tasks:
             existing_rel_paths += task.rel_path
         existing_rel_paths += self.rel_paths_root_prereq
-
         if task.rel_path in existing_rel_paths:
             raise ValueError('rel_path of task conflicts with existing rel_path')
         
+        self.LOGS_dirs
+
+
+
+
+
     def copy_history_columns_list(self, abs_path):
         """
         Copy history_columns.list file from abs_path
@@ -138,6 +157,8 @@ class MesaWorkingDirectory:
         os.mkdir(run_path)
         os.mkdir(f'{run_path}make')
         os.mkdir(f'{run_path}src')
+        os.mkdir(f'{run_path}tasks') # store inlists and python scripts here
+        os.mkdir(f'{run_path}prereqs_products') # store prereqs and products here
 
         mesadir = config.mesa_paths[self.mesa_version]
         workdir = f'{mesadir}/star/work/'
@@ -188,6 +209,7 @@ class MesaWorkingDirectory:
 
         # copy over helper files
         shutil.copy(f'{paths.qol_path}mesa/resources/bash/do_one', f'{run_path}do_one')
+        shutil.copy(f'{paths.qol_path}mesa/resources/bash/re_one', f'{run_path}re_one')
         shutil.copy(f'{paths.qol_path}mesa/resources/bash/any_missing', f'{run_path}any_missing')
 
         # create rn and re
@@ -205,7 +227,7 @@ class MesaWorkingDirectory:
         check_missing_template += 'fi\n\n'
 
         check_if_missing = lambda fname_list, if_none_missing, if_some_missing: \
-          check_missing_template.replace('<<FILES>>', ' '.join([formatter.to_fortran(fname) for fname in fname_list])) \
+          check_missing_template.replace('<<FILES>>', ' '.join([formatter.to_fortran(f'prereqs_products/{fname}') for fname in fname_list])) \
                                 .replace('<<NONE_MISSING>>', if_none_missing) \
                                 .replace('<<SOME_MISSING>>', if_some_missing)
 
@@ -233,7 +255,7 @@ class MesaWorkingDirectory:
         # copy all root prereqs
         for ii, rel_path in enumerate(self.rel_paths_root_prereq):
             copy_from_abs_path = self.copy_from_path_root_prereqs[ii]
-            shutil.copy(copy_from_abs_path, f'{self.run_path}/{rel_path}')
+            shutil.copy(copy_from_abs_path, f'{self.run_path}/prereqs_products/{rel_path}')
 
         # LOOP OVER TASKS AND RUN THEM IN ORDER
         vlevels = [] # vertical level in chart
@@ -259,15 +281,15 @@ class MesaWorkingDirectory:
                 # run task, then add task to sorted_tasks and increment
                 if np.in1d(task.prereqs, existing_products).all():
                     # Add strings to rn and re
-                    full_rn_string = f'# Try to run {task.rel_path}\n'
-                    full_re_string = f'# Try to run {task.rel_path}\n'
+                    full_rn_string = f'# Try to run tasks/{task.rel_path}\n'
+                    full_re_string = f'# Try to run tasks/{task.rel_path}\n'
 
                     full_rn_string += check_if_missing(fname_list=task.prereqs, \
                             if_none_missing=task.rn_string(), \
-                            if_some_missing=f"echo 'QOL: SOME PREREQS MISSING FOR {task.rel_path}, EXIT'\n    exit 1")
+                            if_some_missing=f"echo 'QOL: SOME PREREQS MISSING FOR tasks/{task.rel_path}, EXIT'\n    exit 1")
                     full_re_string += check_if_missing(fname_list=task.products, \
-                            if_none_missing=f"echo 'QOL: All products found, skipping {task.rel_path}'", \
-                            if_some_missing=task.rn_string())
+                            if_none_missing=f"echo 'QOL: All products found, skipping tasks/{task.rel_path}'", \
+                            if_some_missing=task.re_string())
                     
                     rn_text += full_rn_string
                     re_text += full_re_string
@@ -313,6 +335,7 @@ class MesaWorkingDirectory:
         
         if grant_perms:
             os.chmod(f'{run_path}do_one', 0o755)
+            os.chmod(f'{run_path}re_one', 0o755)
             os.chmod(f'{run_path}any_missing', 0o755)
             os.chmod(f'{run_path}rn', 0o755)
             os.chmod(f'{run_path}re', 0o755)
@@ -424,10 +447,11 @@ class MesaWorkingDirectory:
 
         # if desired, save bash scripts
         if slurm_job_name is not None:
+            # TODO add these custom things to the config
             # script to start job
             slurm_bash_script = SlurmBashScript(
                  job_name=slurm_job_name,
-                 time='2-00:00:00',
+                 time='7-00:00:00',
                  ntasks=1, nodes=1,
                  mem_per_cpu='10G',
                  output=f'{run_path}/output.out', error=f'{run_path}/error.out', # absolute paths

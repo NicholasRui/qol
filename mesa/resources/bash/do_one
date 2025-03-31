@@ -1,29 +1,26 @@
 #!/bin/bash
+shopt -u expand_aliases
 
 # Run a MESA inlist ($1) after deleting the previous LOGS file produced by it ($2)
 
 function check_okay {
     if [ $? -ne 0 ]; then
-            exit 1
+        exit 1
     fi
 }
 function rn1 {
     rm -f restart_photo
 
     date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
-    if [[ -e star.exe ]];then
-        ./star.exe
-    else
-        ./star
-    fi
+    ./star
     date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
 }
 
 # $1 = inlist
 # $2 = LOGS file, to remove when rerunning
-cp $1 inlist
+cp "$1" inlist
 check_okay
-rm -rf $2
-echo 'run' $1
+rm -rf "$2"
+echo 'run' "$1"
 rn1
 check_okay

@@ -1,13 +1,16 @@
 # Methods handling controls about writing or reading out data
 
 def load_model(self, rel_path):
+    """
+    stored at work/prereqs_products/rel_path
+    """
     namelist = 'star_job'
     category = 'load initial model'
 
     self.add_control(namelist=namelist, category=category,
             control='load_saved_model', value=True)
     self.add_control(namelist=namelist, category=category,
-            control='load_model_filename', value=rel_path)
+            control='load_model_filename', value=f'prereqs_products/{rel_path}')
     
     self.prereqs += [rel_path]
 
@@ -18,13 +21,14 @@ def save_final_model(self, rel_path):
     self.add_control(namelist=namelist, category=category,
             control='save_model_when_terminate', value=True)
     self.add_control(namelist=namelist, category=category,
-            control='save_model_filename', value=rel_path)
+            control='save_model_filename', value=f'prereqs_products/{rel_path}')
     
     self.products += [rel_path]
 
 def read_extra_inlist(self, namelist, rel_path, category=None, comment=None):
     """
     read extra inlist (used specifically in the case that it is a prereq)
+    stored in work/prereqs_products/rel_path
 
     namelist is either 'star_job' or 'controls' for now
     """
@@ -50,7 +54,7 @@ def read_extra_inlist(self, namelist, rel_path, category=None, comment=None):
     self.add_control(namelist=namelist, category=category, comment=comment,
             control=control_bool, value=True)
     self.add_control(namelist=namelist, category=category, comment=comment,
-            control=control_path, value=rel_path)
+            control=control_path, value=f'prereqs_products/{rel_path}')
 
     if rel_path not in self.prereqs: # only add prereq if not already there
         self.prereqs.append(rel_path)

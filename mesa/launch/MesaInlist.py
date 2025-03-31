@@ -28,22 +28,26 @@ class MesaInlist:
     """
     Stores inlist information for MESA 
     """
-    def __init__(self, rel_path, mesa_version=config.mesa_version, LOGS_dir='LOGS/'):
+    def __init__(self, rel_path, mesa_version=config.mesa_version, LOGS_dir='LOGS/', photos_dir='photos/'):
         """
         rel_path : relative path in work directory to save this inlist file
         """
         self.rel_path = rel_path
         self.mesa_version = mesa_version
         self.LOGS_dir = LOGS_dir
+        self.photos_dir = photos_dir
 
         self.inlist_controls = [] # controls
         self.prereqs = [] # model files and other things which are required for this to work
         self.products = [] # model files and other things which are saved by this inlist
 
-        if LOGS_dir is not None: # unless LOGS_dir is explicitly set to None, automatically define it
-            if LOGS_dir[-1] != '/':
-                LOGS_dir += '/'
-            self.add_control(namelist='controls', control='log_directory', value=LOGS_dir)
+        if LOGS_dir[-1] != '/': # set LOGS directory
+            LOGS_dir += '/'
+        self.add_control(namelist='controls', control='log_directory', value=LOGS_dir)
+        
+        if photos_dir[-1] != '/': # same with photos
+            photos_dir += '/'
+        self.add_control(namelist='controls', control='photo_directory', value=photos_dir)
 
         # defaults
         self.make_new_model = False
@@ -52,6 +56,9 @@ class MesaInlist:
         self.num_extra_star_job_inlists = 0
         self.num_extra_controls_inlists = 0
         self.num_extra_pgstar_inlists = 0
+
+        self.num_overshoot_zones = 0
+        self.num_predictive_mix_zones = 0
 
         self.Reimers_scaling_factor = None
         self.Blocker_scaling_factor = None
@@ -63,27 +70,22 @@ class MesaInlist:
         self.Grid1_plot_coords = []
 
 
-
         # TODO
         # - disable specific nuclear reactions (or groups, like pp chain)
         # - save gyre, model with profile, etc.
         # - mass_change? max or min star etc..
         # - define metal fractions
 
-        # automate settling, overshoot
-
         # - saving an inlist should add comments at the top about how this was generated, and what version
         # - limit_for_rel_error_in_energy_conservation
 
         # - writeout interval
 
-        # - overshoot
-
     def rn_string(self):
-        """
-        rel_path = rel_path of file, with respect to the work directory (i.e., relative path)
-        """
-        return f'./do_one {self.rel_path} {self.LOGS_dir}'
+        return f'./do_one tasks/{self.rel_path} {self.LOGS_dir}'
+
+    def re_string(self):
+        return f'./re_one tasks/{self.rel_path} {self.photos_dir} {self.LOGS_dir}'
 
     def add_control(self, namelist, control, value, category=None, comment=None, optional=False):
         """
@@ -104,7 +106,7 @@ class MesaInlist:
         """
         for saving inlist file and return text of inlist file
         run_path refers to a DIRECTORY, not the filename
-        what is saved is run_path/rel_path
+        what is saved is run_path/tasks/rel_path
 
         if abs_path is None, still return the text but don't save anything
         """
@@ -150,7 +152,7 @@ class MesaInlist:
         preface = f'! inlist created using qol package for MESA version {self.mesa_version}\n\n'
         inlist_text = preface + ''.join(namelist_texts)
 
-        abs_path = f'{run_path}/{self.rel_path}'
+        abs_path = f'{run_path}/tasks/{self.rel_path}'
         if abs_path is not None:
             with open(abs_path, 'w') as f:
                 f.write(inlist_text)
@@ -189,6 +191,8 @@ class MesaInlist:
     alpha_semiconvection = mix.alpha_semiconvection
     thermohaline_coeff = mix.thermohaline_coeff
     gravitational_settling = mix.gravitational_settling
+    add_overshoot_zone = mix.add_overshoot_zone
+    add_predictive_mix_zone = mix.add_predictive_mix_zone
 
     relax_to_inner_BC = bc.relax_to_inner_BC
 

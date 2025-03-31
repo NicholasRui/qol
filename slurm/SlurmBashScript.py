@@ -44,7 +44,6 @@ class SlurmBashScript:
         text += f'#SBATCH --error={self.error}\n' if self.error is not None else ''
         text += f'#SBATCH --mail-user={self.mail_user}     # email address\n' if self.mail_user is not None else ''
         text += f'#SBATCH --mail-type={self.mail_type}     # when to email\n' if self.mail_type is not None and self.mail_user is not None else '' # only populate if mail_user also specified
-        text += f'#SBATCH --time={self.time}     # walltime\n' if self.time is not None else ''
         text += '\n'
 
         # add tasks

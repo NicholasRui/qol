@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Attempt to restart a MESA inlist ($1) using a photo in the photo directory ($2), possibly deleting a LOGS directory ($3)
+# Behavior: if at least one photo exists, restart from the latest photo. else, use do_one (i.e., just run from scratch)
+
+# Get most recent photo
+photo_directory="$2"
+function most_recent_photo {
+    ls -tp "$photo_directory" | grep -v / | head -1
+}
+photo=$(most_recent_photo)
+
+if ! [ -e "$photo_directory/$photo" ]; then
+    # if photo doesn't exist, use do_one
+    echo "Most recent photo does not exist, starting task from scratch"
+    ./do_one "$1" "$3"
+else
+    # if photo does exist, copy it to the work directory as restart_photo and run
+    echo "Most recent photo found: restarting from photo $photo"
+    cp "$photo_directory/$photo" restart_photo
+
+    date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
+    ./star
+    date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
+fi
