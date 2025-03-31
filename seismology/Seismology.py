@@ -21,6 +21,8 @@ class Seismology:
     """
     # Import attributes from other files
     get_is_prop = methods_prop.get_is_prop
+    get_is_g = methods_prop.get_is_g
+    get_is_p = methods_prop.get_is_p
     get_int_N_div_r_dr = methods_prop.get_int_N_div_r_dr
     get_delta_Pg = methods_prop.get_delta_Pg
     
@@ -68,6 +70,7 @@ class Seismology:
         self.initialize_R(R=R, R_in_Rsun=R_in_Rsun)
         self.initialize_N(N=N, N_in_uHz=N_in_uHz, N_floor=N_floor)
         self.initialize_Sl(Sl1=Sl1, Sl1_in_uHz=Sl1_in_uHz)
+        self.calculate_min_max_N_Sl()
         self.initialize_Br(Br=Br, Br_kG=Br_kG, Br_MG=Br_MG)
         self.initialize_Ωrot(Ωrot=Ωrot, νrot=νrot, Ωrot_uHz=Ωrot_uHz, νrot_uHz=νrot_uHz, Prot=Prot, Prot_d=Prot_d)
 
@@ -182,6 +185,38 @@ class Seismology:
 
         # Required field
         assert self.Sl1 is not None
+
+    def calculate_min_max_N_Sl(self):
+        """
+        Method which calculates the pointwise min and max between N and Sl
+        """
+        self.min_N_Sl1 = np.min([self.N, self.Sl1], axis=0)
+        self.min_N_Sl2 = np.min([self.N, self.Sl2], axis=0)
+        self.min_N_Sl = lambda l: np.min([self.N, self.Sl(l)], axis=0)
+        self.max_N_Sl1 = np.max([self.N, self.Sl1], axis=0)
+        self.max_N_Sl2 = np.max([self.N, self.Sl2], axis=0)
+        self.max_N_Sl = lambda l: np.max([self.N, self.Sl(l)], axis=0)
+
+        self.min_N_Sl1_div_2pi = np.min([self.N_div_2pi, self.Sl1_div_2pi], axis=0)
+        self.min_N_Sl2_div_2pi = np.min([self.N_div_2pi, self.Sl2_div_2pi], axis=0)
+        self.min_N_Sl_div_2pi = lambda l: np.min([self.N_div_2pi, self.Sl_div_2pi(l)], axis=0)
+        self.max_N_Sl1_div_2pi = np.max([self.N_div_2pi, self.Sl1_div_2pi], axis=0)
+        self.max_N_Sl2_div_2pi = np.max([self.N_div_2pi, self.Sl2_div_2pi], axis=0)
+        self.max_N_Sl_div_2pi = lambda l: np.max([self.N_div_2pi, self.Sl_div_2pi(l)], axis=0)
+
+        self.min_N_Sl1_in_uHz = np.min([self.N_in_uHz, self.Sl1_in_uHz], axis=0)
+        self.min_N_Sl2_in_uHz = np.min([self.N_in_uHz, self.Sl2_in_uHz], axis=0)
+        self.min_N_Sl_in_uHz = lambda l: np.min([self.N_in_uHz, self.Sl_in_uHz(l)], axis=0)
+        self.max_N_Sl1_in_uHz = np.max([self.N_in_uHz, self.Sl1_in_uHz], axis=0)
+        self.max_N_Sl2_in_uHz = np.max([self.N_in_uHz, self.Sl2_in_uHz], axis=0)
+        self.max_N_Sl_in_uHz = lambda l: np.max([self.N_in_uHz, self.Sl_in_uHz(l)], axis=0)
+
+        self.min_N_Sl1_div_2pi_in_uHz = np.min([self.N_div_2pi_in_uHz, self.Sl1_div_2pi_in_uHz], axis=0)
+        self.min_N_Sl2_div_2pi_in_uHz = np.min([self.N_div_2pi_in_uHz, self.Sl2_div_2pi_in_uHz], axis=0)
+        self.min_N_Sl_div_2pi_in_uHz = lambda l: np.min([self.N_div_2pi_in_uHz, self.Sl_div_2pi_in_uHz(l)], axis=0)
+        self.max_N_Sl1_div_2pi_in_uHz = np.max([self.N_div_2pi_in_uHz, self.Sl1_div_2pi_in_uHz], axis=0)
+        self.max_N_Sl2_div_2pi_in_uHz = np.max([self.N_div_2pi_in_uHz, self.Sl2_div_2pi_in_uHz], axis=0)
+        self.max_N_Sl_div_2pi_in_uHz = lambda l: np.max([self.N_div_2pi_in_uHz, self.Sl_div_2pi_in_uHz(l)], axis=0)
 
     def initialize_Br(self, Br, Br_kG, Br_MG):
         self.Br = np.array(Br) if Br is not None else None
