@@ -344,6 +344,9 @@ def helper_merger_MS_HeWD_cool_co_wd(enable_pgstar):
             diffusion_steps_hard_limit=2000,
             diffusion_maxsteps_for_isolve=2000)
 
+    # phase separation
+    inlist.phase_separation(phase_separation_option='CO', do_phase_separation_heating=True, phase_separation_mixing_use_brunt=True)
+
     # stop after a long time, if needed... okay to fail here, if sufficiently cooled
     inlist.max_age(1e10)
     inlist.save_final_model('cool_co_wd.mod')

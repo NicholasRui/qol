@@ -76,9 +76,6 @@ class MesaInlist:
         # - mass_change? max or min star etc..
         # - define metal fractions
 
-        # - saving an inlist should add comments at the top about how this was generated, and what version
-        # - limit_for_rel_error_in_energy_conservation
-
         # - writeout interval
 
     def rn_string(self):
@@ -193,6 +190,7 @@ class MesaInlist:
     gravitational_settling = mix.gravitational_settling
     add_overshoot_zone = mix.add_overshoot_zone
     add_predictive_mix_zone = mix.add_predictive_mix_zone
+    phase_separation = mix.phase_separation
 
     relax_to_inner_BC = bc.relax_to_inner_BC
 

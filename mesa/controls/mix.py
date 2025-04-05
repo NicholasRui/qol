@@ -1,6 +1,7 @@
 # Methods handling controls about mixing
 
 import re
+import warnings
 
 def add_overshoot_zone(self, overshoot_scheme, overshoot_zone_type,
                        overshoot_zone_loc, overshoot_bdy_loc,
@@ -159,3 +160,33 @@ def gravitational_settling(self, diffusion_class_representatives,
         self.add_control(namelist='controls', category=category,
                 control=f'diffusion_class_A_max({ii+1})', value=A)
 
+def phase_separation(self, phase_separation_option,
+                     do_phase_separation_heating=True, phase_separation_mixing_use_brunt=True,
+                     do_WD_sedimentation_heating=True, min_xa_for_WD_sedimentation_heating=None):
+    """
+    Do phase separation for white dwarf
+
+    phase_separation_option -> 'CO' or 'ONe'
+    """
+    assert phase_separation_option in ['CO', 'ONe']
+
+    category = 'phase separation'
+
+    self.add_control(namelist='controls', category=category,
+            control='do_phase_separation', value=True)
+    self.add_control(namelist='controls', category=category,
+            control='phase_separation_option', value=phase_separation_option)
+    self.add_control(namelist='controls', category=category,
+            control='do_phase_separation_heating', value=do_phase_separation_heating)
+    self.add_control(namelist='controls', category=category,
+            control='phase_separation_mixing_use_brunt', value=phase_separation_mixing_use_brunt)
+    
+    self.add_control(namelist='controls', category=category,
+            control='phase_separation_mixing_use_brunt', value=phase_separation_mixing_use_brunt)
+    if do_WD_sedimentation_heating:
+        self.add_control(namelist='controls', category=category, comment='disabled to avoid double-counting with do_WD_sedimentation_heating',
+                control='do_diffusion_heating', value=False)
+        self.add_control(namelist='controls', category=category, optional=True,
+                control='min_xa_for_WD_sedimentation_heating', value=min_xa_for_WD_sedimentation_heating)
+    elif min_xa_for_WD_sedimentation_heating is not None:
+        warnings.warn('since do_WD_sedimentation_heating==False, min_xa_for_WD_sedimentation_heating is unused.')
