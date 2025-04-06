@@ -41,13 +41,15 @@ class MesaInlist:
         self.prereqs = [] # model files and other things which are required for this to work
         self.products = [] # model files and other things which are saved by this inlist
 
-        if LOGS_dir[-1] != '/': # set LOGS directory
-            LOGS_dir += '/'
-        self.add_control(namelist='controls', control='log_directory', value=LOGS_dir)
+        # if LOGS_dir is not None:
+        #     if LOGS_dir[-1] != '/': # set LOGS directory
+        #         LOGS_dir += '/'
+        self.add_control(namelist='controls', control='log_directory', value=LOGS_dir, optional=True)
         
-        if photos_dir[-1] != '/': # same with photos
-            photos_dir += '/'
-        self.add_control(namelist='controls', control='photo_directory', value=photos_dir)
+        # if photos_dir is not None:
+        #     if photos_dir[-1] != '/': # same with photos
+        #         photos_dir += '/'
+        self.add_control(namelist='controls', control='photo_directory', value=photos_dir, optional=True)
 
         # defaults
         self.make_new_model = False

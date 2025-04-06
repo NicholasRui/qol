@@ -29,7 +29,7 @@ def create_env_inlist_from_core(run_path, rel_path, core_mod_fname, M_env_Msun):
     dlgR_per_step = 0.1 # by default: increase dlgR
 
     # Create inlist
-    inlist = MesaInlist(rel_path, LOGS_dir=None)
+    inlist = MesaInlist(rel_path, LOGS_dir=None, photos_dir=None)
     inlist.relax_to_inner_BC(M_new_Msun=M_env_Msun+M_center_Msun,
                              R_center_Rsun=R_center_Rsun,
                              dlgR_per_step=dlgR_per_step)
