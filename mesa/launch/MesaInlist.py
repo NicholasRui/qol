@@ -101,13 +101,13 @@ class MesaInlist:
         
         self.inlist_controls.append(inlist_control)
 
-    def save(self, run_path):
+    def save(self, run_path, is_task=True):
         """
         for saving inlist file and return text of inlist file
         run_path refers to a DIRECTORY, not the filename
         what is saved is run_path/tasks/rel_path
 
-        if abs_path is None, still return the text but don't save anything
+        ## if abs_path is None, still return the text but don't save anything
         """
         namelist_names = ['star_job', 'eos', 'kap', 'controls', 'pgstar']
         namelist_texts = []
@@ -151,10 +151,14 @@ class MesaInlist:
         preface = f'! inlist created using qol package for MESA version {self.mesa_version}\n\n'
         inlist_text = preface + ''.join(namelist_texts)
 
-        abs_path = f'{run_path}/tasks/{self.rel_path}'
-        if abs_path is not None:
-            with open(abs_path, 'w') as f:
-                f.write(inlist_text)
+        if is_task:
+            abs_path = f'{run_path}/tasks/{self.rel_path}'
+        else:
+            abs_path = f'{run_path}/{self.rel_path}'
+
+        #if abs_path is not None:
+        with open(abs_path, 'w') as f:
+            f.write(inlist_text)
         
         return inlist_text
 

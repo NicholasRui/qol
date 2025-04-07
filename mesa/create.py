@@ -35,7 +35,7 @@ def create_env_inlist_from_core(run_path, rel_path, core_mod_fname, M_env_Msun):
                              dlgR_per_step=dlgR_per_step)
 
     # Save inlist
-    inlist.save(run_path)
+    inlist.save(run_path, is_task=False)
 
 
 

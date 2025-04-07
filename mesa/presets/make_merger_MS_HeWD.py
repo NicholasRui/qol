@@ -19,9 +19,9 @@ def make_merger_MS_HeWD(
     task_evolve_rg = helper_merger_MS_HeWD_evolve_rg(enable_pgstar=enable_pgstar, net_name=net_name, MWD_in_Msun=MWD_in_Msun)
     task_strip_rg = helper_merger_MS_HeWD_strip_rg(enable_pgstar=enable_pgstar, MWD_in_Msun=MWD_in_Msun)
     task_cool_he_wd = helper_merger_MS_HeWD_cool_he_wd(enable_pgstar=enable_pgstar, T_WD=T_WD)
-    task_inner_bc = helper_merger_MS_HeWD_inner_bc(enable_pgstar=enable_pgstar, MMS_in_Msun=MMS_in_Msun)
+    task_inner_bc = helper_merger_MS_HeWD_inner_bc(MMS_in_Msun=MMS_in_Msun)
     task_env_to_th_eq = helper_merger_MS_HeWD_env_to_th_eq(enable_pgstar=enable_pgstar, net_name=net_name, MMS_in_Msun=MMS_in_Msun)
-    task_merge = helper_merger_MS_HeWD_merge(enable_pgstar=enable_pgstar)
+    task_merge = helper_merger_MS_HeWD_merge()
     task_remnant_ringdown = helper_merger_MS_HeWD_remnant_ringdown(enable_pgstar=enable_pgstar, ringdown_time_yr=ringdown_time_yr)
     task_remnant_to_trgb = helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar=enable_pgstar, rgb_wind=rgb_wind)
     task_trgb_to_zacheb = helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar=enable_pgstar, rgb_wind=rgb_wind)
@@ -125,7 +125,7 @@ def helper_merger_MS_HeWD_cool_he_wd(enable_pgstar, T_WD):
 
     return inlist
 
-def helper_merger_MS_HeWD_inner_bc(enable_pgstar, MMS_in_Msun):
+def helper_merger_MS_HeWD_inner_bc(MMS_in_Msun):
     """
     create envelope matching core model
     """
@@ -171,7 +171,7 @@ def helper_merger_MS_HeWD_env_to_th_eq(enable_pgstar, net_name, MMS_in_Msun):
     return inlist
 
 
-def helper_merger_MS_HeWD_merge(enable_pgstar):
+def helper_merger_MS_HeWD_merge():
     """
     stitch core and envelope together
     """
