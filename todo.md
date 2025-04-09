@@ -3,30 +3,25 @@
 
 Make some code for prop diagrams with different x axis options
 
-Makes magnetic quantities and does some integrals better
-
-Subclass of ax that can easily make them fancy and make log spaced ticks that are good
+make log spaced ticks that are good
 
 Make hr diagram easily
 
+- store crystallization curves
 
-- .sh files for launching jobs
+- store bagnulo & landstreet WDs
 
+- store magnetic red giants
+
+- store vrard, gaulme, yu catalogs
+
+- store other special objects, eg GD 358, Zvrk, the fast-spinning RG from Tayar, GD 278
 
 for mesatoolkit package:
-- class object-oriented framework where i can attach each step
-- it will automatically handle how the rn file is supposed to look
 - one possible step can be evolving this stupid shit to annihilate a certain element
-- automatically names things, but can be overridden
-- make shell-burning object
-
 
 - In Python package, artificially modify certain elements
 make a custom mesa network that removes all hydrogen >:)
-also shell-burning
-generate schematic of which inlists feed into what
-
-
 
 plot code: easily make text at one of the corners
 
@@ -40,9 +35,6 @@ add ability to write text parallel to plot
 
 
 ## automate animations?
-
-
-
 
 
 ## automated workflow
