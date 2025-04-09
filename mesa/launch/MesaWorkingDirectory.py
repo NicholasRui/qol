@@ -1,5 +1,5 @@
 import qol.config as config
-import qol.paths as paths
+import info as info
 import qol.tools.formatter as formatter
 from qol.slurm.SlurmBashScript import SlurmBashScript
 
@@ -80,7 +80,7 @@ class MesaWorkingDirectory:
         """
         load default qol inlist_pgstar, need to do this before doing use_qol_pgstar
         """
-        self.add_root_prereq(copy_from_abs_path=f'{paths.qol_path}mesa/resources/r24.08.1/inlist_pgstar', rel_path='inlist_pgstar')
+        self.add_root_prereq(copy_from_abs_path=f'{info.qol_path}mesa/resources/r24.08.1/inlist_pgstar', rel_path='inlist_pgstar')
 
     def check_needed_prereqs(self, task):
         """
@@ -208,9 +208,9 @@ class MesaWorkingDirectory:
             shutil.copy(self.profile_columns_path, f'{run_path}profile_columns.list')
 
         # copy over helper files
-        shutil.copy(f'{paths.qol_path}mesa/resources/bash/do_one', f'{run_path}do_one')
-        shutil.copy(f'{paths.qol_path}mesa/resources/bash/re_one', f'{run_path}re_one')
-        shutil.copy(f'{paths.qol_path}mesa/resources/bash/any_missing', f'{run_path}any_missing')
+        shutil.copy(f'{info.qol_path}mesa/resources/bash/do_one', f'{run_path}do_one')
+        shutil.copy(f'{info.qol_path}mesa/resources/bash/re_one', f'{run_path}re_one')
+        shutil.copy(f'{info.qol_path}mesa/resources/bash/any_missing', f'{run_path}any_missing')
 
         # create rn and re
         # rn will call any_missing and do things if False, and terminate if not
@@ -239,8 +239,8 @@ class MesaWorkingDirectory:
         # root prereqs
         rn_text += '# Check root prereqs\n'
         rn_text += check_if_missing(fname_list=self.rel_paths_root_prereq, \
-                if_none_missing="echo 'QOL: All root prereqs found, continue!'", \
-                if_some_missing="echo 'QOL: SOME ROOT PREREQS MISSING, EXIT'\n    exit 1")
+                if_none_missing="echo 'QoL: All root prereqs found, continue!'", \
+                if_some_missing="echo 'QoL: SOME ROOT PREREQS MISSING, EXIT'\n    exit 1")
 
         ### Start re text
         re_text = ''
@@ -249,8 +249,8 @@ class MesaWorkingDirectory:
 
         re_text += '# Check root prereqs\n'
         re_text += check_if_missing(fname_list=self.rel_paths_root_prereq, \
-                if_none_missing="echo 'QOL: All root prereqs found, continue!'", \
-                if_some_missing="echo 'QOL: SOME ROOT PREREQS MISSING, EXIT'\n    exit 1")
+                if_none_missing="echo 'QoL: All root prereqs found, continue!'", \
+                if_some_missing="echo 'QoL: SOME ROOT PREREQS MISSING, EXIT'\n    exit 1")
 
         # copy all root prereqs
         for ii, rel_path in enumerate(self.rel_paths_root_prereq):
@@ -286,9 +286,9 @@ class MesaWorkingDirectory:
 
                     full_rn_string += check_if_missing(fname_list=task.prereqs, \
                             if_none_missing=task.rn_string(), \
-                            if_some_missing=f"echo 'QOL: SOME PREREQS MISSING FOR tasks/{task.rel_path}, EXIT'\n    exit 1")
+                            if_some_missing=f"echo 'QoL: SOME PREREQS MISSING FOR tasks/{task.rel_path}, EXIT'\n    exit 1")
                     full_re_string += check_if_missing(fname_list=task.products, \
-                            if_none_missing=f"echo 'QOL: All products found, skipping tasks/{task.rel_path}'", \
+                            if_none_missing=f"echo 'QoL: All products found, skipping tasks/{task.rel_path}'", \
                             if_some_missing=task.re_string())
                     
                     rn_text += full_rn_string
@@ -320,14 +320,14 @@ class MesaWorkingDirectory:
                 break
 
         ### End rn text and save rn file
-        rn_text += "echo 'QOL: All tasks successfully completed!'\n"
+        rn_text += "echo 'QoL: All tasks successfully completed!'\n"
         rn_text += 'exit 0\n'
 
         with open(f'{run_path}rn', 'w') as f:
             f.write(rn_text)
         
         ### End re text and save rn file
-        re_text += "echo 'QOL: All tasks successfully completed!'\n"
+        re_text += "echo 'QoL: All tasks successfully completed!'\n"
         re_text += 'exit 0\n'
 
         with open(f'{run_path}re', 'w') as f:

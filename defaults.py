@@ -1,5 +1,5 @@
 
-import qol.paths as paths
+import info as info
 from matplotlib import cycler
 
 # default colors
@@ -30,7 +30,7 @@ vis_scatter_linewidth = 1.5
 vis_scatter_marker = 'o'
 
 # default font info
-vis_fontpath = f'{paths.qol_path}vis/resources/fonts/HelveticaNeue-01.ttf'
+vis_fontpath = f'{info.qol_path}vis/resources/fonts/HelveticaNeue-01.ttf'
 vis_fontname = 'Helvetica Neue'
 
 vis_title_size = 20#24

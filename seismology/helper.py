@@ -3,6 +3,8 @@ Helper functions for Seismology class and associated attributes
 """
 import numpy as np
 
+# TODO: add methods to do additional conversions
+
 def get_ω(ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
     """
     Method which allows other methods to take a frequency in multiple formats,

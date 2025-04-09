@@ -3,6 +3,7 @@ from qol.mesa.launch.MesaControl import MesaControl
 import qol.config as config
 import qol.mesa.const as const
 import qol.tools.formatter as formatter
+import qol.info as info
 
 import qol.mesa.controls.io as io
 import qol.mesa.controls.init as init
@@ -148,8 +149,11 @@ class MesaInlist:
             namelist_text += f'/ ! end of {namelist_name} namelist\n\n\n'
             namelist_texts.append(namelist_text)
 
-        preface = f'! inlist created using qol package for MESA version {self.mesa_version}\n\n'
-        inlist_text = preface + ''.join(namelist_texts)
+        inlist_text = f'! inlist created using the QoL package\n'
+        inlist_text += f'! MESA version: {self.mesa_version}\n'
+        inlist_text += f'! QoL commit hash: {info.qol_commit_hash}\n\n'
+
+        inlist_text += ''.join(namelist_texts)
 
         if is_task:
             abs_path = f'{run_path}/tasks/{self.rel_path}'

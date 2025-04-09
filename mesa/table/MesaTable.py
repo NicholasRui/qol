@@ -3,7 +3,7 @@ import numpy as np
 from astropy.table import Table, Column, unique
 
 import qol.mesa.const as const
-import qol.paths as paths
+import info as info
 import qol.tools.formatter as formatter
 
 class MesaTable(Table):
@@ -201,7 +201,7 @@ class MesaTable(Table):
 
         match model_setting:
             case 36:
-                template_path = f'{paths.qol_path}mesa/templates/model/model36.mod'
+                template_path = f'{info.qol_path}mesa/templates/model/model36.mod'
 
                 version_number = self.attr['version_number']
                 M_in_Msun = self.attr['M/Msun']

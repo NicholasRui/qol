@@ -1,5 +1,5 @@
 from qol.mesa.launcher import *
-import qol.paths as paths
+import info as info
 
 def make_merger_MS_HeWD(
         run_path, # absolute path to save run
@@ -30,8 +30,8 @@ def make_merger_MS_HeWD(
 
     # create and save work directory
     work = MesaWorkingDirectory(run_path=run_path)
-    work.copy_history_columns_list(f'{paths.qol_path}mesa/resources/r24.08.1/history_columns.list')
-    work.copy_profile_columns_list(f'{paths.qol_path}mesa/resources/r24.08.1/profile_columns.list')
+    work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns.list')
+    work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns.list')
     work.load_qol_pgstar()
 
     work.add_task(task_evolve_rg)
@@ -130,7 +130,7 @@ def helper_merger_MS_HeWD_inner_bc(MMS_in_Msun):
     create envelope matching core model
     """
     script = MesaPythonScript('inner_bc.py',
-            template=f'{paths.qol_path}mesa/templates/scripts/call_create_env_inlist_from_core.py',
+            template=f'{info.qol_path}mesa/templates/scripts/call_create_env_inlist_from_core.py',
               const_args=[MMS_in_Msun], prereqs=['cool_he_wd.mod'], products=['inlist_env_inner_bc'])
     
     return script
@@ -176,7 +176,7 @@ def helper_merger_MS_HeWD_merge():
     stitch core and envelope together
     """
     script = MesaPythonScript(rel_path='merge.py',
-            template=f'{paths.qol_path}mesa/templates/scripts/call_create_shell_burning_remnant.py',
+            template=f'{info.qol_path}mesa/templates/scripts/call_create_shell_burning_remnant.py',
             prereqs=['cool_he_wd.mod', 'env_th_eq.mod'],
             products=['remnant_init.mod'])
     
