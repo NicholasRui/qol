@@ -2,7 +2,7 @@ from qol.mesa.read import read_mod
 import qol.mesa.const as const
 from qol.mesa.table.MesaTable import MesaTable
 
-import info as info
+import qol.info as info
 import qol.config as config
 import qol.tools.formatter as formatter
 

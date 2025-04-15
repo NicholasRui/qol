@@ -1,5 +1,5 @@
 import qol.config as config
-import info as info
+import qol.info as info
 import qol.tools.formatter as formatter
 from qol.slurm.SlurmBashScript import SlurmBashScript
 

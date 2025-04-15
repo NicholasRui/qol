@@ -1,6 +1,6 @@
 # Methods handling controls about pgstar
 
-import info as info
+import qol.info as info
 
 def enable_pgstar(self, abs_path=None):
     self.add_control(namelist='star_job', category='enable pgstar',

@@ -1,5 +1,5 @@
 from qol.mesa.launcher import *
-import info as info
+import qol.info as info
 
 def make_merger_MS_HeWD(
         run_path, # absolute path to save run

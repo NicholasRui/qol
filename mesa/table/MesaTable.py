@@ -3,7 +3,7 @@ import numpy as np
 from astropy.table import Table, Column, unique
 
 import qol.mesa.const as const
-import info as info
+import qol.info as info
 import qol.tools.formatter as formatter
 
 class MesaTable(Table):

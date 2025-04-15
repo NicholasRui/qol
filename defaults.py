@@ -1,5 +1,5 @@
 
-import info as info
+import qol.info as info
 from matplotlib import cycler
 
 # default colors
