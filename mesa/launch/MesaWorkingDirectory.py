@@ -11,6 +11,8 @@ import networkx as nx
 import os
 import shutil
 
+from itertools import chain
+
 class MesaWorkingDirectory:
     """
     Stores information for creating a custom MESA work directory
@@ -326,9 +328,12 @@ class MesaWorkingDirectory:
         with open(f'{run_path}rn', 'w') as f:
             f.write(rn_text)
         
-        ### End re text and save rn file
-        re_text += "echo 'QoL: All tasks successfully completed!'\n"
-        re_text += 'exit 0\n'
+        ### End re text and save re file
+        all_products = list(set(chain.from_iterable([task.products for task in self.tasks])))
+
+        re_text += check_if_missing(fname_list=all_products, \
+                            if_none_missing="echo 'QoL: All tasks successfully completed!'\n    exit 0", \
+                            if_some_missing=f"echo 'QoL: Some products missing -- at least one task failed'\n    exit 1")
 
         with open(f'{run_path}re', 'w') as f:
             f.write(re_text)
