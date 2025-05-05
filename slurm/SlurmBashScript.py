@@ -7,7 +7,7 @@ class SlurmBashScript:
     """
     def __init__(self,
                  job_name='job',
-                 time='2-00:00:00', # specify walltime as a string for now
+                 time='7-00:00:00', # specify walltime as a string for now
                  ntasks=1, nodes=1,
                  mem_per_cpu='10G', # specify as string for now
                  output='output.out', error='error.out', # absolute paths
@@ -35,6 +35,7 @@ class SlurmBashScript:
         text = ''
         text += '#!/bin/bash\n'
 
+        # TODO abstract this a bit
         text += f'#SBATCH --time={self.time}     # walltime\n' if self.time is not None else ''
         text += f'#SBATCH --ntasks={self.ntasks}     # number of processor cores (i.e. tasks)\n' if self.ntasks is not None else ''
         text += f'#SBATCH --nodes={self.nodes}     # number of nodes\n' if self.nodes is not None else ''
