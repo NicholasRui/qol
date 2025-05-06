@@ -10,6 +10,8 @@ def make_merger_MS_HeWD(
         ringdown_time_yr=1e5, # ringdown timescale to HSE
         enable_pgstar=False,
         rgb_wind=True,
+        alpha_semiconvection=0, #4e-2, # semiconvection
+        thermohaline_coeff=2., # thermohaline -- probably more important
         ):
     """
     Make merger between HeWD and MS
@@ -26,8 +28,8 @@ def make_merger_MS_HeWD(
     task_remnant_to_trgb = helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar=enable_pgstar, rgb_wind=rgb_wind)
     task_trgb_to_zacheb = helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar=enable_pgstar, rgb_wind=rgb_wind)
     task_zacheb_to_co_wd = helper_merger_MS_HeWD_zacheb_to_co_wd(enable_pgstar=enable_pgstar)
-    task_cool_co_wd = helper_merger_MS_HeWD_cool_co_wd(enable_pgstar=enable_pgstar)
-
+    task_cool_co_wd = helper_merger_MS_HeWD_cool_co_wd(enable_pgstar=enable_pgstar, alpha_semiconvection=alpha_semiconvection, thermohaline_coeff=thermohaline_coeff)
+    
     # create and save work directory
     work = MesaWorkingDirectory(run_path=run_path)
     work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns.list')
@@ -46,7 +48,7 @@ def make_merger_MS_HeWD(
     work.add_task(task_zacheb_to_co_wd)
     work.add_task(task_cool_co_wd)
 
-    work.save_directory(grant_perms=True, slurm_job_name=f'M{MMS_in_Msun:.2f}+HeWD{MWD_in_Msun:.2f}TWD{T_WD/1000.:.1f}')
+    work.save_directory(grant_perms=True, slurm_job_name=f'M{MMS_in_Msun:.2f}+HeWD{MWD_in_Msun:.2f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}')
 
 
 ##########################################################
@@ -216,7 +218,7 @@ def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar, rgb_wind):
     """
     run remnant to tRGB
     """
-    inlist = MesaInlist('inlist_remnant_to_trgb', LOGS_dir='LOGS/evolve_remnant/', photos_dir='photos/evolve_remnant/')
+    inlist = MesaInlist('inlist_remnant_to_trgb', LOGS_dir='LOGS/inlist_remnant_to_trgb/', photos_dir='photos/inlist_remnant_to_trgb/')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/remnant_to_trgb/')
@@ -304,7 +306,7 @@ def helper_merger_MS_HeWD_zacheb_to_co_wd(enable_pgstar):
 
     return inlist
 
-def helper_merger_MS_HeWD_cool_co_wd(enable_pgstar):
+def helper_merger_MS_HeWD_cool_co_wd(enable_pgstar, alpha_semiconvection, thermohaline_coeff):
     """
     cool leftover CO WD for a long time
     """
@@ -335,8 +337,9 @@ def helper_merger_MS_HeWD_cool_co_wd(enable_pgstar):
 
     # mixing
     inlist.use_Ledoux_criterion()
-    inlist.alpha_semiconvection(4e-2)
-    inlist.thermohaline_coeff(2.)
+
+    inlist.alpha_semiconvection(alpha_semiconvection)
+    inlist.thermohaline_coeff(thermohaline_coeff)
 
     inlist.gravitational_settling(diffusion_class_representatives=['h1', 'he3', 'he4', 'c12', 'o16', 'ne20', 'ne22', 'mg26'],
             diffusion_use_cgs_solver=True,
