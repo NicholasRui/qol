@@ -189,6 +189,7 @@ class MesaInlist:
     set_Zbase = kap.set_Zbase
 
     change_net = net.change_net
+    max_abar_for_burning = net.max_abar_for_burning
     disable_nuclear_burning = net.disable_nuclear_burning
     disable_dxdt_from_nuclear_burning = net.disable_dxdt_from_nuclear_burning
 

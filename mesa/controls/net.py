@@ -8,10 +8,13 @@ def change_net(self, net_name):
             control='change_initial_net', value=True)
     self.add_control(namelist=namelist, category=category,
             control='new_net_name', value=net_name)
-    
-def disable_nuclear_burning(self):
+
+def max_abar_for_burning(self, value):
     self.add_control(namelist='controls', category='burning: disabled',
-            control='max_abar_for_burning', value=-1)
+            control='max_abar_for_burning', value=value)
+
+def disable_nuclear_burning(self):
+    self.max_abar_for_burning(-1)
 
 def disable_dxdt_from_nuclear_burning(self):
     """
