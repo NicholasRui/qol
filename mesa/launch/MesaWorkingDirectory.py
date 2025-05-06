@@ -198,7 +198,7 @@ class MesaWorkingDirectory:
             else:
                 newlines.append(line)
         
-        RSE_out_text = '\n'.join(newlines)
+        RSE_out_text = ''.join(newlines)
 
         with open(RSE_out_path,'w') as f:
             f.write(RSE_out_text)
