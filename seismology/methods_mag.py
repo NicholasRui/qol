@@ -2,6 +2,7 @@
 # Calculate basic quantities related to seismic magnetometry
 from qol.seismology.helper import get_ω, get_magnetic_acrit
 from qol.tools.integrate import trapz_cond
+import qol.mesa.const as const
 
 import numpy as np
 from scipy.integrate import cumulative_trapezoid
@@ -17,7 +18,7 @@ def get_magnetic_K(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, 
     assert self.Rho is not None
 
     ω = get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-    is_g = self.get_is_prop(l=l, ω=ω, proptype='g')
+    is_g = self.get_is_g(l=l, ω=ω)
 
     magnetic_K = self.N ** 3 / self.Rho / self.R ** 3
     magnetic_K[~is_g] = 0
@@ -41,7 +42,7 @@ def get_magnetic_cumK(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=Non
     
     return magnetic_cumK
 
-def get_magnetic_scriptI(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
+def get_magnetic_scriptI(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, use_f_corr_RFH25=False):
     """
     Magnetic sensitivity function \mathscr{I} = int_N3_div_Rho_R3_dr / int_N_div_r_dr
     """
@@ -52,6 +53,10 @@ def get_magnetic_scriptI(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=
     int_N_div_r_dr = self.get_int_N_div_r_dr(l, ω=ω)
 
     magnetic_scriptI = int_N3_div_Rho_R3_dr / int_N_div_r_dr
+
+    if use_f_corr_RFH25:
+        f_corr_RFH25 = self.get_f_corr_RFH25(l=l, ω=ω)
+        magnetic_scriptI /= f_corr_RFH25 ** 2
 
     return magnetic_scriptI
 
@@ -68,14 +73,14 @@ def get_Bcrit(self, l, m=None, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=Non
     Bcrit = acrit * np.sqrt(4 * np.pi * self.Rho) * ω ** 2 * self.R / self.N
 
     # If not propagating as g mode, just set Bcrit to infinity
-    is_g = self.get_is_prop(l=l, ω=ω, proptype='g')
+    is_g = self.get_is_g(l=l, ω=ω)
     Bcrit[~is_g] = np.inf
 
     return Bcrit
 
 def get_ωB(self, l, m=None, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, acrit_ref='F+15', units='ωB'):
     """
-    Get maximum suppressed frequency ωB (this is the RF+23 definition, NOT the Li et al. 2022 one)
+    Get maximum suppressed frequency ωB (this is the RF23 definition, NOT the Li et al. 2022 one)
 
     units allows the output to be returned in different formats
     """
@@ -86,7 +91,7 @@ def get_ωB(self, l, m=None, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None,
     ωB = np.sqrt(self.N * self.Br / acrit / np.sqrt(4 * np.pi * self.Rho) / self.R)
 
     # If not propagating as a g mode, just set ωB to 0
-    is_g = self.get_is_prop(l=l, ω=ω, proptype='g')
+    is_g = self.get_is_g(l=l, ω=ω)
     ωB[~is_g] = np.inf
 
     match units:
@@ -115,20 +120,20 @@ def get_avg_Br2(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
     assert self.Br is not None
 
     ω = get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-    is_g = self.get_is_prop(l=l, ω=ω, proptype='g')
+    is_g = self.get_is_g(l=l, ω=ω)
     magnetic_K_norm = self.get_magnetic_K(l=l, ω=ω, normed=True)
 
     avg_Br2 = trapz_cond(x=self.R, y=magnetic_K_norm * self.Br ** 2)
 
     return avg_Br2
 
-def get_δω_mag(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, units='δω_mag'):
+def get_δω_mag(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, units='δω_mag', use_f_corr_RFH25=False):
     """
     Get δω_mag (called ωB in Li+2022)
     """
     ω = get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
 
-    magnetic_scriptI = self.get_magnetic_scriptI(l=l, ω=ω)
+    magnetic_scriptI = self.get_magnetic_scriptI(l=l, ω=ω, use_f_corr_RFH25=use_f_corr_RFH25)
     avg_Br2 = self.get_avg_Br2(l=l, ω=ω)
 
     δω_mag = magnetic_scriptI * avg_Br2 / 4 / np.pi / ω ** 3
@@ -151,4 +156,31 @@ def get_δω_mag(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, un
         
         case _:
             raise ValueError(f'invalid units: {units}')
+
+def get_f_corr_RFH25(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
+    """
+    non-asymptotic factor from Equation B3 of Rui, Fuller, Hermes 2025 (ApJ)
+    """
+    ω = get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
+
+    is_g = self.get_is_g(l=l, ω=ω)
+    Sl_out = self.Sl(l)[is_g][0] # outermost value of Sl in g-mode cavity
+
+    fN = 1 / np.sqrt(2)
+    fS = 3
+    f_corr_RFH25 = fN + (fS - fN) * (ω / Sl_out) ** 10.
+
+    return f_corr_RFH25
+
+# def get_a_asym_RFH25(self, l, m1, m2, m3):
+#     """
+    
+#     """
+
+
+
+
+
+
+
 

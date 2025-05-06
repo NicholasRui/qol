@@ -33,6 +33,7 @@ class Seismology:
     get_ωB = methods_mag.get_ωB
     get_avg_Br2 = methods_mag.get_avg_Br2
     get_δω_mag = methods_mag.get_δω_mag
+    get_f_corr_RFH25 = methods_mag.get_f_corr_RFH25
 
     get_Ωrot_g = methods_rot.get_Ωrot_g
 
