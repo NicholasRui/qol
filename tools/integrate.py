@@ -14,8 +14,14 @@ def trapz_cond(x, y, c=None):
     # Make sure things are arrays
     x, y = np.array(x), np.array(y)
     if c is not None:
-        assert c.dtype == np.bool_
-        c = np.array(c).astype(int)
+        assert type(c) is np.ndarray # must be array
+
+        if c.dtype == np.bool_:
+            c = c.astype(float) - 0.5
+        elif np.issubdtype(c.dtype, np.number):
+            c = np.array(c, dtype=float)
+        else:
+            raise TypeError('Invalid datatype for condition array c in trapz_cond.')
     else:
         c = np.ones(len(x))
     
