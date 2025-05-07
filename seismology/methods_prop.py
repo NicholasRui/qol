@@ -21,7 +21,7 @@ def get_is_prop(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, pro
     
     match proptype:
         case None:
-            return (above_Sl1 & above_N) & (~above_Sl1 & ~above_N)
+            return (above_Sl1 & above_N) | (~above_Sl1 & ~above_N)
         case 'p':
             return (above_Sl1 & above_N)
         case 'g':
@@ -40,7 +40,7 @@ def get_int_N_div_r_dr(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=No
     Calculate int_N_div_r_dr over g-propagating regions (no cavity contiguity enforced)
     """
     ω = get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-    is_g = self.get_is_prop(l=l, ω=ω, proptype='g')
+    is_g = self.get_is_g(l=l, ω=ω)
 
     int_N_div_r_dr = trapz_cond(x=self.R, y=self.N / self.R, c=is_g)
 
