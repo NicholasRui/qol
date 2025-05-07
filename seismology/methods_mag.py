@@ -193,13 +193,6 @@ def get_Brshift_RFH25(self, νB_uHz, l, ω=None, ν=None, ω_uHz=None, ν_uHz=No
 
 
 
-# 8 * np.pi ** 2.5 * np.sqrt(nuBL 2 / (l*l+1)) / np.sqrt(curlyI_grid * P_grid_full ** 3)
-
-
-# def get_a_asym_RFH25(self, l, m1, m2, m3):
-#     """
-    
-#     """
 
 
 
