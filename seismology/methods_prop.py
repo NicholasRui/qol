@@ -16,16 +16,16 @@ def get_is_prop(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, pro
     """
     ω = get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
 
-    above_Sl1 = (ω >= self.Sl(l))
+    above_Sl = (ω >= self.Sl(l))
     above_N = (ω >= self.N)
     
     match proptype:
         case None:
-            return (above_Sl1 & above_N) | (~above_Sl1 & ~above_N)
+            return (above_Sl & above_N) | (~above_Sl & ~above_N)
         case 'p':
-            return (above_Sl1 & above_N)
+            return (above_Sl & above_N)
         case 'g':
-            return (~above_Sl1 & ~above_N)
+            return (~above_Sl & ~above_N)
         case _:
             raise ValueError(f'invalid proptype: {proptype}')
 
