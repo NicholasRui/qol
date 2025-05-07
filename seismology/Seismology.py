@@ -34,6 +34,7 @@ class Seismology:
     get_avg_Br2 = methods_mag.get_avg_Br2
     get_δω_mag = methods_mag.get_δω_mag
     get_f_corr_RFH25 = methods_mag.get_f_corr_RFH25
+    get_Brshift_RFH25 = methods_mag.get_Brshift_RFH25
 
     get_Ωrot_g = methods_rot.get_Ωrot_g
 
@@ -74,8 +75,7 @@ class Seismology:
         self.calculate_min_max_N_Sl()
         self.initialize_Br(Br=Br, Br_kG=Br_kG, Br_MG=Br_MG)
         self.initialize_Ωrot(Ωrot=Ωrot, νrot=νrot, Ωrot_uHz=Ωrot_uHz, νrot_uHz=νrot_uHz, Prot=Prot, Prot_d=Prot_d)
-
-        self.Rho = np.array(Rho) if Rho is not None else None
+        self.initialize_Rho(Rho=Rho)
         
         # Assert that radii are purely monotonic (allow for zero differences just in case there are precision issues)
         if (np.diff(self.R) >= 0).all():
@@ -101,6 +101,15 @@ class Seismology:
     ##############################
     ##### READ IN QUANTITIES #####
     ##############################
+
+    def initialize_Rho(self, Rho):
+        self.Rho = np.array(Rho) if Rho is not None else None
+    
+        if hasattr(self.mesa_table, 'Rho'):
+            if self.Rho is not None:
+                warnings.warn('Rho already explicitly defined, so not using column in mesa_table')
+            else:
+                self.Rho = self.mesa_table.Rho #10 ** self.mesa_table['logRho']
 
     def initialize_R(self, R, R_in_Rsun):
         self.R = np.array(R) if R is not None else None
