@@ -39,19 +39,19 @@ class MesaTable(Table):
         # TODO: add other useful stuff
 
 
-        if 'delta_nu' in self.keys():
+        if 'delta_nu' in self.colnames:
             self.delta_nu_in_uHz = self['delta_nu']
             self.delta_nu = 1e-6 * self.delta_nu_in_uHz
 
-        if 'delta_Pg' in self.keys():
+        if 'delta_Pg' in self.colnames:
             self.delta_Pg = self['delta_Pg']
 
-        if 'nu_max' in self.keys():
+        if 'nu_max' in self.colnames:
             self.nu_max_in_uHz = self['nu_max']
             self.nu_max = 1e-6 * self.nu_max_in_uHz
 
     def update_attributes_for_profile(self):
-        if 'mass' in self.keys():
+        if 'mass' in self.colnames:
             self.mass = self.M_in_Msun = self['mass']
             self.dM_in_Msun = -np.diff(self.M_in_Msun, append=0)
 
@@ -59,7 +59,7 @@ class MesaTable(Table):
             self.dM = const.Msun * self.dM_in_Msun
             self.dq = self.dM / self.M[0]
 
-        if 'logR' in self.keys():
+        if 'logR' in self.colnames:
             self.logR_in_Rsun = self['logR']
             self.lnR = const.ln10 * self.logR_in_Rsun + np.log(const.Rsun)
 
@@ -69,65 +69,65 @@ class MesaTable(Table):
             self.R = const.Rsun * self.R_in_Rsun
             self.dR = const.Rsun * self.dR_in_Rsun
 
-        if 'logT' in self.keys():
+        if 'logT' in self.colnames:
             self.logT = self['logT']
             self.lnT = const.ln10 * self.logT
             self.T = 10 ** self.logT
         
-        if 'logRho' in self.keys():
+        if 'logRho' in self.colnames:
             self.logRho = self['logRho']
             self.lnRho = self.lnd = const.ln10 * self.logRho
             self.Rho = 10 ** self.logRho
         
-        if 'logP' in self.keys():
-            self.logP = self['logRho']
+        if 'logP' in self.colnames:
+            self.logP = self['logP']
             self.lnP = const.ln10 * self.logP
             self.P = 10 ** self.logP
 
-        if 'brunt_N2' in self.keys():
+        if 'brunt_N2' in self.colnames:
             self.N2 = self['brunt_N2']
-            self.N = np.clip(self.brunt_N2, a_min=0, a_max=None) # Brunt zeroed out at imaginary values
+            self.N = np.sqrt(np.clip(self.N2, a_min=0, a_max=None)) # Brunt zeroed out at imaginary values
 
             self.N_div_2pi = self.N / (2 * const.pi)
             self.N_in_uHz = 1e6 * self.N
             self.N_div_2pi_in_uHz = 1e6 * self.N_div_2pi
 
-        if 'brunt_N2_structure_term' in self.keys():
+        if 'brunt_N2_structure_term' in self.colnames:
             self.N2_structure_term = self['brunt_N2_structure_term']
-            self.N_structure_term = np.clip(self.brunt_N2_structure_term, a_min=0, a_max=None) # Brunt zeroed out at imaginary values
+            self.N_structure_term = np.sqrt(np.clip(self.N2_structure_term, a_min=0, a_max=None)) # Brunt zeroed out at imaginary values
 
             self.N_structure_term_div_2pi = self.N_structure_term / (2 * const.pi)
             self.N_structure_term_in_uHz = 1e6 * self.N_structure_term
             self.N_structure_term_div_2pi_in_uHz = 1e6 * self.N_structure_term_div_2pi
 
-        if 'brunt_N2_composition_term' in self.keys():
+        if 'brunt_N2_composition_term' in self.colnames:
             self.N2_composition_term = self['brunt_N2_composition_term']
-            self.N_composition_term = np.clip(self.brunt_N2_composition_term, a_min=0, a_max=None) # Brunt zeroed out at imaginary values
+            self.N_composition_term = np.sqrt(np.clip(self.N2_composition_term, a_min=0, a_max=None)) # Brunt zeroed out at imaginary values
 
             self.N_composition_term_div_2pi = self.N_composition_term / (2 * const.pi)
             self.N_composition_term_in_uHz = 1e6 * self.N_composition_term
             self.N_composition_term_div_2pi_in_uHz = 1e6 * self.N_composition_term_div_2pi
         
-        if 'csound' in self.keys():
+        if 'csound' in self.colnames:
             self.csound = self['csound']
 
         have_S = False
-        if 'lamb_S2' in self.keys():
+        if 'lamb_S2' in self.colnames:
             self.Sl1_2 = self['lamb_S2']
             self.Sl1 = np.sqrt(self.Sl1_2)
 
             have_S = True
-        elif 'lamb_S': # MESA writes this in Hz by default
+        elif 'lamb_S' in self.colnames: # MESA writes this in Hz by default
             self.Sl1 = self['lamb_S']
             self.Sl1_2 = self.Sl1 ** 2
 
             have_S = True
-        elif 'lamb_Sl1': # MESA writes this in uHz by default, so need to convert
+        elif 'lamb_Sl1' in self.colnames: # MESA writes this in uHz by default, so need to convert
             self.Sl1 = 1e-6 * self['lamb_Sl1']
             self.Sl1_2 = self.Sl1 ** 2
 
             have_S = True
-        elif ('csound' in self.keys()) and ('logR' in self.keys()):
+        elif ('csound' in self.colnames) and ('logR' in self.colnames):
             self.Sl1 = const.sqrt2 * self.csound / self.R
             self.Sl1_2 = self.Sl1 ** 2
 
@@ -150,17 +150,17 @@ class MesaTable(Table):
             self.Sl3_div_2pi_in_uHz = 1e6 * self.Sl3_div_2pi
 
     def update_attributes_for_model(self):
-        if 'lnd' in self.keys():
+        if 'lnd' in self.colnames:
             self.lnd = self.lnRho = self['lnd']
             self.logRho = self.lnd / const.ln10
             self.Rho = const.eulernum ** self.lnd
         
-        if 'lnT' in self.keys():
+        if 'lnT' in self.colnames:
             self.lnT = self['lnT']
             self.logT = self.lnT / const.ln10
             self.T = const.eulernum ** self.lnT
         
-        if 'lnR' in self.keys():
+        if 'lnR' in self.colnames:
             self.lnR = self['lnR']
             self.logR_in_Rsun = (self.lnR - np.log(const.Rsun)) / const.ln10
 
@@ -170,10 +170,10 @@ class MesaTable(Table):
             self.R = const.Rsun * self.R_in_Rsun
             self.dR = const.Rsun * self.dR_in_Rsun
         
-        if 'L' in self.keys():
+        if 'L' in self.colnames:
             self.L = self['L']
         
-        if 'dq' in self.keys():
+        if 'dq' in self.colnames:
             self.dq = dq = self['dq']
             
             if 'M/Msun' in self.attr.keys():
@@ -185,9 +185,9 @@ class MesaTable(Table):
                 self.dM = self.dM_in_Msun / const.Msun
                 self.M = self.M_in_Msun / const.Msun
         
-        if 'conv_vel' in self.keys():
+        if 'conv_vel' in self.colnames:
             self.conv_vel = self['conv_vel']
-        if 'mlt_vc' in self.keys():
+        if 'mlt_vc' in self.colnames:
             self.mlt_vc = self['mlt_vc']
 
     def write_model(self, fname, model_setting=36):
