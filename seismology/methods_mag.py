@@ -1,4 +1,4 @@
-# Methods for Seismology class
+# Methods for Seismo`log`y class
 # Calculate basic quantities related to seismic magnetometry
 from qol.seismology.helper import get_ω, get_magnetic_acrit
 from qol.tools.integrate import trapz_cond
@@ -44,15 +44,16 @@ def get_magnetic_cumK(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=Non
 
 def get_magnetic_scriptI(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, use_f_corr_RFH25=False):
     """
-    Magnetic sensitivity function \mathscr{I} = int_N3_div_Rho_R3_dr / int_N_div_r_dr
+    Magnetic sensitivity function \mathscr{I} = int_N3_div_Rho_r3_dr / int_N_div_r_dr
     """
     ω = get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
 
     magnetic_K_unnorm = self.get_magnetic_K(l=l, ω=ω, normed=False)
-    int_N3_div_Rho_R3_dr = trapz_cond(x=self.R, y=magnetic_K_unnorm)
+    int_N3_div_Rho_r3_dr = trapz_cond(x=self.R, y=magnetic_K_unnorm)
+
     int_N_div_r_dr = self.get_int_N_div_r_dr(l, ω=ω)
 
-    magnetic_scriptI = int_N3_div_Rho_R3_dr / int_N_div_r_dr
+    magnetic_scriptI = int_N3_div_Rho_r3_dr / int_N_div_r_dr
 
     if use_f_corr_RFH25:
         f_corr_RFH25 = self.get_f_corr_RFH25(l=l, ω=ω)
@@ -130,13 +131,16 @@ def get_avg_Br2(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
 def get_δω_mag(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, units='δω_mag', use_f_corr_RFH25=False):
     """
     Get δω_mag (called ωB in Li+2022)
+
+    Note the extra factor Al = l(l+1)/2, included in the definition in some works as well as here
     """
     ω = get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
 
     magnetic_scriptI = self.get_magnetic_scriptI(l=l, ω=ω, use_f_corr_RFH25=use_f_corr_RFH25)
     avg_Br2 = self.get_avg_Br2(l=l, ω=ω)
 
-    δω_mag = magnetic_scriptI * avg_Br2 / 4 / np.pi / ω ** 3
+    Al = l * (l + 1) / 2
+    δω_mag = Al * magnetic_scriptI * avg_Br2 / 4 / np.pi / ω ** 3
 
     match units:
         case 'δω_mag':
@@ -171,6 +175,26 @@ def get_f_corr_RFH25(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None
     f_corr_RFH25 = fN + (fS - fN) * (ω / Sl_out) ** 10.
 
     return f_corr_RFH25
+
+def get_Brshift_RFH25(self, νB_uHz, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, use_f_corr_RFH25=False):
+    """
+    For a given νB^l, calculate Brshift, as in RFH25 -- Equation 11, Figs. 3 and 7
+    """
+    ω = get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
+    P = 2 * const.pi / ω
+    νB = 1e-6 * νB_uHz
+
+    Al = l * (l + 1) / 2
+    magnetic_scriptI = self.get_magnetic_scriptI(l=l, ω=ω, use_f_corr_RFH25=use_f_corr_RFH25)
+    # Brshift = 8 * const.pi ** 2.5 * np.sqrt((2*l+1) * νB / (Al * magnetic_scriptI * P ** 3))
+    Brshift = 8 * const.pi ** 2.5 * np.sqrt(νB / (Al * magnetic_scriptI * P ** 3))
+
+    return Brshift
+
+
+
+# 8 * np.pi ** 2.5 * np.sqrt(nuBL 2 / (l*l+1)) / np.sqrt(curlyI_grid * P_grid_full ** 3)
+
 
 # def get_a_asym_RFH25(self, l, m1, m2, m3):
 #     """
