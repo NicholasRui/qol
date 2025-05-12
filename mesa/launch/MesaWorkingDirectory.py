@@ -140,12 +140,13 @@ class MesaWorkingDirectory:
         else:
             raise ValueError(f'No path found: {abs_path}')
 
-    def save_directory(self, grant_perms=False, make_flowchart=True, slurm_job_name=None):
+    def save_directory(self, grant_perms=False, make_flowchart=True, slurm_job_name=None, source_sdk=False):
         """
         Create MESA directory
 
         grant_perms: if True, grants permissions for bash files that need to be run
         slurm_job_name: if not None, saves a bash script for sending this job with this arg as job_name
+        source_sdk: if True, have submit/restart files do 'source $MESASDK_ROOT/bin/mesasdk_init.sh'
         """
         # CREATE NEW MESA DIRECTORY
         run_path = self.run_path
@@ -465,6 +466,8 @@ class MesaWorkingDirectory:
                  )
             
             slurm_bash_script.add_task(f'cd {run_path}')
+            if source_sdk:
+                slurm_bash_script.add_task('source $MESASDK_ROOT/bin/mesasdk_init.sh')
             slurm_bash_script.add_task(f'./mk')
             slurm_bash_script.add_task(f'./rn')
 
@@ -482,6 +485,8 @@ class MesaWorkingDirectory:
                  )
             
             slurm_bash_script.add_task(f'cd {run_path}')
+            if source_sdk:
+                slurm_bash_script.add_task('source $MESASDK_ROOT/bin/mesasdk_init.sh')
             slurm_bash_script.add_task(f'./mk')
             slurm_bash_script.add_task(f'./re')
 

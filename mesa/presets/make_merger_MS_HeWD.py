@@ -12,6 +12,7 @@ def make_merger_MS_HeWD(
         rgb_wind=True,
         alpha_semiconvection=0, #4e-2, # semiconvection
         thermohaline_coeff=2., # thermohaline -- probably more important
+        source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
         ):
     """
     Make merger between HeWD and MS
@@ -48,7 +49,9 @@ def make_merger_MS_HeWD(
     work.add_task(task_zacheb_to_co_wd)
     work.add_task(task_cool_co_wd)
 
-    work.save_directory(grant_perms=True, slurm_job_name=f'M{MMS_in_Msun:.2f}+HeWD{MWD_in_Msun:.2f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}')
+    work.save_directory(slurm_job_name=f'M{MMS_in_Msun:.2f}+HeWD{MWD_in_Msun:.2f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}',
+                        grant_perms=True,
+                        source_sdk=source_sdk)
 
 
 ##########################################################
