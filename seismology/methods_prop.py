@@ -21,13 +21,18 @@ def get_is_prop(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, pro
     
     match proptype:
         case None:
-            return (above_Sl & above_N) | (~above_Sl & ~above_N)
+            is_prop = (above_Sl & above_N) | (~above_Sl & ~above_N)
         case 'p':
-            return (above_Sl & above_N)
+            is_prop = (above_Sl & above_N)
         case 'g':
-            return (~above_Sl & ~above_N)
+            is_prop = (~above_Sl & ~above_N)
         case _:
             raise ValueError(f'invalid proptype: {proptype}')
+    
+    # exclude inner boundary (only does something if Rin_in_R was set to nonzero value)
+    is_prop = is_prop & (self.R / self.R[0] >= self.Rin_in_R)
+
+    return is_prop
 
 def get_is_g(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
     return self.get_is_prop(l, ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P, proptype='g')

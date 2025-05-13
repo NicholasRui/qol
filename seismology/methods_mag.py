@@ -24,7 +24,7 @@ def get_magnetic_K(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, 
     magnetic_K[~is_g] = 0
 
     if normed:
-        magnetic_K /= trapz_cond(x=self.R, y=magnetic_K)
+        magnetic_K /= trapz_cond(x=self.R, y=magnetic_K, c=is_g)
     
     return magnetic_K
 
@@ -124,7 +124,7 @@ def get_avg_Br2(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None):
     is_g = self.get_is_g(l=l, ω=ω)
     magnetic_K_norm = self.get_magnetic_K(l=l, ω=ω, normed=True)
 
-    avg_Br2 = trapz_cond(x=self.R, y=magnetic_K_norm * self.Br ** 2)
+    avg_Br2 = trapz_cond(x=self.R, y=magnetic_K_norm * self.Br ** 2, c=is_g)
 
     return avg_Br2
 

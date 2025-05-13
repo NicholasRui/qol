@@ -49,7 +49,9 @@ class Seismology:
 
             Ωrot: Union[np.ndarray, list, float] = None, νrot: Union[np.ndarray, list, float] = None,
             Ωrot_uHz: Union[np.ndarray, list, float] = None, νrot_uHz: Union[np.ndarray, list, float] = None,
-            Prot: Union[np.ndarray, list, float] = None, Prot_d: Union[np.ndarray, list, float] = None
+            Prot: Union[np.ndarray, list, float] = None, Prot_d: Union[np.ndarray, list, float] = None,
+
+            Rin_in_R: float = None
                  ):
         """
         At minimum, require that we have an N and an Sl (without these, seismology cannot be done)
@@ -58,6 +60,8 @@ class Seismology:
         Make sure everything is the same radius.
 
         N_floor clips N to the floor, to avoid division by 0 in some calculations
+
+        Rin_in_R defines the inner g-mode cavity, in fractional radii (default: 0)
 
         TODO:
         - maybe ask for N2 instead?
@@ -95,8 +99,11 @@ class Seismology:
             assert len(self.R) == len(self.Br)
         if type(self.Ωrot) in [np.ndarray, list]:
             assert len(self.R) == len(self.Ωrot)
-
-
+        
+        if Rin_in_R is not None:
+            self.Rin_in_R = Rin_in_R
+        else:
+            self.Rin_in_R = 0
 
     ##############################
     ##### READ IN QUANTITIES #####
