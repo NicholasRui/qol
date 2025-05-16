@@ -1,0 +1,10 @@
+# For git purposes, ignore these files
+
+# certain directories
+*.DS_Store
+*__pycache__
+
+# pngs, pdfs, and mp4s
+*.png
+*.pdf
+*.mp4
