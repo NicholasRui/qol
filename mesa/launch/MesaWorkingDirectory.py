@@ -51,7 +51,7 @@ class MesaWorkingDirectory:
         (something used by an inlist which is there from the beginning,
                     not outputted as an intermediate product by a task)
         
-        Copy from copy_from_abs_path (absolute path) to rel_path (relative path in prereqs_products subdirectory of work directory)
+        Copy from copy_from_abs_path (absolute path) to rel_path (relative path in work/data/ subdirectory)
         """
         if not os.path.exists(copy_from_abs_path):
             raise ValueError(f'Path not found: {copy_from_abs_path}')
@@ -161,7 +161,7 @@ class MesaWorkingDirectory:
         os.mkdir(f'{run_path}make')
         os.mkdir(f'{run_path}src')
         os.mkdir(f'{run_path}tasks') # store inlists and python scripts here
-        os.mkdir(f'{run_path}prereqs_products') # store prereqs and products here
+        os.mkdir(f'{run_path}data') # store prereqs and products here
 
         mesadir = config.mesa_paths[self.mesa_version]
         workdir = f'{mesadir}/star/work/'
@@ -230,7 +230,7 @@ class MesaWorkingDirectory:
         check_missing_template += 'fi\n\n'
 
         check_if_missing = lambda fname_list, if_none_missing, if_some_missing: \
-          check_missing_template.replace('<<FILES>>', ' '.join([formatter.to_fortran(f'prereqs_products/{fname}') for fname in fname_list])) \
+          check_missing_template.replace('<<FILES>>', ' '.join([formatter.to_fortran(f'data/{fname}') for fname in fname_list])) \
                                 .replace('<<NONE_MISSING>>', if_none_missing) \
                                 .replace('<<SOME_MISSING>>', if_some_missing)
 
@@ -258,7 +258,7 @@ class MesaWorkingDirectory:
         # copy all root prereqs
         for ii, rel_path in enumerate(self.rel_paths_root_prereq):
             copy_from_abs_path = self.copy_from_path_root_prereqs[ii]
-            shutil.copy(copy_from_abs_path, f'{self.run_path}/prereqs_products/{rel_path}')
+            shutil.copy(copy_from_abs_path, f'{self.run_path}/data/{rel_path}')
 
         # LOOP OVER TASKS AND RUN THEM IN ORDER
         vlevels = [] # vertical level in chart

@@ -10,8 +10,8 @@ class MesaPythonScript:
     def __init__(self, rel_path, template, const_args=[], prereqs=[], products=[]):
         """
         template: .py file to copy
-        prereqs: list of input files (relative to work/prereqs_products/)
-        products: list of output files (relative to work/prereqs_products/)
+        prereqs: list of input files (relative to work/data/)
+        products: list of output files (relative to work/data/)
 
         rel_path: name of path relative to work/tasks/
 
@@ -27,8 +27,8 @@ class MesaPythonScript:
         self.products = products # model files and other things which are saved by this inlist
 
         self.args_in = const_args
-        self.args_in += [f'prereqs_products/{prereq}' for prereq in prereqs]
-        self.args_in += [f'prereqs_products/{product}' for product in products]
+        self.args_in += [f'data/{prereq}' for prereq in prereqs]
+        self.args_in += [f'data/{product}' for product in products]
 
         self.LOGS_dir = None
         self.photos_dir = None
