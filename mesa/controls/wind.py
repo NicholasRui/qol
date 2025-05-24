@@ -110,4 +110,26 @@ def hot_wind_full_on_T(self, value):
     self.add_control(namelist='controls', category='wind',
             control='hot_wind_full_on_T', value=value)
 
+# Mass gain and loss is here
+def gain_mass(self, max_star_mass_for_gain, mass_change):
+    self.add_control(namelist='controls', category='mass change',
+            control='max_star_mass_for_gain', value=max_star_mass_for_gain)
+    self.add_control(namelist='controls', category='mass change',
+            control='mass_change', value=mass_change)
+
+def lose_mass(self, min_star_mass_for_loss, mass_change,
+              accrete_same_as_surface=None):
+    self.add_control(namelist='controls', category='mass change',
+            control='min_star_mass_for_loss', value=min_star_mass_for_loss)
+    self.add_control(namelist='controls', category='mass change',
+            control='mass_change', value=mass_change)
+    
+    self.add_control(namelist='controls', category='mass change', optional=True,
+            control='accrete_same_as_surface', value=accrete_same_as_surface)
+
+
+
+
+
+
 
