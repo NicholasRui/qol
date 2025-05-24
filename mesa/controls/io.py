@@ -63,3 +63,13 @@ def write_model_with_profile(self):
     self.add_control(namelist='controls', category='write-out',
             control='write_model_with_profile', value=True)
 
+def write_gyre_data_with_profile(self):
+    """
+    for each profile, write input file to GYRE
+    """
+    self.add_control(namelist='controls', category='write-out',
+            control='write_pulse_data_with_profile', value=True)
+    self.add_control(namelist='controls', category='write-out',
+            control='pulse_data_format', value='GYRE')
+
+
