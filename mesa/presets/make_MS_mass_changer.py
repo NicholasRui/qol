@@ -6,6 +6,7 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
                          M_final_in_Msun, # final mass
                          Xcen_accrete, # core hydrogen fraction at which time mass change starts
                          log_abs_Mdot_accrete=-5, # mass change rate in Msun per yr
+                         initial_z=0.02, # metallicity
                          overshoot_f=0.015, # overshoot parameter f
                          overshoot_f0=0.005, # overshoot parameter f0
                          enable_pgstar=False,
@@ -14,11 +15,11 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
     """
     Evolve an MS star for a bit before adding / removing mass from it
     """
-    run_name = f'MS{M_initial_in_Msun:.2f}to{M_final_in_Msun:.2f}atX{Xcen_accrete:.2f}_dM{log_abs_Mdot_accrete:.1f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}'
+    run_name = f'MS{M_initial_in_Msun:.2f}to{M_final_in_Msun:.2f}atX{Xcen_accrete:.2f}_dM{log_abs_Mdot_accrete:.1f}_z{initial_z:.4f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}'
     run_path = f'{root_path}/{run_name}'
 
-    task_zams_to_mt = helper_MS_mass_changer_zams_to_mt(enable_pgstar=enable_pgstar, M_initial_in_Msun=M_initial_in_Msun, Xcen_accrete=Xcen_accrete, overshoot_f=overshoot_f, overshoot_f0=overshoot_f0)
-    task_mt_to_tams = helper_MS_mass_changer_mt_to_tams(enable_pgstar=enable_pgstar, M_initial_in_Msun=M_initial_in_Msun, M_final_in_Msun=M_final_in_Msun, log_abs_Mdot_accrete=log_abs_Mdot_accrete, overshoot_f=overshoot_f, overshoot_f0=overshoot_f0)
+    task_zams_to_mt = helper_MS_mass_changer_zams_to_mt(enable_pgstar=enable_pgstar, M_initial_in_Msun=M_initial_in_Msun, Xcen_accrete=Xcen_accrete, initial_z=initial_z, overshoot_f=overshoot_f, overshoot_f0=overshoot_f0)
+    task_mt_to_tams = helper_MS_mass_changer_mt_to_tams(enable_pgstar=enable_pgstar, M_initial_in_Msun=M_initial_in_Msun, M_final_in_Msun=M_final_in_Msun, log_abs_Mdot_accrete=log_abs_Mdot_accrete, initial_z=initial_z, overshoot_f=overshoot_f, overshoot_f0=overshoot_f0)
 
     # Put it together
     work = MesaWorkingDirectory(run_path=run_path)
@@ -33,7 +34,7 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
 
     return work
 
-def helper_MS_mass_changer_zams_to_mt(enable_pgstar, M_initial_in_Msun, Xcen_accrete, overshoot_f, overshoot_f0):
+def helper_MS_mass_changer_zams_to_mt(enable_pgstar, M_initial_in_Msun, Xcen_accrete, initial_z, overshoot_f, overshoot_f0):
     """
     Evolve up to the mass transfer time
     """    
@@ -48,7 +49,8 @@ def helper_MS_mass_changer_zams_to_mt(enable_pgstar, M_initial_in_Msun, Xcen_acc
 
     # Initial parameters
     inlist.initial_mass(M_initial_in_Msun)
-    inlist.set_Zbase(0.02)
+    inlist.initial_z(initial_z)
+    inlist.set_Zbase(initial_z)
 
     # Termination conditions
     inlist.stop_at_phase_TAMS()
@@ -63,7 +65,7 @@ def helper_MS_mass_changer_zams_to_mt(enable_pgstar, M_initial_in_Msun, Xcen_acc
 
     return inlist
 
-def helper_MS_mass_changer_mt_to_tams(enable_pgstar, M_initial_in_Msun, M_final_in_Msun, log_abs_Mdot_accrete, overshoot_f, overshoot_f0):
+def helper_MS_mass_changer_mt_to_tams(enable_pgstar, M_initial_in_Msun, M_final_in_Msun, log_abs_Mdot_accrete, initial_z, overshoot_f, overshoot_f0):
     """
     Perform mass transfer and evolve to TAMS
     """
@@ -75,7 +77,7 @@ def helper_MS_mass_changer_mt_to_tams(enable_pgstar, M_initial_in_Msun, M_final_
 
     # Initial conditions
     inlist.load_model('zams_to_mt.mod')
-    inlist.set_Zbase(0.02)
+    inlist.set_Zbase(initial_z)
 
     # Write GYRE
     inlist.write_gyre_data_with_profile()
