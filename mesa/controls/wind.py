@@ -76,12 +76,12 @@ def cool_wind_RGB(self, scheme, scaling_factor):
     update_wind_scaling_factor = self.get_update_wind_scaling_factor(scheme, scaling_factor)
     scaling_factor_control = self.get_wind_scaling_factor_control(scheme)
 
-    self.add_control(namelist='controls', category='wind',
+    self.add_to_controls(category='wind',
             control='cool_wind_RGB_scheme', value=scheme)
     
     if update_wind_scaling_factor:
         scaling_factor_control = self.get_wind_scaling_factor_control(scheme)
-        self.add_control(namelist='controls', category='wind',
+        self.add_to_controls(category='wind',
                 control=scaling_factor_control, value=scaling_factor)
         self.update_wind_scaling_factor(scheme, scaling_factor)
 
@@ -89,42 +89,54 @@ def cool_wind_AGB(self, scheme, scaling_factor):
     update_wind_scaling_factor = self.get_update_wind_scaling_factor(scheme, scaling_factor)
     scaling_factor_control = self.get_wind_scaling_factor_control(scheme)
 
-    self.add_control(namelist='controls', category='wind',
+    self.add_to_controls(category='wind',
             control='cool_wind_AGB_scheme', value=scheme)
     
     if update_wind_scaling_factor:
         scaling_factor_control = self.get_wind_scaling_factor_control(scheme)
-        self.add_control(namelist='controls', category='wind',
+        self.add_to_controls(category='wind',
                 control=scaling_factor_control, value=scaling_factor)
         self.update_wind_scaling_factor(scheme, scaling_factor)
 
 def RGB_to_AGB_wind_switch(self, value):
-    self.add_control(namelist='controls', category='wind',
+    self.add_to_controls(category='wind',
             control='RGB_to_AGB_wind_switch', value=value)
 
 def cool_wind_full_on_T(self, value):
-    self.add_control(namelist='controls', category='wind',
+    self.add_to_controls(category='wind',
             control='cool_wind_full_on_T', value=value)
 
 def hot_wind_full_on_T(self, value):
-    self.add_control(namelist='controls', category='wind',
+    self.add_to_controls(category='wind',
             control='hot_wind_full_on_T', value=value)
 
 # Mass gain and loss is here
-def gain_mass(self, max_star_mass_for_gain, mass_change):
-    self.add_control(namelist='controls', category='mass change',
+def gain_mass(self, max_star_mass_for_gain, mass_change,
+              accrete_same_as_surface=None):
+    # Note: force mass_change to be positive for this case
+    assert mass_change > 0
+
+    self.add_to_controls(category='mass change',
             control='max_star_mass_for_gain', value=max_star_mass_for_gain)
-    self.add_control(namelist='controls', category='mass change',
+    self.add_to_controls(category='mass change',
             control='mass_change', value=mass_change)
+    
+    self.add_to_controls(category='mass change', optional=True,
+            control='accrete_same_as_surface', value=accrete_same_as_surface)
 
 def lose_mass(self, min_star_mass_for_loss, mass_change,
               accrete_same_as_surface=None):
-    self.add_control(namelist='controls', category='mass change',
+    # Note: force mass_change to be negative for this case
+    if mass_change > 0:
+        mass_change *= -1
+        warnings.warn('For mass loss, mass_change should be negative. Flipping sign of mass_change automatically in inlist.')
+
+    self.add_to_controls(category='mass change',
             control='min_star_mass_for_loss', value=min_star_mass_for_loss)
-    self.add_control(namelist='controls', category='mass change',
+    self.add_to_controls(category='mass change',
             control='mass_change', value=mass_change)
     
-    self.add_control(namelist='controls', category='mass change', optional=True,
+    self.add_to_controls(category='mass change', optional=True,
             control='accrete_same_as_surface', value=accrete_same_as_surface)
 
 
