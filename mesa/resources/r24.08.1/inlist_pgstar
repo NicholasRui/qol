@@ -38,6 +38,7 @@
     Grid1_txt_scale_factor(2) = 7.000000000000000D-01
     Grid1_plot_colspan(2) = 1
     Grid1_plot_rowspan(2) = 1
+    TRho_Profile_xmin = -15 ! show very low densities
 
   ! Grid1(3): Abundance
     Grid1_plot_name(3) = 'Abundance'
