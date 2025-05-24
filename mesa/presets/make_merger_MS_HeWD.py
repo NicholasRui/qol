@@ -7,7 +7,7 @@ def make_merger_MS_HeWD(
         MMS_in_Msun, # MS mass
         T_WD,        # temperature of WD
         net_name='pp_cno_extras_o18_ne22.net', #'cno_extras_o18_to_mg26.net', # net
-        ringdown_time_yr=1e5, # ringdown timescale to HSE
+        ringdown_time_yr=1e4, # ringdown timescale to HSE
         enable_pgstar=False,
         rgb_wind=True,
         alpha_semiconvection=0, #4e-2, # semiconvection
