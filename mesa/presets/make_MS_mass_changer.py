@@ -1,7 +1,7 @@
 from qol.mesa.launcher import *
 import qol.info as info
 
-def make_MS_mass_changer(run_path, # absolute path to save run
+def make_MS_mass_changer(root_path, # absolute path in which to write directory
                          M_initial_in_Msun, # initial mass
                          M_final_in_Msun, # final mass
                          Xcen_accrete, # core hydrogen fraction at which time mass change starts
@@ -14,6 +14,9 @@ def make_MS_mass_changer(run_path, # absolute path to save run
     """
     Evolve an MS star for a bit before adding / removing mass from it
     """
+    run_name = f'MS{M_initial_in_Msun:.2f}to{M_final_in_Msun:.2f}atX{Xcen_accrete:.2f}_dM{log_abs_Mdot_accrete:.1f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}'
+    run_path = f'{root_path}/{run_name}'
+
     task_zams_to_mt = helper_MS_mass_changer_zams_to_mt(enable_pgstar=enable_pgstar, M_initial_in_Msun=M_initial_in_Msun, Xcen_accrete=Xcen_accrete, overshoot_f=overshoot_f, overshoot_f0=overshoot_f0)
     task_mt_to_tams = helper_MS_mass_changer_mt_to_tams(enable_pgstar=enable_pgstar, M_initial_in_Msun=M_initial_in_Msun, M_final_in_Msun=M_final_in_Msun, log_abs_Mdot_accrete=log_abs_Mdot_accrete, overshoot_f=overshoot_f, overshoot_f0=overshoot_f0)
 
@@ -26,9 +29,9 @@ def make_MS_mass_changer(run_path, # absolute path to save run
     work.add_task(task_zams_to_mt)
     work.add_task(task_mt_to_tams)
 
-    work.save_directory(slurm_job_name=f'MS{M_initial_in_Msun:.2f}>{M_final_in_Msun:.2f}@X{Xcen_accrete:.2f}_dM{log_abs_Mdot_accrete:.1f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}',
-                        grant_perms=True,
-                        source_sdk=source_sdk)
+    work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
+
+    return work
 
 def helper_MS_mass_changer_zams_to_mt(enable_pgstar, M_initial_in_Msun, Xcen_accrete, overshoot_f, overshoot_f0):
     """

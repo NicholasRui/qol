@@ -2,7 +2,7 @@ from qol.mesa.launcher import *
 import qol.info as info
 
 def make_merger_MS_HeWD(
-        run_path, # absolute path to save run
+        root_path, # absolute path in which to write directory
         MWD_in_Msun, # WD mass
         MMS_in_Msun, # MS mass
         T_WD,        # temperature of WD
@@ -19,6 +19,9 @@ def make_merger_MS_HeWD(
     Make merger between HeWD and MS
     This is reproducing what was done in m_plus_wd (Rui & Fuller 2024, OJAp) but going further
     """
+    run_name = f'M{MMS_in_Msun:.2f}+HeWD{MWD_in_Msun:.2f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_mdc{mesh_delta_coeff:.2f}'
+    run_path = f'{root_path}/{run_name}'
+
     # generate tasks
     task_evolve_rg = helper_merger_MS_HeWD_evolve_rg(enable_pgstar=enable_pgstar, net_name=net_name, MWD_in_Msun=MWD_in_Msun, mesh_delta_coeff=mesh_delta_coeff)
     task_strip_rg = helper_merger_MS_HeWD_strip_rg(enable_pgstar=enable_pgstar, MWD_in_Msun=MWD_in_Msun, mesh_delta_coeff=mesh_delta_coeff)
@@ -50,9 +53,9 @@ def make_merger_MS_HeWD(
     work.add_task(task_zacheb_to_co_wd)
     work.add_task(task_cool_co_wd)
 
-    work.save_directory(slurm_job_name=f'M{MMS_in_Msun:.2f}+HeWD{MWD_in_Msun:.2f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_mdc{mesh_delta_coeff:.2f}',
-                        grant_perms=True,
-                        source_sdk=source_sdk)
+    work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
+
+    return work
 
 
 ##########################################################
