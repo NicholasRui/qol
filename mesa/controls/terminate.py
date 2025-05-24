@@ -143,3 +143,13 @@ def stop_at_phase_WDCS(self):
     self.add_control(namelist='controls', category='termination conditions',
             control='stop_at_phase_WDCS', value=True)
 
+def add_xa_central_lower_limit(self, xa_central_lower_limit_species, xa_central_lower_limit):
+    assert xa_central_lower_limit <= 1
+
+    self.add_control(namelist='controls', category='termination conditions',
+            control='xa_central_lower_limit_species', value=xa_central_lower_limit_species)
+    self.add_control(namelist='controls', category='termination conditions',
+            control='xa_central_lower_limit', value=xa_central_lower_limit)
+
+
+
