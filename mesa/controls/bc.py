@@ -9,20 +9,18 @@ def relax_to_inner_BC(self, M_new_Msun=None, R_center_Rsun=None, L_center_Lsun=N
     """
     Relax to inner boundary condition
     """
-    namelist = 'star_job'
-
     if M_new_Msun is not None:
         category = 'relax to inner BC: mass'
         comment = 'total mass in Msun'
 
-        self.add_control(namelist=namelist, category=category,
+        self.add_to_star_job(category=category,
                 control='relax_M_center', value=True)
-        self.add_control(namelist=namelist, category=category,
+        self.add_to_star_job(category=category,
                 control='new_mass', value=M_new_Msun, comment=comment)
         
-        self.add_control(namelist=namelist, category=category, optional=True,
+        self.add_to_star_job(category=category, optional=True,
                 control='dlgm_per_step', value=dlgm_per_step)
-        self.add_control(namelist=namelist, category=category, comment='sec', optional=True,
+        self.add_to_star_job(category=category, comment='sec', optional=True,
                 control='relax_M_center_dt', value=relax_M_center_dt)
 
     if R_center_Rsun is not None:
@@ -30,14 +28,14 @@ def relax_to_inner_BC(self, M_new_Msun=None, R_center_Rsun=None, L_center_Lsun=N
         R_center_cgs = R_center_Rsun * const.Rsun
         comment = f'cm = {formatter.to_fortran(R_center_Rsun)} Rsun'
 
-        self.add_control(namelist=namelist, category=category,
+        self.add_to_star_job(category=category,
                 control='relax_R_center', value=True)
-        self.add_control(namelist=namelist, category=category,
+        self.add_to_star_job(category=category,
                 control='new_R_center', value=R_center_cgs, comment=comment)
         
-        self.add_control(namelist=namelist, category=category, optional=True,
+        self.add_to_star_job(category=category, optional=True,
                 control='dlgR_per_step', value=dlgR_per_step)
-        self.add_control(namelist=namelist, category=category, comment='sec', optional=True,
+        self.add_to_star_job(category=category, comment='sec', optional=True,
                 control='relax_R_center_dt', value=relax_R_center_dt)    
     
     if L_center_Lsun is not None:
@@ -45,13 +43,13 @@ def relax_to_inner_BC(self, M_new_Msun=None, R_center_Rsun=None, L_center_Lsun=N
         L_center_cgs = L_center_Lsun * const.Lsun
         comment = f'erg s-1 = {formatter.to_fortran(L_center_Lsun)} Lsun'
 
-        self.add_control(namelist=namelist, category=category,
+        self.add_to_star_job(category=category,
                 control='relax_L_center', value=True)
-        self.add_control(namelist=namelist, category=category,
+        self.add_to_star_job(category=category,
                 control='new_L_center', value=L_center_cgs, comment=comment)
         
-        self.add_control(namelist=namelist, category=category, optional=True,
+        self.add_to_star_job(category=category, optional=True,
                 control='dlgL_per_step', value=dlgL_per_step)
-        self.add_control(namelist=namelist, category=category, comment='sec', optional=True,
+        self.add_to_star_job(category=category, comment='sec', optional=True,
                 control='relax_L_center_dt', value=relax_L_center_dt)
 

@@ -45,12 +45,12 @@ class MesaInlist:
         # if LOGS_dir is not None:
         #     if LOGS_dir[-1] != '/': # set LOGS directory
         #         LOGS_dir += '/'
-        self.add_control(namelist='controls', control='log_directory', value=LOGS_dir, optional=True)
+        self.add_to_controls(control='log_directory', value=LOGS_dir, optional=True)
         
         # if photos_dir is not None:
         #     if photos_dir[-1] != '/': # same with photos
         #         photos_dir += '/'
-        self.add_control(namelist='controls', control='photo_directory', value=photos_dir, optional=True)
+        self.add_to_controls(control='photo_directory', value=photos_dir, optional=True)
 
         # defaults
         self.make_new_model = False
@@ -100,6 +100,18 @@ class MesaInlist:
         
         self.inlist_controls.append(inlist_control)
 
+    # Aliases for add_control for specific namelists
+    def add_to_star_job(self, control, value, category=None, comment=None, optional=False):
+        self.add_control(namelist='star_job', control=control, value=value, category=category, comment=comment, optional=optional)
+    def add_to_eos(self, control, value, category=None, comment=None, optional=False):
+        self.add_control(namelist='eos', control=control, value=value, category=category, comment=comment, optional=optional)
+    def add_to_kap(self, control, value, category=None, comment=None, optional=False):
+        self.add_control(namelist='kap', control=control, value=value, category=category, comment=comment, optional=optional)
+    def add_to_controls(self, control, value, category=None, comment=None, optional=False):
+        self.add_control(namelist='controls', control=control, value=value, category=category, comment=comment, optional=optional)
+    def add_to_pgstar(self, control, value, category=None, comment=None, optional=False):
+        self.add_control(namelist='pgstar', control=control, value=value, category=category, comment=comment, optional=optional)
+    
     def save(self, run_path, is_task=True):
         """
         for saving inlist file and return text of inlist file

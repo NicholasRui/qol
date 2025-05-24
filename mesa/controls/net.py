@@ -4,13 +4,13 @@ def change_net(self, net_name):
     namelist = 'star_job'
     category = 'reaction network'
 
-    self.add_control(namelist=namelist, category=category,
+    self.add_to_star_job(category=category,
             control='change_initial_net', value=True)
-    self.add_control(namelist=namelist, category=category,
+    self.add_to_star_job(category=category,
             control='new_net_name', value=net_name)
 
 def max_abar_for_burning(self, value):
-    self.add_control(namelist='controls', category='burning: disabled',
+    self.add_to_controls(category='burning: disabled',
             control='max_abar_for_burning', value=value)
 
 def disable_nuclear_burning(self):
@@ -21,6 +21,6 @@ def disable_dxdt_from_nuclear_burning(self):
     disable composition changes from burning, but not energy release
     (i.e., artificially setting nuclear timescale to infinity)
     """
-    self.add_control(namelist='controls', category='burning: dxdt disabled',
+    self.add_to_controls(category='burning: dxdt disabled',
             control='dxdt_nuc_factor', value=0.)
 
