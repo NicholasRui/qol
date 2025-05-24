@@ -4,7 +4,9 @@
 *.DS_Store
 *__pycache__
 
-# pngs, pdfs, and mp4s
+# extensions
 *.png
 *.pdf
 *.mp4
+*.h5
+*~
