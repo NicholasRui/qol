@@ -75,8 +75,6 @@ class MesaInlist:
 
         # TODO
         # - disable specific nuclear reactions (or groups, like pp chain)
-        # - save gyre, model with profile, etc.
-        # - mass_change? max or min star etc..
         # - define metal fractions
 
         # - writeout interval
@@ -173,6 +171,7 @@ class MesaInlist:
     save_final_model = io.save_final_model
     read_extra_inlist = io.read_extra_inlist
     write_model_with_profile = io.write_model_with_profile
+    write_gyre_data_with_profile = io.write_gyre_data_with_profile
 
     create_initial_model = init.create_initial_model
     create_pre_main_sequence_model = init.create_pre_main_sequence_model
@@ -238,6 +237,7 @@ class MesaInlist:
     stop_at_phase_O_Burn = terminate.stop_at_phase_O_Burn
     stop_at_phase_Si_Burn = terminate.stop_at_phase_Si_Burn
     stop_at_phase_WDCS = terminate.stop_at_phase_WDCS
+    add_xa_central_lower_limit = terminate.add_xa_central_lower_limit
 
     enable_pgstar = pgstar.enable_pgstar
     use_qol_pgstar = pgstar.use_qol_pgstar
@@ -258,4 +258,6 @@ class MesaInlist:
     RGB_to_AGB_wind_switch = wind.RGB_to_AGB_wind_switch
     cool_wind_full_on_T = wind.cool_wind_full_on_T
     hot_wind_full_on_T = wind.hot_wind_full_on_T
+    gain_mass = wind.gain_mass
+    lose_mass = wind.lose_mass
 
