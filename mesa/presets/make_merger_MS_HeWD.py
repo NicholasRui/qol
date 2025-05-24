@@ -63,7 +63,7 @@ def helper_merger_MS_HeWD_evolve_rg(enable_pgstar, net_name, MWD_in_Msun, mesh_d
     """
     make RG, evolve to desired core mass
     """
-    inlist = MesaInlist('inlist_evolve_rg', LOGS_dir='LOGS/evolve_rg/', photos_dir='photos/evolve_rg/')
+    inlist = MesaInlist('evolve_rg')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/evolve_rg/')
@@ -88,7 +88,7 @@ def helper_merger_MS_HeWD_strip_rg(enable_pgstar, MWD_in_Msun, mesh_delta_coeff)
     """
     remove mass from RG
     """
-    inlist = MesaInlist('inlist_strip_rg', LOGS_dir='LOGS/strip_rg/', photos_dir='photos/strip_rg/')
+    inlist = MesaInlist('strip_rg')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/strip_rg/')
@@ -112,7 +112,7 @@ def helper_merger_MS_HeWD_cool_he_wd(enable_pgstar, T_WD, mesh_delta_coeff):
     """
     cool He WD to desired temperature
     """
-    inlist = MesaInlist('inlist_cool_he_wd', LOGS_dir='LOGS/cool_he_wd/', photos_dir='photos/cool_he_wd/')
+    inlist = MesaInlist('cool_he_wd')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/cool_he_wd/')
@@ -138,9 +138,9 @@ def helper_merger_MS_HeWD_inner_bc(MMS_in_Msun):
     """
     create envelope matching core model
     """
-    script = MesaPythonScript('inner_bc.py',
+    script = MesaPythonScript('inner_bc',
             template=f'{info.qol_path}mesa/templates/scripts/call_create_env_inlist_from_core.py',
-              const_args=[MMS_in_Msun], prereqs=['cool_he_wd.mod'], products=['inlist_env_inner_bc'])
+              const_args=[MMS_in_Msun], prereqs=['cool_he_wd.mod'], products=['env_inner_bc'])
     
     return script
 
@@ -148,7 +148,7 @@ def helper_merger_MS_HeWD_env_to_th_eq(enable_pgstar, net_name, MMS_in_Msun, mes
     """
     run envelope model to thermal equilibrium (no dxdt_nuc)
     """
-    inlist = MesaInlist('inlist_env_to_th_eq', LOGS_dir='LOGS/env_to_th_eq/', photos_dir='photos/env_to_th_eq/')
+    inlist = MesaInlist('env_to_th_eq')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/env_to_th_eq/')
@@ -186,7 +186,7 @@ def helper_merger_MS_HeWD_merge():
     """
     stitch core and envelope together
     """
-    script = MesaPythonScript(rel_path='merge.py',
+    script = MesaPythonScript(rel_path='merge',
             template=f'{info.qol_path}mesa/templates/scripts/call_create_shell_burning_remnant.py',
             prereqs=['cool_he_wd.mod', 'env_th_eq.mod'],
             products=['remnant_init.mod'])
@@ -197,7 +197,7 @@ def helper_merger_MS_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr, mesh
     """
     run remnant into HSE
     """
-    inlist = MesaInlist('inlist_remnant_ringdown', LOGS_dir='LOGS/remnant_ringdown/', photos_dir='photos/remnant_ringdown/')
+    inlist = MesaInlist('remnant_ringdown')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/remnant_ringdown/')
@@ -229,7 +229,7 @@ def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar, rgb_wind, mesh_delta_co
     """
     run remnant to tRGB
     """
-    inlist = MesaInlist('inlist_remnant_to_trgb', LOGS_dir='LOGS/inlist_remnant_to_trgb/', photos_dir='photos/inlist_remnant_to_trgb/')
+    inlist = MesaInlist('remnant_to_trgb')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/remnant_to_trgb/')
@@ -257,7 +257,7 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar, rgb_wind, mesh_delta_coe
     """
     run remnant through He flash to ZACHeB
     """
-    inlist = MesaInlist('inlist_trgb_to_zacheb', LOGS_dir='LOGS/trgb_to_zacheb/', photos_dir='photos/trgb_to_zacheb/')
+    inlist = MesaInlist('trgb_to_zacheb')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/trgb_to_zacheb/')
@@ -293,7 +293,7 @@ def helper_merger_MS_HeWD_zacheb_to_co_wd(enable_pgstar, mesh_delta_coeff):
     """
     run remnant from ZACHEB to CO WD
     """
-    inlist = MesaInlist('inlist_zacheb_to_co_wd', LOGS_dir='LOGS/zacheb_to_co_wd/', photos_dir='photos/zacheb_to_co_wd/')
+    inlist = MesaInlist('zacheb_to_co_wd')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/zacheb_to_co_wd/')
@@ -325,7 +325,7 @@ def helper_merger_MS_HeWD_cool_co_wd(enable_pgstar, alpha_semiconvection, thermo
     """
     cool leftover CO WD for a long time
     """
-    inlist = MesaInlist('inlist_cool_co_wd', LOGS_dir='LOGS/cool_co_wd/', photos_dir='photos/cool_co_wd/')
+    inlist = MesaInlist('cool_co_wd')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/cool_co_wd/')

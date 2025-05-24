@@ -29,27 +29,24 @@ class MesaInlist:
     """
     Stores inlist information for MESA 
     """
-    def __init__(self, rel_path, mesa_version=config.mesa_version, LOGS_dir='LOGS/', photos_dir='photos/'):
+    def __init__(self, name, mesa_version=config.mesa_version):
         """
-        rel_path : relative path in work directory to save this inlist file
+        name: an informative name
+
+        relative path (rel_path) will be "inlist_{name}"
         """
-        self.rel_path = rel_path
+        self.name = name
+        self.rel_path = f'inlist_{name}'
         self.mesa_version = mesa_version
-        self.LOGS_dir = LOGS_dir
-        self.photos_dir = photos_dir
 
         self.inlist_controls = [] # controls
         self.prereqs = [] # model files and other things which are required for this to work
         self.products = [] # model files and other things which are saved by this inlist
 
-        # if LOGS_dir is not None:
-        #     if LOGS_dir[-1] != '/': # set LOGS directory
-        #         LOGS_dir += '/'
+        self.LOGS_dir = LOGS_dir = f'LOGS/{name}/'
         self.add_to_controls(control='log_directory', value=LOGS_dir, optional=True)
         
-        # if photos_dir is not None:
-        #     if photos_dir[-1] != '/': # same with photos
-        #         photos_dir += '/'
+        self.photos_dir = photos_dir = f'photos/{name}/'
         self.add_to_controls(control='photo_directory', value=photos_dir, optional=True)
 
         # defaults

@@ -5,7 +5,7 @@ from qol.mesa.create import create_env_inlist_from_core
 # skip argv[0], which is the script path itself
 M_env_Msun = sys.argv[1]
 core_mod_fname = sys.argv[2]
-rel_path = sys.argv[3]
+task_name = sys.argv[3]
 
 run_path = '.'
 
@@ -15,6 +15,6 @@ except:
     raise ValueError(f'M_env_Msun -- cannot interpret as float: {M_env_Msun}')
 
 create_env_inlist_from_core(run_path=run_path,
-    rel_path=rel_path,
+    name=task_name,
     core_mod_fname=core_mod_fname,
     M_env_Msun=M_env_Msun)

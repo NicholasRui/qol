@@ -7,19 +7,23 @@ class MesaPythonScript:
     Keeps track of information related to Python scripts inserted
     within MESA workflow
     """
-    def __init__(self, rel_path, template, const_args=[], prereqs=[], products=[]):
+    def __init__(self, name, template, const_args=[], prereqs=[], products=[]):
         """
+        name: an informative name
+
         template: .py file to copy
         prereqs: list of input files (relative to work/data/)
         products: list of output files (relative to work/data/)
 
-        rel_path: name of path relative to work/tasks/
+        relative path (rel_path) will be "script_{name}.py"
 
         arrange arguments of script to take first all of the constant args,
         then all of the prereqs, then the products after
         fed into script using sys package
         """
-        self.rel_path = rel_path
+        self.name = name
+        
+        self.rel_path = f'script_{name}.py'
         self.template = template
     
         self.const_args = const_args # constant arguments which do not depend on output of other runs

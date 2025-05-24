@@ -22,10 +22,6 @@ class MesaWorkingDirectory:
     - save : returns command which saves the needed files
     - prereqs : list of prereq files inputed to task
     - products : list of product files outputed by task
-
-    TODO
-    need inlist (straight-up inlist file... header?)
-    save shell for running job
     """
     def __init__(self, run_path, mesa_version=config.mesa_version):
         if os.path.exists(run_path):
@@ -40,10 +36,6 @@ class MesaWorkingDirectory:
         self.copy_from_path_root_prereqs = []
         self.rel_paths_root_prereq = []
         self.tasks = []
-
-        # store certain path names to make sure they aren't referred to twice
-        self.LOGS_dirs = []
-        self.photos_dirs = []
 
     def add_root_prereq(self, copy_from_abs_path, rel_path):
         """
@@ -66,17 +58,9 @@ class MesaWorkingDirectory:
         # Check no conflicts
         self.check_needed_prereqs(task)
         self.check_fname_conflicts(task)
-        if task.LOGS_dir is not None: # make sure the LOGS_dir doesn't conflict with an existing one
-            assert task.LOGS_dir not in self.LOGS_dirs
-        if task.photos_dir is not None: # same with photos_dir
-            assert task.photos_dir not in self.photos_dirs
 
-        # Store tasks and relevant info
+        # Store tasks
         self.tasks.append(task)
-        if task.LOGS_dir is not None:
-            self.LOGS_dirs.append(task.LOGS_dir)
-        if task.photos_dir is not None:
-            self.photos_dirs.append(task.photos_dir)
 
     def load_qol_pgstar(self):
         """
@@ -105,19 +89,13 @@ class MesaWorkingDirectory:
         """
         make sure the new task doesn't present an fname conflict
         """
-        existing_rel_paths = []
+        existing_task_names = []
         for task in self.tasks:
-            existing_rel_paths += task.rel_path
-        existing_rel_paths += self.rel_paths_root_prereq
-        if task.rel_path in existing_rel_paths:
-            raise ValueError('rel_path of task conflicts with existing rel_path')
+            existing_task_names += task.name
+
+        if task.name in existing_task_names:
+            raise ValueError('name of task conflicts with existing name')
         
-        self.LOGS_dirs
-
-
-
-
-
     def copy_history_columns_list(self, abs_path):
         """
         Copy history_columns.list file from abs_path
