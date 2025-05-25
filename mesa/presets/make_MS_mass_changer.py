@@ -6,8 +6,8 @@ dX_div_X_limit_min_X = 1e-4
 dX_div_X_limit = 1e-2
 dX_nuc_drop_min_X_limit = 1e-4
 dX_nuc_drop_limit = 1e-2
-
-
+# controlling change in log mstar
+delta_lg_star_mass_limit = delta_lg_star_mass_hard_limit = 1e-5
 
 def make_MS_single(root_path, # absolute path in which to write directory
                    M_in_Msun,
@@ -109,6 +109,8 @@ def helper_MS_mass_changer_zams_to_mt(enable_pgstar, M_initial_in_Msun, Xcen_acc
                      dX_nuc_drop_min_X_limit=dX_nuc_drop_min_X_limit,
                      dX_nuc_drop_limit=dX_nuc_drop_limit,
                      )
+    inlist.set_delta_lg_star_mass_limits(delta_lg_star_mass_limit=delta_lg_star_mass_limit,
+                                  delta_lg_star_mass_hard_limit=delta_lg_star_mass_hard_limit)
 
     # Termination conditions
     inlist.stop_at_phase_TAMS()
@@ -146,6 +148,8 @@ def helper_MS_mass_changer_mt_to_tams(enable_pgstar, M_initial_in_Msun, M_final_
                      dX_nuc_drop_min_X_limit=dX_nuc_drop_min_X_limit,
                      dX_nuc_drop_limit=dX_nuc_drop_limit,
                      )
+    inlist.set_delta_lg_star_mass_limits(delta_lg_star_mass_limit=delta_lg_star_mass_limit,
+                                  delta_lg_star_mass_hard_limit=delta_lg_star_mass_hard_limit)
 
     # Write GYRE
     inlist.write_gyre_data_with_profile()
