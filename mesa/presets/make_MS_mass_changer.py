@@ -8,7 +8,7 @@ def make_MS_single(root_path, # absolute path in which to write directory
                    overshoot_f0=0.005, # overshoot parameter f0
                    enable_pgstar=False,
                    source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
-                   to_lower_RGB=False, # add task evolving to lower RGB)
+                   to_lower_rgb=False, # add task evolving to lower RGB)
                    alpha_semiconvection=0., # semiconvection parameter
                    ):
     """
@@ -27,7 +27,7 @@ def make_MS_single(root_path, # absolute path in which to write directory
 
     work.add_task(task_zams_to_mt)
 
-    if to_lower_RGB:
+    if to_lower_rgb:
         task_tams_to_lower_rgb = helper_MS_mass_changer_tams_to_lower_rgb(enable_pgstar=enable_pgstar, initial_z=initial_z, last_task='zams_to_mt', alpha_semiconvection=alpha_semiconvection)
         work.add_task(task_tams_to_lower_rgb)
 
@@ -46,7 +46,7 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
                          overshoot_f0=0.005, # overshoot parameter f0
                          enable_pgstar=False,
                          source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
-                         to_lower_RGB=False, # add task evolving to lower RGB
+                         to_lower_rgb=False, # add task evolving to lower RGB
                          alpha_semiconvection=0., # semiconvection parameter
                          ):
     """
@@ -67,7 +67,7 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
     work.add_task(task_zams_to_mt)
     work.add_task(task_mt_to_tams)
 
-    if to_lower_RGB:
+    if to_lower_rgb:
         task_tams_to_lower_rgb = helper_MS_mass_changer_tams_to_lower_rgb(enable_pgstar=enable_pgstar, initial_z=initial_z, last_task='mt_to_tams')
         work.add_task(task_tams_to_lower_rgb, alpha_semiconvection=alpha_semiconvection)
 
