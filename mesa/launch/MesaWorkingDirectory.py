@@ -121,7 +121,10 @@ class MesaWorkingDirectory:
         else:
             raise ValueError(f'No path found: {abs_path}')
 
-    def save_directory(self, grant_perms=False, make_flowchart=True, slurm_job_name=None, source_sdk=False):
+    def save_directory(self, grant_perms=False, make_flowchart=True, source_sdk=False,
+                       slurm_job_name=None, slurm_job_time='7-00:00:00',
+                       slurm_job_ntasks=1, slurm_job_nodes=1, slurm_job_mem_per_cpu='10G',
+                       slurm_job_email_user=True):
         """
         Create MESA directory
 
@@ -434,15 +437,14 @@ class MesaWorkingDirectory:
 
         # if desired, save bash scripts
         if slurm_job_name is not None:
-            # TODO add these custom things to the config
             # script to start job
             slurm_bash_script = SlurmBashScript(
                  job_name=slurm_job_name,
-                 time='7-00:00:00',
-                 ntasks=1, nodes=1,
-                 mem_per_cpu='10G',
+                 time=slurm_job_time,
+                 ntasks=slurm_job_ntasks, nodes=slurm_job_nodes,
+                 mem_per_cpu=slurm_job_mem_per_cpu,
                  output=f'{run_path}/output.out', error=f'{run_path}/error.out', # absolute paths
-                 mail_user='nrui.mailing.list@gmail.com', # email address
+                 mail_user=config.slurm_job_mail_user, # email address
                  mail_type='BEGIN,FAIL,END' # conditions for emailing
                  )
             
@@ -455,14 +457,20 @@ class MesaWorkingDirectory:
             slurm_bash_script.save(self.submit_job_path)
 
             # script to restart job
+            if slurm_job_email_user: # only email user if say so; get email from config.py file
+                mail_user = config.slurm_job_mail_user
+                mail_type = 'BEGIN,FAIL,END'
+            else:
+                mail_user = mail_type = None
+
             slurm_bash_script = SlurmBashScript(
                  job_name=slurm_job_name,
-                 time='2-00:00:00',
-                 ntasks=1, nodes=1,
-                 mem_per_cpu='10G',
+                 time=slurm_job_time,
+                 ntasks=slurm_job_ntasks, nodes=slurm_job_nodes,
+                 mem_per_cpu=slurm_job_mem_per_cpu,
                  output=f'{run_path}/output.out', error=f'{run_path}/error.out', # absolute paths
-                 mail_user='nrui.mailing.list@gmail.com', # email address
-                 mail_type='BEGIN,FAIL,END' # conditions for emailing
+                 mail_user=mail_user, # email address
+                 mail_type=mail_type # conditions for emailing
                  )
             
             slurm_bash_script.add_task(f'cd {run_path}')
