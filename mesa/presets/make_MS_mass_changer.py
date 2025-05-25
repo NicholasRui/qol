@@ -1,6 +1,14 @@
 from qol.mesa.launcher import *
 import qol.info as info
 
+# controlling dX limits during main sequence
+dX_div_X_limit_min_X = 1e-4
+dX_div_X_limit = 1e-2
+dX_nuc_drop_min_X_limit = 1e-4
+dX_nuc_drop_limit = 1e-2
+
+
+
 def make_MS_single(root_path, # absolute path in which to write directory
                    M_in_Msun,
                    initial_z=0.02, # metallicity
@@ -95,6 +103,13 @@ def helper_MS_mass_changer_zams_to_mt(enable_pgstar, M_initial_in_Msun, Xcen_acc
 
     inlist.alpha_semiconvection(alpha_semiconvection)
 
+    # Timestepping
+    inlist.set_dX_limits(dX_div_X_limit_min_X=dX_div_X_limit_min_X,
+                     dX_div_X_limit=dX_div_X_limit, # adjust composition only very slowly
+                     dX_nuc_drop_min_X_limit=dX_nuc_drop_min_X_limit,
+                     dX_nuc_drop_limit=dX_nuc_drop_limit,
+                     )
+
     # Termination conditions
     inlist.stop_at_phase_TAMS()
     if Xcen_accrete is not None:
@@ -124,6 +139,13 @@ def helper_MS_mass_changer_mt_to_tams(enable_pgstar, M_initial_in_Msun, M_final_
     inlist.set_Zbase(initial_z)
 
     inlist.alpha_semiconvection(alpha_semiconvection)
+
+    # Timestepping
+    inlist.set_dX_limits(dX_div_X_limit_min_X=dX_div_X_limit_min_X,
+                     dX_div_X_limit=dX_div_X_limit, # adjust composition only very slowly
+                     dX_nuc_drop_min_X_limit=dX_nuc_drop_min_X_limit,
+                     dX_nuc_drop_limit=dX_nuc_drop_limit,
+                     )
 
     # Write GYRE
     inlist.write_gyre_data_with_profile()

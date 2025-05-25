@@ -21,6 +21,7 @@ import qol.mesa.controls.coredef as coredef
 import qol.mesa.controls.wind as wind
 
 import numpy as np
+from collections.abc import Iterable
 
 import warnings
 
@@ -97,7 +98,38 @@ class MesaInlist:
         
         self.inlist_controls.append(inlist_control)
 
-    # Aliases for add_control for specific namelists
+    def add_list_control(self, namelist, control, values, category=None, comment=None, optional=False):
+        """
+        adds controls based off of list of arguments, rather than single argument
+
+        e.g., control(1), control(2), etc.
+
+        values MUST be iterable (or None, if optional=True)
+        category and comment can either be iterable or not
+        """
+        if optional and values is None:
+            return
+        
+        if isinstance(category, Iterable) and not isinstance(category, str):
+            assert len(category) == len(values)
+        else:
+            category = len(values) * [category]
+        
+        if isinstance(comment, Iterable) and not isinstance(comment, str):
+            assert len(comment) == len(values)
+        else:
+            comment = len(values) * [comment]
+            
+        for ii in range(len(values)):
+            inlist_control = MesaControl(namelist=namelist, 
+                    control=f'{control}({ii+1})',
+                    value=values[ii],
+                    category=category[ii],
+                    comment=comment[ii])
+        
+            self.inlist_controls.append(inlist_control)
+
+    # Aliases for add_control for specific namelists    
     def add_to_star_job(self, control, value, category=None, comment=None, optional=False):
         self.add_control(namelist='star_job', control=control, value=value, category=category, comment=comment, optional=optional)
     def add_to_eos(self, control, value, category=None, comment=None, optional=False):
@@ -108,7 +140,18 @@ class MesaInlist:
         self.add_control(namelist='controls', control=control, value=value, category=category, comment=comment, optional=optional)
     def add_to_pgstar(self, control, value, category=None, comment=None, optional=False):
         self.add_control(namelist='pgstar', control=control, value=value, category=category, comment=comment, optional=optional)
-    
+
+    def add_list_to_star_job(self, control, values, category=None, comment=None, optional=False):
+        self.add_list_control(namelist='star_job', control=control, values=values, category=category, comment=comment, optional=optional)
+    def add_list_to_eos(self, control, values, category=None, comment=None, optional=False):
+        self.add_list_control(namelist='eos', control=control, values=values, category=category, comment=comment, optional=optional)
+    def add_list_to_kap(self, control, values, category=None, comment=None, optional=False):
+        self.add_list_control(namelist='kap', control=control, values=values, category=category, comment=comment, optional=optional)
+    def add_list_to_controls(self, control, values, category=None, comment=None, optional=False):
+        self.add_list_control(namelist='controls', control=control, values=values, category=category, comment=comment, optional=optional)
+    def add_list_to_pgstar(self, control, values, category=None, comment=None, optional=False):
+        self.add_list_control(namelist='pgstar', control=control, values=values, category=category, comment=comment, optional=optional)
+
     def save(self, run_path, is_task=True):
         """
         for saving inlist file and return text of inlist file
@@ -238,6 +281,7 @@ class MesaInlist:
     max_surface_cell_dq = resolution.max_surface_cell_dq
 
     min_timestep_limit = timestep.min_timestep_limit
+    set_dX_limits = timestep.set_dX_limits
 
     max_age = terminate.max_age
     Teff_upper_limit = terminate.Teff_upper_limit
