@@ -1,6 +1,40 @@
 from qol.mesa.launcher import *
 import qol.info as info
 
+def make_MS_single(root_path, # absolute path in which to write directory
+                   M_in_Msun,
+                   initial_z=0.02, # metallicity
+                   overshoot_f=0.015, # overshoot parameter f
+                   overshoot_f0=0.005, # overshoot parameter f0
+                   enable_pgstar=False,
+                   source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
+                   to_lower_RGB=False, # add task evolving to lower RGB)
+                   ):
+    """
+    single MS star model for comparison purposes
+    """
+    run_name = f'MS{M_in_Msun:.2f}_z{initial_z:.4f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}'
+    run_path = f'{root_path}/{run_name}'
+
+    task_zams_to_mt = helper_MS_mass_changer_zams_to_mt(enable_pgstar=enable_pgstar, M_initial_in_Msun=M_in_Msun, Xcen_accrete=None, initial_z=initial_z, overshoot_f=overshoot_f, overshoot_f0=overshoot_f0)
+
+    # Put it together
+    work = MesaWorkingDirectory(run_path=run_path)
+    work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns.list')
+    work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns.list')
+    work.load_qol_pgstar()
+
+    work.add_task(task_zams_to_mt)
+
+    if to_lower_RGB:
+        task_tams_to_lower_rgb = helper_MS_mass_changer_tams_to_lower_rgb(enable_pgstar=enable_pgstar, initial_z=initial_z, last_task='zams_to_mt')
+        work.add_task(task_tams_to_lower_rgb)
+
+    work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
+
+    return work
+
+
 def make_MS_mass_changer(root_path, # absolute path in which to write directory
                          M_initial_in_Msun, # initial mass
                          M_final_in_Msun, # final mass
@@ -11,6 +45,7 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
                          overshoot_f0=0.005, # overshoot parameter f0
                          enable_pgstar=False,
                          source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
+                         to_lower_RGB=False, # add task evolving to lower RGB
                          ):
     """
     Evolve an MS star for a bit before adding / removing mass from it
@@ -29,6 +64,10 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
 
     work.add_task(task_zams_to_mt)
     work.add_task(task_mt_to_tams)
+
+    if to_lower_RGB:
+        task_tams_to_lower_rgb = helper_MS_mass_changer_tams_to_lower_rgb(enable_pgstar=enable_pgstar, initial_z=initial_z, last_task='mt_to_tams')
+        work.add_task(task_tams_to_lower_rgb)
 
     work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
 
@@ -54,8 +93,9 @@ def helper_MS_mass_changer_zams_to_mt(enable_pgstar, M_initial_in_Msun, Xcen_acc
 
     # Termination conditions
     inlist.stop_at_phase_TAMS()
-    inlist.add_xa_central_lower_limit(xa_central_lower_limit_species='h1',
-                                    xa_central_lower_limit=Xcen_accrete) # stop this evolution when core drops to desired hydrogen fraction
+    if Xcen_accrete is not None:
+        inlist.add_xa_central_lower_limit(xa_central_lower_limit_species='h1',
+                                        xa_central_lower_limit=Xcen_accrete) # stop this evolution when core drops to desired hydrogen fraction
     inlist.save_final_model('zams_to_mt.mod')
 
     # Overshoot
@@ -96,5 +136,32 @@ def helper_MS_mass_changer_mt_to_tams(enable_pgstar, M_initial_in_Msun, M_final_
     inlist.add_overshoot_zone(overshoot_scheme='exponential',
                             overshoot_zone_type='any', overshoot_zone_loc='core', overshoot_bdy_loc='top',
                             overshoot_f=overshoot_f, overshoot_f0=overshoot_f0)
+
+    return inlist
+
+def helper_MS_mass_changer_tams_to_lower_rgb(enable_pgstar, initial_z, last_task):
+    inlist = MesaInlist('tams_to_lower_rgb')
+    if enable_pgstar:
+        inlist.enable_pgstar()
+    inlist.save_pgstar(write_path='Grid1/tams_to_lower_rgb/')
+    inlist.use_qol_pgstar()
+
+    # Initial conditions
+    inlist.set_Zbase(initial_z)
+    match last_task:
+        case 'zams_to_mt':
+            inlist.load_model('zams_to_mt.mod')
+        case 'mt_to_tams':
+            inlist.load_model('mt_to_tams.mod')
+        case _:
+            raise ValueError(f"invalid last_task {last_task}: must be either 'zams_to_mt' or 'mt_to_tams'")
+
+    # Write GYRE
+    inlist.write_gyre_data_with_profile()
+
+    # Termination conditions
+    inlist.he_core_mass_limit(0.20)
+    inlist.he_core_boundary_h1_fraction(1e-3)
+    inlist.save_final_model('tams_to_lower_rgb.mod')
 
     return inlist
