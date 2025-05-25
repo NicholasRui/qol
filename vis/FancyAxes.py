@@ -17,10 +17,14 @@ import numpy as np
 class FancyAxes(plt.Axes):
     """
     serves as a base class for other qol-specific axes types
+
+    blank: if True, doing fancy_formatting removes all axes, ticks, etc.
     """
-    def __init__(self, fig, rect, *args, **kwargs):
+    def __init__(self, fig, rect, blank=False, *args, **kwargs):
         """
         """
+        self.blank = blank
+
         super().__init__(fig, rect, *args, **kwargs)
         self.fancy_formatting()
 
@@ -28,33 +32,37 @@ class FancyAxes(plt.Axes):
         """
         Formats ticks, grid, etc., to look nicer
         """
-        # Put ticks inside axis and on both sides, and configure spines
-        self.tick_params(which='both', direction='in',
-                         length=defaults.vis_tick_length,
-                         width=defaults.vis_axis_border_width,
-                         labelsize=defaults.vis_tick_size,
-                         zorder=np.inf)
-        self.xaxis.set_ticks_position('both')
-        self.yaxis.set_ticks_position('both')
+        if self.blank: # if blank, remove EVERYTHING
+            self.axis('off')
+            self.set_facecolor('none')
+        else:
+            # Put ticks inside axis and on both sides, and configure spines
+            self.tick_params(which='both', direction='in',
+                            length=defaults.vis_tick_length,
+                            width=defaults.vis_axis_border_width,
+                            labelsize=defaults.vis_tick_size,
+                            zorder=np.inf)
+            self.xaxis.set_ticks_position('both')
+            self.yaxis.set_ticks_position('both')
 
-        # format spines
-        for spine in self.spines.values():
-            spine.set_color(defaults.vis_border_color)
-            spine.set_linewidth(defaults.vis_axis_border_width)
-            # spine.set_zorder(np.inf)
-        
-        # format face and grid
-        self.set_facecolor(defaults.vis_bg_color)
-        self.grid(c='gray', which='both', alpha=defaults.vis_grid_alpha, linewidth=defaults.vis_grid_width)
-        self.set_axisbelow(True) # put grid in background : inf zorder for spines/ticks ensures that they're still on top
+            # format spines
+            for spine in self.spines.values():
+                spine.set_color(defaults.vis_border_color)
+                spine.set_linewidth(defaults.vis_axis_border_width)
+                # spine.set_zorder(np.inf)
+            
+            # format face and grid
+            self.set_facecolor(defaults.vis_bg_color)
+            self.grid(c='gray', which='both', alpha=defaults.vis_grid_alpha, linewidth=defaults.vis_grid_width)
+            self.set_axisbelow(True) # put grid in background : inf zorder for spines/ticks ensures that they're still on top
 
-        # set zorder of ticks again...
-        # self.yaxis.set_zorder(np.inf)
-        # self.xaxis.set_zorder(np.inf)
+            # set zorder of ticks again...
+            # self.yaxis.set_zorder(np.inf)
+            # self.xaxis.set_zorder(np.inf)
 
-        # grid zorder
-        for gridline in self.get_xgridlines() + self.get_ygridlines():
-            gridline.set_zorder(-np.inf)
+            # grid zorder
+            for gridline in self.get_xgridlines() + self.get_ygridlines():
+                gridline.set_zorder(-np.inf)
 
         # set color cycler
         self.set_prop_cycle(defaults.vis_cycler)
