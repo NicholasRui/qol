@@ -122,8 +122,9 @@ class MesaWorkingDirectory:
             raise ValueError(f'No path found: {abs_path}')
 
     def save_directory(self, grant_perms=False, make_flowchart=True, source_sdk=False,
-                       slurm_job_name=None, slurm_job_time='7-00:00:00',
-                       slurm_job_ntasks=1, slurm_job_nodes=1, slurm_job_mem_per_cpu='10G',
+                       slurm_job_name=None, slurm_job_time=config.slurm_job_time_default,
+                       slurm_job_ntasks=config.slurm_job_ntasks_default, slurm_job_nodes=config.slurm_job_nodes_default,
+                       slurm_job_mem_per_cpu=config.slurm_job_mem_per_cpu_default,
                        slurm_job_email_user=True):
         """
         Create MESA directory
