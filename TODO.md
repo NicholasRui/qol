@@ -1,6 +1,5 @@
 ## Todo
 
-
 Make some code for prop diagrams with different x axis options
 
 make log spaced ticks that are good
@@ -22,8 +21,6 @@ for mesatoolkit package:
 
 - In Python package, artificially modify certain elements
 make a custom mesa network that removes all hydrogen >:)
-
-plot code: easily make text at one of the corners
 
 set directory for saving plots at top of doc and never touch it again
 
@@ -48,6 +45,12 @@ package should be able to import both histories and profile at the same time
 
 # add something which automatically keeps track of fourier transforms for fft
 
+
+
+
+write a readme
+- request people make PRs when they do things
+- tell people what to cite
 
 
 
