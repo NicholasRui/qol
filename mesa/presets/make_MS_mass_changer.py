@@ -68,8 +68,8 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
     work.add_task(task_mt_to_tams)
 
     if to_lower_rgb:
-        task_tams_to_lower_rgb = helper_MS_mass_changer_tams_to_lower_rgb(enable_pgstar=enable_pgstar, initial_z=initial_z, last_task='mt_to_tams')
-        work.add_task(task_tams_to_lower_rgb, alpha_semiconvection=alpha_semiconvection)
+        task_tams_to_lower_rgb = helper_MS_mass_changer_tams_to_lower_rgb(enable_pgstar=enable_pgstar, initial_z=initial_z, last_task='mt_to_tams', alpha_semiconvection=alpha_semiconvection)
+        work.add_task(task_tams_to_lower_rgb)
 
     work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
 
