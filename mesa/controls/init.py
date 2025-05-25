@@ -79,3 +79,62 @@ def relax_tau_factor(self, relax_to_this_tau_factor,
         control='relax_tau_factor_after_core_He_burn', value=relax_tau_factor_after_core_He_burn)
     self.add_to_star_job(category=category, optional=True,
         control='relax_tau_factor_after_core_C_burn', value=relax_tau_factor_after_core_C_burn)
+
+def remove_surface_at_cell_k(self, value):
+    self.add_to_star_job(category='remove surface',
+        control='remove_surface_at_cell_k', value=value)
+
+def remove_surface_at_he_core_boundary(self, value):
+    self.add_to_star_job(category='remove surface',
+        control='remove_surface_at_he_core_boundary', value=value)
+    
+def remove_surface_by_optical_depth(self, value):
+    self.add_to_star_job(category='remove surface',
+        control='remove_surface_by_optical_depth', value=value)
+
+def remove_surface_by_density(self, value):
+    self.add_to_star_job(category='remove surface',
+        control='remove_surface_by_density', value=value)
+
+def remove_surface_by_pressure(self, value):
+    self.add_to_star_job(category='remove surface',
+        control='remove_surface_by_pressure', value=value)
+
+def remove_surface_by_mass_fraction_q(self, value):
+    self.add_to_star_job(category='remove surface',
+        control='remove_surface_by_mass_fraction_q', value=value)
+
+def remove_surface_by_mass_gm(self, value):
+    self.add_to_star_job(category='remove surface',
+        control='remove_surface_by_mass_gm', value=value)
+
+def remove_surface_by_mass_Msun(self, value):
+    self.add_to_star_job(category='remove surface',
+        control='remove_surface_by_mass_Msun', value=value)
+
+def remove_surface_by_radius_cm(self, value):
+    self.add_to_star_job(category='remove surface',
+        control='remove_surface_by_radius_cm', value=value)
+
+def remove_surface_by_radius_Rsun(self, value):
+    self.add_to_star_job(category='remove surface',
+        control='remove_surface_by_radius_Rsun', value=value)
+
+def remove_surface_by_v_surf_km_s(self, value):
+    self.add_to_star_job(category='remove surface',
+        control='remove_surface_by_v_surf_km_s', value=value)
+
+def remove_surface_by_v_surf_div_cs(self, value):
+    self.add_to_star_job(category='remove surface',
+        control='remove_surface_by_v_surf_div_cs', value=value)
+
+def remove_surface_by_v_surf_div_v_escape(self, value,
+                    min_q_for_remove_surface_by_v_surf_div_v_escape=None,
+                    max_q_for_remove_surface_by_v_surf_div_v_escape=None):
+    self.add_to_star_job(category='remove surface',
+        control='remove_surface_by_v_surf_div_v_escape', value=value)
+    
+    self.add_to_star_job(category='remove surface', optional=True,
+        control='min_q_for_remove_surface_by_v_surf_div_v_escape', value=min_q_for_remove_surface_by_v_surf_div_v_escape)
+    self.add_to_star_job(category='remove surface', optional=True,
+        control='max_q_for_remove_surface_by_v_surf_div_v_escape', value=max_q_for_remove_surface_by_v_surf_div_v_escape)

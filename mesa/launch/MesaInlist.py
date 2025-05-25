@@ -191,6 +191,19 @@ class MesaInlist:
     reset_age = init.reset_age
     reset_model_number = init.reset_model_number
     relax_tau_factor = init.relax_tau_factor
+    remove_surface_at_cell_k = init.remove_surface_at_cell_k
+    remove_surface_at_he_core_boundary = init.remove_surface_at_he_core_boundary
+    remove_surface_by_optical_depth = init.remove_surface_by_optical_depth
+    remove_surface_by_density = init.remove_surface_by_density
+    remove_surface_by_pressure = init.remove_surface_by_pressure
+    remove_surface_by_mass_fraction_q = init.remove_surface_by_mass_fraction_q
+    remove_surface_by_mass_gm = init.remove_surface_by_mass_gm
+    remove_surface_by_mass_Msun = init.remove_surface_by_mass_Msun
+    remove_surface_by_radius_cm = init.remove_surface_by_radius_cm
+    remove_surface_by_radius_Rsun = init.remove_surface_by_radius_Rsun
+    remove_surface_by_v_surf_km_s = init.remove_surface_by_v_surf_km_s
+    remove_surface_by_v_surf_div_cs = init.remove_surface_by_v_surf_div_cs
+    remove_surface_by_v_surf_div_v_escape = init.remove_surface_by_v_surf_div_v_escape
 
     enable_hydrodynamics = hydro.enable_hydrodynamics
     add_drag_for_HSE = hydro.add_drag_for_HSE
