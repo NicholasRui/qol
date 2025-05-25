@@ -14,7 +14,7 @@ def make_MS_single(root_path, # absolute path in which to write directory
     """
     single MS star model for comparison purposes
     """
-    run_name = f'MS{M_in_Msun:.2f}_z{initial_z:.4f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}'
+    run_name = f'M{M_in_Msun:.2f}_z{initial_z:.4f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}'
     run_path = f'{root_path}/{run_name}'
 
     task_zams_to_mt = helper_MS_mass_changer_zams_to_mt(enable_pgstar=enable_pgstar, M_initial_in_Msun=M_in_Msun, Xcen_accrete=None, initial_z=initial_z, overshoot_f=overshoot_f, overshoot_f0=overshoot_f0, alpha_semiconvection=alpha_semiconvection)
@@ -52,7 +52,7 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
     """
     Evolve an MS star for a bit before adding / removing mass from it
     """
-    run_name = f'MS{M_initial_in_Msun:.2f}to{M_final_in_Msun:.2f}atX{Xcen_accrete:.2f}_dM{log_abs_Mdot_accrete:.1f}_z{initial_z:.4f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}_sc{alpha_semiconvection:.4f}'
+    run_name = f'M{M_initial_in_Msun:.2f}to{M_final_in_Msun:.2f}atX{Xcen_accrete:.2f}_dM{log_abs_Mdot_accrete:.1f}_z{initial_z:.4f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}_sc{alpha_semiconvection:.4f}'
     run_path = f'{root_path}/{run_name}'
 
     task_zams_to_mt = helper_MS_mass_changer_zams_to_mt(enable_pgstar=enable_pgstar, M_initial_in_Msun=M_initial_in_Msun, Xcen_accrete=Xcen_accrete, initial_z=initial_z, overshoot_f=overshoot_f, overshoot_f0=overshoot_f0, alpha_semiconvection=alpha_semiconvection)
