@@ -54,3 +54,28 @@ def reset_model_number(self):
     self.add_to_star_job(category='reset age',
         control='initial_model_number', value=0)
 
+def relax_tau_factor(self, relax_to_this_tau_factor,
+                     dlogtau_factor=None, relax_tau_factor_after_core_He_burn=None, relax_tau_factor_after_core_C_burn=None,
+                     initial_only=True):
+    """
+    initial_only: if True, only do this at the beginning, and not when doing ./re
+    """
+    category = 'relax tau factor'
+
+    if initial_only:
+        self.add_to_star_job(category=category,
+            control='relax_initial_tau_factor', value=True)
+    else:
+        self.add_to_star_job(category=category,
+            control='relax_tau_factor', value=True)
+
+    self.add_to_star_job(category=category,
+        control='relax_to_this_tau_factor', value=True)
+    
+    # optional
+    self.add_to_star_job(category=category, optional=True,
+        control='dlogtau_factor', value=dlogtau_factor)
+    self.add_to_star_job(category=category, optional=True,
+        control='relax_tau_factor_after_core_He_burn', value=relax_tau_factor_after_core_He_burn)
+    self.add_to_star_job(category=category, optional=True,
+        control='relax_tau_factor_after_core_C_burn', value=relax_tau_factor_after_core_C_burn)

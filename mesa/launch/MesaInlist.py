@@ -190,6 +190,7 @@ class MesaInlist:
     initial_z = init.initial_z
     reset_age = init.reset_age
     reset_model_number = init.reset_model_number
+    relax_tau_factor = init.relax_tau_factor
 
     enable_hydrodynamics = hydro.enable_hydrodynamics
     add_drag_for_HSE = hydro.add_drag_for_HSE
