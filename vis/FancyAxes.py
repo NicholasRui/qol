@@ -28,6 +28,10 @@ class FancyAxes(plt.Axes):
         super().__init__(fig, rect, *args, **kwargs)
         self.fancy_formatting()
 
+    def set_blank(self, blank=True):
+        self.blank = blank
+        self.fancy_formatting()
+
     def fancy_formatting(self):
         """
         Formats ticks, grid, etc., to look nicer
@@ -102,30 +106,30 @@ class FancyAxes(plt.Axes):
                 x, y = 1-dx, 0+dy
                 ha, va = 'right', 'bottom'
     
-        self.annotate(text, xy=(x, y), xycoords='axes fraction',
+        return self.annotate(text, xy=(x, y), xycoords='axes fraction',
                 ha=ha, va=va, **kwargs)
 
     # Re-define some matplotlib methods to have better defaults
     # TODO: put this in a different file
     def set_title(self, label, fontdict=None, loc='center', pad=None, **kwargs):
         kwargs.setdefault('fontsize', defaults.vis_title_size)
-        super().set_title(label, fontdict=fontdict, loc=loc, pad=pad, **kwargs)
+        return super().set_title(label, fontdict=fontdict, loc=loc, pad=pad, **kwargs)
 
     def set_xlabel(self, xlabel, fontdict=None, labelpad=None, *args, loc=None, **kwargs):
         kwargs.setdefault('fontsize', defaults.vis_label_size)
-        super().set_xlabel(xlabel, fontdict=fontdict, labelpad=labelpad, *args, loc=loc, **kwargs)
+        return super().set_xlabel(xlabel, fontdict=fontdict, labelpad=labelpad, *args, loc=loc, **kwargs)
 
     def set_ylabel(self, ylabel, fontdict=None, labelpad=None, *args, loc=None, **kwargs):
         kwargs.setdefault('fontsize', defaults.vis_label_size)
-        super().set_ylabel(ylabel, fontdict=fontdict, labelpad=labelpad, *args, loc=loc, **kwargs)
+        return super().set_ylabel(ylabel, fontdict=fontdict, labelpad=labelpad, *args, loc=loc, **kwargs)
     
     def legend(self, *args, **kwargs):
         kwargs.setdefault('fontsize', defaults.vis_legend_size)
-        super().legend(*args, **kwargs)
+        return super().legend(*args, **kwargs)
     
     def text(self, x, y, s, fontdict=None, **kwargs):
         kwargs.setdefault('fontsize', defaults.vis_text_size)
-        super().text(x, y, s, fontdict=fontdict, **kwargs)
+        return super().text(x, y, s, fontdict=fontdict, **kwargs)
 
     def plot(self, *args, scalex=True, scaley=True, data=None, **kwargs):
         # need to do this to handle aliases
@@ -136,12 +140,12 @@ class FancyAxes(plt.Axes):
                 'ms' not in kwargs.keys():
             kwargs['markersize'] = defaults.vis_scatter_markersize
 
-        super().plot(*args, scalex=scalex, scaley=scaley, data=data, **kwargs)
+        return super().plot(*args, scalex=scalex, scaley=scaley, data=data, **kwargs)
 
     def annotate(self, text, xy, xytext=None, xycoords='data', textcoords=None, arrowprops=None, annotation_clip=None, **kwargs):
         kwargs.setdefault('fontsize', defaults.vis_text_size)
 
-        super().annotate(text, xy,
+        return super().annotate(text, xy,
                 xytext=xytext,
                 xycoords=xycoords,
                 textcoords=textcoords,
@@ -159,6 +163,6 @@ class FancyAxes(plt.Axes):
             linewidths = defaults.vis_scatter_linewidth
         s = s if s is not None else defaults.vis_scatter_markersize
 
-        super().scatter(x, y, s=s, c=c, marker=marker, cmap=cmap, norm=norm,
+        return super().scatter(x, y, s=s, c=c, marker=marker, cmap=cmap, norm=norm,
                 vmin=vmin, vmax=vmax, alpha=alpha, linewidths=linewidths, edgecolors=edgecolors,
                 colorizer=colorizer, plotnonfinite=plotnonfinite, data=data, **kwargs)

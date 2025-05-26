@@ -7,6 +7,30 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm, rcParams
 
+# Boilerplate copied imports
+from numpy.typing import ArrayLike
+from collections.abc import Callable, Hashable, Iterable, Sequence
+from matplotlib.typing import (
+        ColorType,
+        CoordsType,
+        HashableList,
+        LineStyleType,
+        MarkerType,
+    )
+from typing import Any, BinaryIO, Literal, TypeVar
+from matplotlib.colorizer import _ColorizerInterface, ColorizingArtist, Colorizer
+from matplotlib.colors import _color_sequences, Colormap
+from matplotlib.colors import Normalize
+from matplotlib.collections import (
+    Collection,
+    FillBetweenPolyCollection,
+    LineCollection,
+    PolyCollection,
+    PathCollection,
+    EventCollection,
+    QuadMesh,
+)
+
 # from matplotlib.figure import Figure
 
 # Add font
@@ -91,3 +115,75 @@ def cividis() -> None:
     image if there is one. See ``help(colormaps)`` for more information.
     """
     plt.set_cmap("cividis")
+
+# Redefining plot and scatter in order to make use of new gca function
+
+#@_copy_docstring_and_deprecators(Figure.gca)
+def gca() -> Axes:
+    ax = plt.gcf().gca()
+    if not isinstance(ax, FancyAxes):
+        ax.__class__ = FancyAxes
+        ax.blank = False
+        ax.fancy_formatting()
+
+    return ax
+
+def sci(im: ColorizingArtist) -> None:
+    gca()._sci(im)
+
+def plot(
+    *args: float | ArrayLike | str,
+    scalex: bool = True,
+    scaley: bool = True,
+    data=None,
+    **kwargs,
+) -> list[plt.Line2D]:
+    return gca().plot(
+        *args,
+        scalex=scalex,
+        scaley=scaley,
+        **({"data": data} if data is not None else {}),
+        **kwargs,
+    )
+
+# @_copy_docstring_and_deprecators(Axes.scatter)
+def scatter(
+    x: float | ArrayLike,
+    y: float | ArrayLike,
+    s: float | ArrayLike | None = None,
+    c: ArrayLike | Sequence[ColorType] | ColorType | None = None,
+    marker: MarkerType | None = None,
+    cmap: str | Colormap | None = None,
+    norm: str | Normalize | None = None,
+    vmin: float | None = None,
+    vmax: float | None = None,
+    alpha: float | None = None,
+    linewidths: float | Sequence[float] | None = None,
+    *,
+    edgecolors: Literal["face", "none"] | ColorType | Sequence[ColorType] | None = None,
+    colorizer: Colorizer | None = None,
+    plotnonfinite: bool = False,
+    data=None,
+    **kwargs,
+) -> PathCollection:
+    __ret = gca().scatter(
+        x,
+        y,
+        s=s,
+        c=c,
+        marker=marker,
+        cmap=cmap,
+        norm=norm,
+        vmin=vmin,
+        vmax=vmax,
+        alpha=alpha,
+        linewidths=linewidths,
+        edgecolors=edgecolors,
+        colorizer=colorizer,
+        plotnonfinite=plotnonfinite,
+        **({"data": data} if data is not None else {}),
+        **kwargs,
+    )
+    sci(__ret)
+    return __ret
+
