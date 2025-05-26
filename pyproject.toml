@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "astro-qol"
+version = "0.0.1"
+authors = [
+  { name="Nicholas Rui", email="nicholas.z.rui@gmail.com" },
+]
+description = "Quality of life package which automates some of Nicholas's research-related tasks"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "GNU GPLv3"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/NicholasRui/qol"
+Issues = "https://github.com/NicholasRui/qol/issues"
