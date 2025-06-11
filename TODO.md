@@ -45,12 +45,14 @@ package should be able to import both histories and profile at the same time
 
 # add something which automatically keeps track of fourier transforms for fft
 
-
-
+- make a documentation website
+- make this into a proper package
+- requirements.txt
 
 write a readme
 - request people make PRs when they do things
 - tell people what to cite
+- nicholas rui
 
 
 
