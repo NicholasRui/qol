@@ -80,6 +80,9 @@ def helper_merger_MS_HeWD_evolve_rg(enable_pgstar, net_name, MWD_in_Msun, mesh_d
     inlist.energy_eqn_option('eps_grav')
     inlist.mesh_delta_coeff(mesh_delta_coeff)
 
+    # average composition of outer layers for write-out
+    inlist.surface_avg_abundance_dq(1e-2)
+
     # terminate when core reaches desired He WD mass
     inlist.he_core_boundary_h1_fraction(1e-3)
     inlist.he_core_mass_limit(MWD_in_Msun)
@@ -95,6 +98,9 @@ def helper_merger_MS_HeWD_strip_rg(enable_pgstar, MWD_in_Msun, mesh_delta_coeff)
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/strip_rg/')
+
+    # average composition of outer layers for write-out
+    inlist.surface_avg_abundance_dq(1e-2)
 
     # remove envelope by relaxation
     inlist.load_model('rg.mod')
@@ -123,6 +129,9 @@ def helper_merger_MS_HeWD_cool_he_wd(enable_pgstar, T_WD, mesh_delta_coeff):
 
     inlist.load_model('hot_he_wd.mod')
     inlist.set_Zbase(0.02)
+
+    # average composition of outer layers for write-out
+    inlist.surface_avg_abundance_dq(1e-2)
 
     # resolution
     inlist.min_dq(1e-25)
@@ -168,6 +177,9 @@ def helper_merger_MS_HeWD_env_to_th_eq(enable_pgstar, net_name, MMS_in_Msun, mes
     inlist.set_Zbase(0.02)
     inlist.change_net(net_name)
 
+    # average composition of outer layers for write-out
+    inlist.surface_avg_abundance_dq(1e-2)
+
     # relax some convergence conditions, disable dx/dt from burning
     inlist.min_timestep_limit(1e-12)
     inlist.energy_eqn_option('dedt')
@@ -209,6 +221,9 @@ def helper_merger_MS_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr, mesh
     inlist.load_model('remnant_init.mod')
     inlist.set_Zbase(0.02)
 
+    # average composition of outer layers for write-out
+    inlist.surface_avg_abundance_dq(1e-2)
+
     # enable hydro with drag
     # still disable dx/dt from burning
     inlist.enable_hydrodynamics()
@@ -243,6 +258,9 @@ def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar, rgb_wind, mesh_delta_co
 
     inlist.energy_eqn_option('eps_grav')
     inlist.mesh_delta_coeff(mesh_delta_coeff)
+
+    # average composition of outer layers for write-out
+    inlist.surface_avg_abundance_dq(1e-2)
 
     # add artificial damping to outermost layers
     inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
@@ -283,6 +301,9 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar, rgb_wind, mesh_delta_coe
 
     inlist.mesh_delta_coeff(mesh_delta_coeff)
 
+    # average composition of outer layers for write-out
+    inlist.surface_avg_abundance_dq(1e-2)
+
     # add artificial damping to outermost layers
     inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
 
@@ -316,6 +337,9 @@ def helper_merger_MS_HeWD_zacheb_to_co_wd(enable_pgstar, mesh_delta_coeff):
 
     inlist.energy_eqn_option('eps_grav')
     inlist.mesh_delta_coeff(mesh_delta_coeff)
+
+    # average composition of outer layers for write-out
+    inlist.surface_avg_abundance_dq(1e-2)
 
     # add artificial damping to outermost layers
     inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
@@ -355,6 +379,9 @@ def helper_merger_MS_HeWD_cool_co_wd(enable_pgstar, alpha_semiconvection, thermo
     # resolution
     inlist.min_dq(1e-25)
     inlist.max_surface_cell_dq(1e-18)
+
+    # average composition of outer layers for write-out
+    inlist.surface_avg_abundance_dq(1e-2)
 
     # add artificial damping to outermost layers
     inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)

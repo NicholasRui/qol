@@ -224,6 +224,7 @@ class MesaInlist:
     read_extra_inlist = io.read_extra_inlist
     write_model_with_profile = io.write_model_with_profile
     write_gyre_data_with_profile = io.write_gyre_data_with_profile
+    surface_avg_abundance_dq = io.surface_avg_abundance_dq
 
     create_initial_model = init.create_initial_model
     create_pre_main_sequence_model = init.create_pre_main_sequence_model

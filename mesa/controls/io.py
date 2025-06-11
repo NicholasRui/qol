@@ -68,4 +68,9 @@ def write_gyre_data_with_profile(self):
     self.add_to_controls(category='write-out',
             control='pulse_data_format', value='GYRE')
 
+def surface_avg_abundance_dq(self, value):
+    self.add_to_controls(category='surface abundance write-out',
+            control='surface_avg_abundance_dq', value=value)
+
+
 
