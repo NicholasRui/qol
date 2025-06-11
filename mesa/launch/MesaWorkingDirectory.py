@@ -125,7 +125,7 @@ class MesaWorkingDirectory:
                        slurm_job_name=None, slurm_job_time=config.slurm_job_time_default,
                        slurm_job_ntasks=config.slurm_job_ntasks_default, slurm_job_nodes=config.slurm_job_nodes_default,
                        slurm_job_mem_per_cpu=config.slurm_job_mem_per_cpu_default,
-                       slurm_job_email_user=True):
+                       slurm_job_email_user=True, OMP_NUM_THREADS=config.mesa_OMP_NUM_THREADS):
         """
         Create MESA directory
 
@@ -449,6 +449,8 @@ class MesaWorkingDirectory:
                  mail_type='BEGIN,FAIL,END' # conditions for emailing
                  )
             
+            slurm_bash_script.add_task(f'export OMP_NUM_THREADS={OMP_NUM_THREADS}')
+
             slurm_bash_script.add_task(f'cd {run_path}')
             if source_sdk:
                 slurm_bash_script.add_task('source $MESASDK_ROOT/bin/mesasdk_init.sh')
