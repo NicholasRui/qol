@@ -212,7 +212,7 @@ def helper_merger_MS_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr, mesh
     # enable hydro with drag
     # still disable dx/dt from burning
     inlist.enable_hydrodynamics()
-    inlist.add_drag_for_HSE(drag_coefficient=1.)
+    inlist.add_hydrodynamical_drag(drag_coefficient=1.)
     inlist.energy_eqn_option('eps_grav')
     inlist.min_timestep_limit(1e-12)
     inlist.use_gold_tolerances(False)
@@ -243,6 +243,9 @@ def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar, rgb_wind, mesh_delta_co
 
     inlist.energy_eqn_option('eps_grav')
     inlist.mesh_delta_coeff(mesh_delta_coeff)
+
+    # add artificial damping to outermost layers
+    inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
 
     # wind
     if rgb_wind:
@@ -280,6 +283,9 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar, rgb_wind, mesh_delta_coe
 
     inlist.mesh_delta_coeff(mesh_delta_coeff)
 
+    # add artificial damping to outermost layers
+    inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
+
     # wind
     if rgb_wind:
         inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
@@ -310,6 +316,9 @@ def helper_merger_MS_HeWD_zacheb_to_co_wd(enable_pgstar, mesh_delta_coeff):
 
     inlist.energy_eqn_option('eps_grav')
     inlist.mesh_delta_coeff(mesh_delta_coeff)
+
+    # add artificial damping to outermost layers
+    inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
 
     # wind
     inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
@@ -346,6 +355,9 @@ def helper_merger_MS_HeWD_cool_co_wd(enable_pgstar, alpha_semiconvection, thermo
     # resolution
     inlist.min_dq(1e-25)
     inlist.max_surface_cell_dq(1e-18)
+
+    # add artificial damping to outermost layers
+    inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
 
     # wind
     inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)

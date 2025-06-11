@@ -249,7 +249,7 @@ class MesaInlist:
     remove_surface_by_v_surf_div_v_escape = init.remove_surface_by_v_surf_div_v_escape
 
     enable_hydrodynamics = hydro.enable_hydrodynamics
-    add_drag_for_HSE = hydro.add_drag_for_HSE
+    add_hydrodynamical_drag = hydro.add_hydrodynamical_drag
 
     set_Zbase = kap.set_Zbase
 
