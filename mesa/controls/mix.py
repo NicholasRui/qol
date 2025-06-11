@@ -178,8 +178,6 @@ def phase_separation(self, phase_separation_option,
     self.add_to_controls(category=category,
             control='phase_separation_mixing_use_brunt', value=phase_separation_mixing_use_brunt)
     
-    self.add_to_controls(category=category,
-            control='phase_separation_mixing_use_brunt', value=phase_separation_mixing_use_brunt)
     if do_WD_sedimentation_heating:
         self.add_to_controls(category=category, comment='disabled to avoid double-counting with do_WD_sedimentation_heating',
                 control='do_diffusion_heating', value=False)
