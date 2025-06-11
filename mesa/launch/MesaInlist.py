@@ -41,8 +41,8 @@ class MesaInlist:
         self.mesa_version = mesa_version
 
         self.inlist_controls = [] # controls
-        self.prereqs = [] # model files and other things which are required for this to work
-        self.products = [] # model files and other things which are saved by this inlist
+        self.data_prereqs = [] # model files and other things which are required for this to work
+        self.data_products = [] # model files and other things which are saved by this inlist
 
         self.LOGS_dir = LOGS_dir = f'LOGS/{name}/'
         self.add_to_controls(control='log_directory', value=LOGS_dir, optional=True)

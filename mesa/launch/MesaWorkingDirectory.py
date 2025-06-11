@@ -76,11 +76,11 @@ class MesaWorkingDirectory:
         Check if, with addition of new task, prereqs exist, and throw error if not
         Otherwise, do nothing
         """
-        task_prereqs = task.prereqs
+        task_prereqs = task.data_prereqs
 
         existing_products = []
         for task in self.tasks:
-            existing_products += task.products
+            existing_products += task.data_products
         existing_products += self.rel_paths_root_prereq
 
         if not np.in1d(task_prereqs, existing_products).all():
@@ -267,15 +267,15 @@ class MesaWorkingDirectory:
 
                 # if all prereqs are in existing_products exist,
                 # run task, then add task to sorted_tasks and increment
-                if np.in1d(task.prereqs, existing_products).all():
+                if np.in1d(task.data_prereqs, existing_products).all():
                     # Add strings to rn and re
                     full_rn_string = f'# Try to run tasks/{task.rel_path}\n'
                     full_re_string = f'# Try to run tasks/{task.rel_path}\n'
 
-                    full_rn_string += check_if_missing(fname_list=task.prereqs, \
+                    full_rn_string += check_if_missing(fname_list=task.data_prereqs, \
                             if_none_missing=task.rn_string(), \
                             if_some_missing=f"echo 'QoL: SOME PREREQS MISSING FOR tasks/{task.rel_path}, EXIT'\n    exit 1")
-                    full_re_string += check_if_missing(fname_list=task.products, \
+                    full_re_string += check_if_missing(fname_list=task.data_products, \
                             if_none_missing=f"echo 'QoL: All products found, skipping tasks/{task.rel_path}'", \
                             if_some_missing=task.re_string())
                     
@@ -287,7 +287,7 @@ class MesaWorkingDirectory:
 
                     task_ids.append(ii)
                     sorted_tasks.append(task)
-                    level_products += task.products
+                    level_products += task.data_products
                     hlevels.append(hlevel)
                     vlevels.append(vlevel)
 
@@ -315,7 +315,7 @@ class MesaWorkingDirectory:
             f.write(rn_text)
         
         ### End re text and save re file
-        all_products = list(set(chain.from_iterable([task.products for task in self.tasks])))
+        all_products = list(set(chain.from_iterable([task.data_products for task in self.tasks])))
 
         re_text += check_if_missing(fname_list=all_products, \
                             if_none_missing="echo 'QoL: All tasks successfully completed!'\n    exit 0", \
@@ -383,7 +383,7 @@ class MesaWorkingDirectory:
                     h_product = 0
 
                 # add node for each product
-                for product in task.products:
+                for product in task.data_products:
                     node_names.append(product)
                     node_positions[product] = (h_product+h_shift, -2*v-1) # minus sign to make earlier levels higher on plot
                     node_shapes[product] = product_shape
@@ -392,9 +392,9 @@ class MesaWorkingDirectory:
                     h_product += 1
                 
                 # add edges
-                for prereq in task.prereqs:
+                for prereq in task.data_prereqs:
                     edges.append((task_node_name, prereq))
-                for product in task.products:
+                for product in task.data_products:
                     edges.append((task_node_name, product))
             
             G.add_nodes_from(node_names)

@@ -10,10 +10,7 @@ class MesaPythonScript:
     def __init__(self, name, template, const_args=[], prereqs=[], products=[]):
         """
         name: an informative name
-
         template: .py file to copy
-        prereqs: list of input files (relative to work/data/)
-        products: list of output files (relative to work/data/)
 
         relative path (rel_path) will be "script_{name}.py"
 
@@ -27,8 +24,8 @@ class MesaPythonScript:
         self.template = template
     
         self.const_args = const_args # constant arguments which do not depend on output of other runs
-        self.prereqs = prereqs # model files and other things which are required for this to work
-        self.products = products # model files and other things which are saved by this inlist
+        self.data_prereqs = prereqs # model files and other things which are required for this to work
+        self.data_products = products # model files and other things which are saved by this inlist
 
         self.args_in = const_args
         self.args_in += [f'data/{prereq}' for prereq in prereqs]

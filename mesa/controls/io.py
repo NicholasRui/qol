@@ -11,7 +11,7 @@ def load_model(self, rel_path):
     self.add_to_star_job(category=category,
             control='load_model_filename', value=f'data/{rel_path}')
     
-    self.prereqs += [rel_path]
+    self.data_prereqs += [rel_path]
 
 def save_final_model(self, rel_path):
     category = 'save final model'
@@ -21,7 +21,7 @@ def save_final_model(self, rel_path):
     self.add_to_star_job(category=category,
             control='save_model_filename', value=f'data/{rel_path}')
     
-    self.products += [rel_path]
+    self.data_products += [rel_path]
 
 def read_extra_inlist(self, namelist, rel_path, category=None, comment=None):
     """
@@ -52,8 +52,8 @@ def read_extra_inlist(self, namelist, rel_path, category=None, comment=None):
     self.add_control(namelist=namelist, category=category, comment=comment,
             control=control_path, value=f'data/{rel_path}')
 
-    if rel_path not in self.prereqs: # only add prereq if not already there
-        self.prereqs.append(rel_path)
+    if rel_path not in self.data_prereqs: # only add prereq if not already there
+        self.data_prereqs.append(rel_path)
 
 def write_model_with_profile(self):
     self.add_control(namelist='controls', category='write-out',
