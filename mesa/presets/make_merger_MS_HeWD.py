@@ -37,8 +37,8 @@ def make_merger_MS_HeWD(
     
     # create and save work directory
     work = MesaWorkingDirectory(run_path=run_path)
-    work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns.list')
-    work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns.list')
+    work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns_hewd_ms.list')
+    work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns_qol.list')
     work.load_qol_pgstar()
 
     work.add_task(task_evolve_rg)

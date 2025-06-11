@@ -15,7 +15,7 @@ def save_pgstar(self, write_path,
     save pgstar
     """
     if write_path[-1] != '/':
-            write_path += '/'
+        write_path += '/'
 
     self.add_to_pgstar(category='Grid1: save',
             control='Grid1_file_flag', value=True)
