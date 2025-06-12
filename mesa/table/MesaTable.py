@@ -9,18 +9,18 @@ import qol.tools.formatter as formatter
 class MesaTable(Table):
     """
     Generalized astropy.table.Table object which adds additional functionality
+
+    __init__ args not shared by astropy.table.Table:
+    attr: dict of other information
+    tabtype: type of MESA data, either 'history', 'profile', 'index', 'model'
     """
-    def __init__(self, tab, attr={}, tabtype=None):
-        """
-        tab: base astropy.table.Table object containing data of table
-        attr: dict of other information
-        tabtype: type of MESA data, either 'history', 'profile', 'index', 'model'
-        """
-        self.tab = tab
+    def __init__(self, data=None, attr={}, tabtype=None,
+                 masked=False, names=None, dtype=None, meta=None, copy=True, rows=None, copy_indices=True, units=None, descriptions=None, **kwargs):
+        super().__init__(data=data, masked=masked, names=names, dtype=dtype, meta=meta, copy=copy, rows=rows, copy_indices=copy_indices, units=units, descriptions=descriptions, **kwargs)
+
         self.attr = attr
         self.tabtype = tabtype
 
-        super().__init__(tab)
         self.update_attributes()
 
     def update_attributes(self):
@@ -38,6 +38,17 @@ class MesaTable(Table):
     def update_attributes_for_history(self):
         # TODO: add other useful stuff
 
+        if 'star_age' in self.colnames:
+            self.star_age = self['star_age']
+            self.star_age_in_kyr = 1e-3 * self['star_age']
+            self.star_age_in_Myr = 1e-6 * self['star_age']
+            self.star_age_in_Gyr = 1e-9 * self['star_age']
+
+        if 'age' in self.colnames:
+            self.age = self['age']
+            self.age_in_kyr = 1e-3 * self['age']
+            self.age_in_Myr = 1e-6 * self['age']
+            self.age_in_Gyr = 1e-9 * self['age']
 
         if 'delta_nu' in self.colnames:
             self.delta_nu_in_uHz = self['delta_nu']

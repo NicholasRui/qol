@@ -100,7 +100,7 @@ def read_data(fname, remove_duplicates=True):
 
     tabtype = 'profile' if 'model_number' in attr_names else 'history'
 
-    mesatab = MesaTable(tab, attr, tabtype=tabtype)
+    mesatab = MesaTable(tab, attr=attr, tabtype=tabtype)
 
     return mesatab
 
@@ -221,7 +221,7 @@ def read_mod(fname):
     cols = [Column(table_data[:,ii], name=colname) for ii, colname in enumerate(colnames)]
     tab = Table(cols)
     
-    mesatab = MesaTable(tab, attr, tabtype='model')
+    mesatab = MesaTable(tab, attr=attr, tabtype='model')
 
     return mesatab
 
