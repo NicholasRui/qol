@@ -17,7 +17,7 @@ Make hr diagram easily
 - store other special objects, eg GD 358, Zvrk, the fast-spinning RG from Tayar, GD 278
 
 for mesatoolkit package:
-- one possible step can be evolving this stupid shit to annihilate a certain element
+- one possible step can be evolving a little bit to annihilate a certain element
 
 - In Python package, artificially modify certain elements
 make a custom mesa network that removes all hydrogen >:)
@@ -30,6 +30,7 @@ add to mesatoolkit ability to change surface composition easily
 
 add ability to write text parallel to plot
 
+- include option to just read environment variables for MESA and mesasdk directories, without having to change config.py manually
 
 ## automate animations?
 
