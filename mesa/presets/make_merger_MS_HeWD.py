@@ -152,7 +152,7 @@ def helper_merger_MS_HeWD_inner_bc(MMS_in_Msun):
     """
     script = MesaPythonScript(name='inner_bc',
             template=f'{info.qol_path}mesa/templates/scripts/call_create_env_inlist_from_core.py',
-              const_args=[MMS_in_Msun], prereqs=['cool_he_wd.mod'], products=['env_inner_bc'])
+              const_args=[MMS_in_Msun], prereqs=['cool_he_wd.mod'], products=['inlist_env_inner_bc'])
     
     return script
 
