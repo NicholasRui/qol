@@ -64,6 +64,10 @@ def create_shell_burning_remnant(write_mod_fname, core_mod_fname, env_mod_fname,
     species = core_model.attr['species']
     initial_z = core_model.attr['initial_z']
 
+    core_M_in_Msun = core_model.attr['M/Msun']
+    env_M_in_Msun = env_model.attr['xmstar'] / const.Msun # mass in simulated matter
+    total_M_in_Msun = env_model.attr['M/Msun'] # outer mass coordinate, including inner boundary condition
+
     # Handle low-density interface material
     lnRho_env_base = np.max(env_model['lnd'])
     lnT_env_base = np.max(env_model['lnT'])
@@ -81,10 +85,6 @@ def create_shell_burning_remnant(write_mod_fname, core_mod_fname, env_mod_fname,
 
     # Recalculate dq (weight by contribution from each object)
     # Note: dq means the mass in simulated matter, so the quotient doesn't include M_center
-    core_M_in_Msun = core_model.attr['M/Msun']
-    env_M_in_Msun = env_model.attr['xmstar'] / const.Msun # mass in simulated matter
-    total_M_in_Msun = env_model.attr['M/Msun'] # outer mass coordinate, including inner boundary condition
-
     core_model['dq'] *= core_M_in_Msun / total_M_in_Msun
     env_model['dq'] *= env_M_in_Msun / total_M_in_Msun
 
