@@ -52,9 +52,6 @@ def create_shell_burning_remnant(write_mod_fname, core_mod_fname, env_mod_fname,
     core_model = read_mod(core_mod_fname)
     env_model = read_mod(env_mod_fname)
 
-    core_tab = core_model.tab
-    env_tab = env_model.tab
-
     # Enforce that some important quantities match between model files
     assert core_model.attr['version_number'] == env_model.attr['version_number']
     assert core_model.attr['model_setting'] == env_model.attr['model_setting']
@@ -68,16 +65,16 @@ def create_shell_burning_remnant(write_mod_fname, core_mod_fname, env_mod_fname,
     initial_z = core_model.attr['initial_z']
 
     # Handle low-density interface material
-    lnRho_env_base = np.max(env_tab['lnd'])
-    lnT_env_base = np.max(env_tab['lnT'])
-    Rho_too_low = (core_tab['lnd'] < lnRho_env_base)
+    lnRho_env_base = np.max(env_model['lnd'])
+    lnT_env_base = np.max(env_model['lnT'])
+    Rho_too_low = (core_model['lnd'] < lnRho_env_base)
     match interface_setting:
         case 'excise': # cut out lower-density material
-            core_tab = core_tab[~Rho_too_low]
+            core_model = core_model[~Rho_too_low]
 
         case 'bulkup': # artificially increase density/temperature of lower-density material
-            core_tab['lnd'][Rho_too_low] = lnRho_env_base
-            core_tab['lnd'][Rho_too_low] = lnT_env_base
+            core_model['lnd'][Rho_too_low] = lnRho_env_base
+            core_model['lnd'][Rho_too_low] = lnT_env_base
         
         case _:
             warnings.warn(f'No interface_setting = {interface_setting}', category=UserWarning)
@@ -88,11 +85,11 @@ def create_shell_burning_remnant(write_mod_fname, core_mod_fname, env_mod_fname,
     env_M_in_Msun = env_model.attr['xmstar'] / const.Msun # mass in simulated matter
     total_M_in_Msun = env_model.attr['M/Msun'] # outer mass coordinate, including inner boundary condition
 
-    core_tab['dq'] *= core_M_in_Msun / total_M_in_Msun
-    env_tab['dq'] *= env_M_in_Msun / total_M_in_Msun
+    core_model['dq'] *= core_M_in_Msun / total_M_in_Msun
+    env_model['dq'] *= env_M_in_Msun / total_M_in_Msun
 
     # Stack tables together
-    full_tab = vstack([env_tab, core_tab])
+    full_tab = vstack([env_model, core_model])
 
     match readjust_setting:
         case 'change_R': # recalculate radii
