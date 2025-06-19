@@ -150,7 +150,7 @@ def helper_merger_MS_HeWD_inner_bc(MMS_in_Msun):
     """
     create envelope matching core model
     """
-    script = MesaPythonScript('inner_bc',
+    script = MesaPythonScript(name='inner_bc',
             template=f'{info.qol_path}mesa/templates/scripts/call_create_env_inlist_from_core.py',
               const_args=[MMS_in_Msun], prereqs=['cool_he_wd.mod'], products=['env_inner_bc'])
     
@@ -201,7 +201,7 @@ def helper_merger_MS_HeWD_merge():
     """
     stitch core and envelope together
     """
-    script = MesaPythonScript(rel_path='merge',
+    script = MesaPythonScript(name='merge',
             template=f'{info.qol_path}mesa/templates/scripts/call_create_shell_burning_remnant.py',
             prereqs=['cool_he_wd.mod', 'env_th_eq.mod'],
             products=['remnant_init.mod'])
