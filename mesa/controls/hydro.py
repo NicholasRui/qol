@@ -1,6 +1,6 @@
 # Methods handling controls about hydrodynamics
 
-def enable_hydrodynamics(self):
+def toggle_hydrodynamics(self):
     category = 'enable hydrodynamics'
 
     self.add_to_star_job(category=category,

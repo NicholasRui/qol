@@ -226,7 +226,7 @@ def helper_merger_MS_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr, mesh
 
     # enable hydro with drag
     # still disable dx/dt from burning
-    inlist.enable_hydrodynamics()
+    inlist.toggle_hydrodynamics()
     inlist.add_hydrodynamical_drag(drag_coefficient=1.)
     inlist.energy_eqn_option('eps_grav')
     inlist.min_timestep_limit(1e-12)
