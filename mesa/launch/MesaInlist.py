@@ -152,7 +152,7 @@ class MesaInlist:
     def add_list_to_pgstar(self, control, values, category=None, comment=None, optional=False):
         self.add_list_control(namelist='pgstar', control=control, values=values, category=category, comment=comment, optional=optional)
 
-    def save(self, run_path, is_task=True):
+    def save(self, run_path, subdir='tasks'):
         """
         for saving inlist file and return text of inlist file
         run_path refers to a DIRECTORY, not the filename
@@ -205,10 +205,7 @@ class MesaInlist:
 
         inlist_text += ''.join(namelist_texts)
 
-        if is_task:
-            abs_path = f'{run_path}/tasks/{self.rel_path}'
-        else:
-            abs_path = f'{run_path}/{self.rel_path}'
+        abs_path = f'{run_path}/{subdir}/{self.rel_path}'
 
         #if abs_path is not None:
         with open(abs_path, 'w') as f:

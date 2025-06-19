@@ -15,6 +15,6 @@ except:
     raise ValueError(f'M_env_Msun -- cannot interpret as float: {M_env_Msun}')
 
 create_env_inlist_from_core(run_path=run_path,
-    name=task_name,
+    task_name=task_name,
     core_mod_fname=core_mod_fname,
     M_env_Msun=M_env_Msun)

@@ -21,7 +21,7 @@ def create_env_inlist_from_core(run_path, task_name, core_mod_fname, M_env_Msun)
       but depend on the output of another run. If this is not the case, just use MesaInlist.relax_to_inner_BC by itself.
     """
     # Read models
-    core_model = read_mod(core_mod_fname)
+    core_model = read_mod(f'data/{core_mod_fname}')
 
     # Calculate enclosed radius and mass needed
     M_center_Msun = core_model.M_in_Msun[0]
@@ -35,7 +35,7 @@ def create_env_inlist_from_core(run_path, task_name, core_mod_fname, M_env_Msun)
                              dlgR_per_step=dlgR_per_step)
 
     # Save inlist
-    inlist.save(run_path, is_task=False)
+    inlist.save(run_path, subdir='data')
 
 
 
