@@ -111,8 +111,9 @@ def hot_wind_full_on_T(self, value):
             control='hot_wind_full_on_T', value=value)
 
 # Mass gain and loss is here
+# TODO: add ability to use accrete_given_mass_fractions
 def gain_mass(self, max_star_mass_for_gain, mass_change,
-              accrete_same_as_surface=None):
+              accrete_same_as_surface=None, accretion_h1=None, accretion_h2=None, accretion_he3=None, accretion_he4=None, accretion_zfracs=None):
     # Note: force mass_change to be positive for this case
     assert mass_change > 0
 
@@ -123,9 +124,19 @@ def gain_mass(self, max_star_mass_for_gain, mass_change,
     
     self.add_to_controls(category='mass change', optional=True,
             control='accrete_same_as_surface', value=accrete_same_as_surface)
+    self.add_to_controls(category='mass change', optional=True,
+            control='accretion_h1', value=accretion_h1)
+    self.add_to_controls(category='mass change', optional=True,
+            control='accretion_h2', value=accretion_h2)
+    self.add_to_controls(category='mass change', optional=True,
+            control='accretion_he3', value=accretion_he3)
+    self.add_to_controls(category='mass change', optional=True,
+            control='accretion_he4', value=accretion_he4)
+    self.add_to_controls(category='mass change', optional=True,
+            control='accretion_zfracs', value=accretion_zfracs)
 
 def lose_mass(self, min_star_mass_for_loss, mass_change,
-              accrete_same_as_surface=None):
+              accrete_same_as_surface=None, accretion_h1=None, accretion_h2=None, accretion_he3=None, accretion_he4=None, accretion_zfracs=None):
     # Note: force mass_change to be negative for this case
     if mass_change > 0:
         mass_change *= -1
@@ -138,7 +149,16 @@ def lose_mass(self, min_star_mass_for_loss, mass_change,
     
     self.add_to_controls(category='mass change', optional=True,
             control='accrete_same_as_surface', value=accrete_same_as_surface)
-
+    self.add_to_controls(category='mass change', optional=True,
+            control='accretion_h1', value=accretion_h1)
+    self.add_to_controls(category='mass change', optional=True,
+            control='accretion_h2', value=accretion_h2)
+    self.add_to_controls(category='mass change', optional=True,
+            control='accretion_he3', value=accretion_he3)
+    self.add_to_controls(category='mass change', optional=True,
+            control='accretion_he4', value=accretion_he4)
+    self.add_to_controls(category='mass change', optional=True,
+            control='accretion_zfracs', value=accretion_zfracs)
 
 
 
