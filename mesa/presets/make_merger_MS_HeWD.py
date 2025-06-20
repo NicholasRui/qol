@@ -220,6 +220,9 @@ def helper_merger_MS_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr, mesh
     inlist.save_pgstar(write_path='Grid1/remnant_ringdown/')
     inlist.use_qol_pgstar()
 
+    # Write GYRE model files
+    inlist.write_gyre_data_with_profile()
+
     inlist.load_model('remnant_init.mod')
     inlist.set_Zbase(0.02)
 
@@ -255,6 +258,9 @@ def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar, rgb_wind, mesh_delta_co
     inlist.save_pgstar(write_path='Grid1/remnant_to_trgb/')
     inlist.use_qol_pgstar()
 
+    # Write GYRE model files
+    inlist.write_gyre_data_with_profile()
+
     inlist.load_model('remnant_hse.mod')
     inlist.set_Zbase(0.02)
 
@@ -288,6 +294,9 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar, rgb_wind, mesh_delta_coe
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/trgb_to_zacheb/')
     inlist.use_qol_pgstar()
+
+    # Write GYRE model files
+    inlist.write_gyre_data_with_profile()
 
     inlist.load_model('remnant_trgb.mod')
     inlist.he_core_boundary_h1_fraction(1e-3)
@@ -331,6 +340,9 @@ def helper_merger_MS_HeWD_zacheb_to_co_wd(enable_pgstar, mesh_delta_coeff):
     inlist.save_pgstar(write_path='Grid1/zacheb_to_co_wd/')
     inlist.use_qol_pgstar()
 
+    # Write GYRE model files
+    inlist.write_gyre_data_with_profile()
+
     inlist.load_model('remnant_zacheb.mod')
     inlist.he_core_boundary_h1_fraction(1e-3)
     inlist.co_core_boundary_he4_fraction(1e-3)
@@ -368,6 +380,9 @@ def helper_merger_MS_HeWD_cool_co_wd_early(enable_pgstar, alpha_semiconvection, 
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/cool_co_wd_early/')
     inlist.use_qol_pgstar()
+
+    # Write GYRE model files
+    inlist.write_gyre_data_with_profile()
 
     inlist.load_model('hot_co_wd.mod')
     inlist.he_core_boundary_h1_fraction(1e-3)
@@ -422,6 +437,9 @@ def helper_merger_MS_HeWD_cool_co_wd_late(enable_pgstar, alpha_semiconvection, t
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/cool_co_wd_late/')
     inlist.use_qol_pgstar()
+
+    # Write GYRE model files
+    inlist.write_gyre_data_with_profile()
 
     inlist.load_model('cool_co_wd_early.mod')
     inlist.he_core_boundary_h1_fraction(1e-3)
