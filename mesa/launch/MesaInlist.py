@@ -11,7 +11,7 @@ import qol.mesa.controls.hydro as hydro
 import qol.mesa.controls.kap as kap
 import qol.mesa.controls.mix as mix
 import qol.mesa.controls.net as net
-import qol.mesa.controls.terminate as terminate
+import qol.mesa.controls.stop as stop
 import qol.mesa.controls.bc as bc
 import qol.mesa.controls.pgstar as pgstar
 import qol.mesa.controls.resolution as resolution
@@ -213,6 +213,12 @@ class MesaInlist:
         
         return inlist_text
 
+
+
+
+
+
+
     ###############################################
     ###### Methods for implementing controls ######
     ###############################################
@@ -278,31 +284,110 @@ class MesaInlist:
     min_dq = resolution.min_dq
     max_surface_cell_dq = resolution.max_surface_cell_dq
 
-    min_timestep_limit = timestep.min_timestep_limit
     set_dX_limits = timestep.set_dX_limits
 
-    max_age = terminate.max_age
-    Teff_upper_limit = terminate.Teff_upper_limit
-    Teff_lower_limit = terminate.Teff_lower_limit
-    max_model_number = terminate.max_model_number
-    he_core_mass_limit = terminate.he_core_mass_limit
-    co_core_mass_limit = terminate.co_core_mass_limit
-    one_core_mass_limit = terminate.one_core_mass_limit
-    stop_near_zams = terminate.stop_near_zams
-    stop_at_phase_PreMS = terminate.stop_at_phase_PreMS
-    stop_at_phase_ZAMS = terminate.stop_at_phase_ZAMS
-    stop_at_phase_IAMS = terminate.stop_at_phase_IAMS
-    stop_at_phase_TAMS = terminate.stop_at_phase_TAMS
-    stop_at_phase_He_Burn = terminate.stop_at_phase_He_Burn
-    stop_at_phase_ZACHeB = terminate.stop_at_phase_ZACHeB
-    stop_at_phase_TACHeB = terminate.stop_at_phase_TACHeB
-    stop_at_phase_TP_AGB = terminate.stop_at_phase_TP_AGB
-    stop_at_phase_C_Burn = terminate.stop_at_phase_C_Burn
-    stop_at_phase_Ne_Burn = terminate.stop_at_phase_Ne_Burn
-    stop_at_phase_O_Burn = terminate.stop_at_phase_O_Burn
-    stop_at_phase_Si_Burn = terminate.stop_at_phase_Si_Burn
-    stop_at_phase_WDCS = terminate.stop_at_phase_WDCS
-    add_xa_central_lower_limit = terminate.add_xa_central_lower_limit
+    max_age = stop.max_age
+    Teff_upper_limit = stop.Teff_upper_limit
+    Teff_lower_limit = stop.Teff_lower_limit
+    max_model_number = stop.max_model_number
+    he_core_mass_limit = stop.he_core_mass_limit
+    co_core_mass_limit = stop.co_core_mass_limit
+    one_core_mass_limit = stop.one_core_mass_limit
+    fe_core_mass_limit = stop.fe_core_mass_limit
+    neutron_rich_core_mass_limit = stop.neutron_rich_core_mass_limit
+    stop_near_zams = stop.stop_near_zams
+    stop_at_phase_PreMS = stop.stop_at_phase_PreMS
+    stop_at_phase_ZAMS = stop.stop_at_phase_ZAMS
+    stop_at_phase_IAMS = stop.stop_at_phase_IAMS
+    stop_at_phase_TAMS = stop.stop_at_phase_TAMS
+    stop_at_phase_He_Burn = stop.stop_at_phase_He_Burn
+    stop_at_phase_ZACHeB = stop.stop_at_phase_ZACHeB
+    stop_at_phase_TACHeB = stop.stop_at_phase_TACHeB
+    stop_at_phase_TP_AGB = stop.stop_at_phase_TP_AGB
+    stop_at_phase_C_Burn = stop.stop_at_phase_C_Burn
+    stop_at_phase_Ne_Burn = stop.stop_at_phase_Ne_Burn
+    stop_at_phase_O_Burn = stop.stop_at_phase_O_Burn
+    stop_at_phase_Si_Burn = stop.stop_at_phase_Si_Burn
+    stop_at_phase_WDCS = stop.stop_at_phase_WDCS
+    add_xa_central_lower_limit = stop.add_xa_central_lower_limit
+    gamma_center_limit = stop.gamma_center_limit
+    eta_center_limit = stop.eta_center_limit
+    log_center_density_upper_limit = stop.log_center_density_upper_limit
+    log_center_density_lower_limit = stop.log_center_density_lower_limit
+    log_center_temp_upper_limit = stop.log_center_temp_upper_limit
+    log_center_temp_lower_limit = stop.log_center_temp_lower_limit
+    surface_accel_div_grav_limit = stop.surface_accel_div_grav_limit
+    log_max_temp_upper_limit = stop.log_max_temp_upper_limit
+    log_max_temp_lower_limit = stop.log_max_temp_lower_limit
+    center_entropy_upper_limit = stop.center_entropy_upper_limit
+    center_entropy_lower_limit = stop.center_entropy_lower_limit
+    max_entropy_upper_limit = stop.max_entropy_upper_limit
+    max_entropy_lower_limit = stop.max_entropy_lower_limit
+    HB_limit = stop.HB_limit
+    star_mass_min_limit = stop.star_mass_min_limit
+    remnant_mass_min_limit = stop.remnant_mass_min_limit
+    ejecta_mass_max_limit = stop.ejecta_mass_max_limit
+    envelope_mass_limit = stop.envelope_mass_limit
+    envelope_fraction_left_limit = stop.envelope_fraction_left_limit
+    xmstar_min_limit = stop.xmstar_min_limit
+    xmstar_max_limit = stop.xmstar_max_limit
+    he_layer_mass_lower_limit = stop.he_layer_mass_lower_limit
+    abs_diff_lg_LH_lg_Ls_limit = stop.abs_diff_lg_LH_lg_Ls_limit
+    photosphere_r_upper_limit = stop.photosphere_r_upper_limit
+    photosphere_r_lower_limit = stop.photosphere_r_lower_limit
+    photosphere_m_upper_limit = stop.photosphere_m_upper_limit
+    photosphere_m_lower_limit = stop.photosphere_m_lower_limit
+    photosphere_m_sub_M_center_limit = stop.photosphere_m_sub_M_center_limit
+    log_Teff_upper_limit = stop.log_Teff_upper_limit
+    log_Teff_lower_limit = stop.log_Teff_lower_limit
+    log_Tsurf_upper_limit = stop.log_Tsurf_upper_limit
+    log_Tsurf_lower_limit = stop.log_Tsurf_lower_limit
+    log_Rsurf_upper_limit = stop.log_Rsurf_upper_limit
+    log_Rsurf_lower_limit = stop.log_Rsurf_lower_limit
+    log_L_upper_limit = stop.log_L_upper_limit
+    log_L_lower_limit = stop.log_L_lower_limit
+    log_g_upper_limit = stop.log_g_upper_limit
+    log_g_lower_limit = stop.log_g_lower_limit
+    log_Psurf_upper_limit = stop.log_Psurf_upper_limit
+    log_Psurf_lower_limit = stop.log_Psurf_lower_limit
+    log_Dsurf_upper_limit = stop.log_Dsurf_upper_limit
+    log_Dsurf_lower_limit = stop.log_Dsurf_lower_limit
+    power_nuc_burn_upper_limit = stop.power_nuc_burn_upper_limit
+    power_h_burn_upper_limit = stop.power_h_burn_upper_limit
+    power_he_burn_upper_limit = stop.power_he_burn_upper_limit
+    power_z_burn_upper_limit = stop.power_z_burn_upper_limit
+    power_nuc_burn_lower_limit = stop.power_nuc_burn_lower_limit
+    power_h_burn_lower_limit = stop.power_h_burn_lower_limit
+    power_he_burn_lower_limit = stop.power_he_burn_lower_limit
+    power_z_burn_lower_limit = stop.power_z_burn_lower_limit
+    max_abs_rel_run_E_err = stop.max_abs_rel_run_E_err
+    max_number_retries = stop.max_number_retries
+    min_timestep_limit = stop.min_timestep_limit
+    center_Ye_lower_limit = stop.center_Ye_lower_limit
+    center_R_lower_limit = stop.center_R_lower_limit
+    fe_core_infall_limit = stop.fe_core_infall_limit
+    non_fe_core_rebound_limit = stop.non_fe_core_rebound_limit
+    v_div_csound_max_limit = stop.v_div_csound_max_limit
+    v_div_csound_surf_limit = stop.v_div_csound_surf_limit
+    v_surf_div_v_kh_upper_limit = stop.v_surf_div_v_kh_upper_limit
+    v_surf_div_v_kh_lower_limit = stop.v_surf_div_v_kh_lower_limit
+    v_surf_div_v_esc_limit = stop.v_surf_div_v_esc_limit
+    v_surf_kms_limit = stop.v_surf_kms_limit
+    Lnuc_div_L_zams_limit = stop.Lnuc_div_L_zams_limit
+    Lnuc_div_L_upper_limit = stop.Lnuc_div_L_upper_limit
+    Lnuc_div_L_lower_limit = stop.Lnuc_div_L_lower_limit
+    set_gamma1_limit = stop.set_gamma1_limit
+    gamma1_limit_max_v_div_vesc = stop.gamma1_limit_max_v_div_vesc
+    set_Pgas_div_P_limit = stop.set_Pgas_div_P_limit
+    peak_burn_vconv_div_cs_limit = stop.peak_burn_vconv_div_cs_limit
+    omega_div_omega_crit_limit = stop.omega_div_omega_crit_limit
+    delta_nu_lower_limit = stop.delta_nu_lower_limit
+    delta_nu_upper_limit = stop.delta_nu_upper_limit
+    shock_mass_upper_limit = stop.delta_nu_upper_limit
+    mach1_mass_upper_limit = stop.mach1_mass_upper_limit
+    delta_Pg_lower_limit = stop.delta_Pg_lower_limit
+    delta_Pg_upper_limit = stop.delta_Pg_upper_limit
+    stop_when_reach_this_cumulative_extra_heating = stop.stop_when_reach_this_cumulative_extra_heating
 
     enable_pgstar = pgstar.enable_pgstar
     use_qol_pgstar = pgstar.use_qol_pgstar
@@ -325,4 +410,3 @@ class MesaInlist:
     hot_wind_full_on_T = wind.hot_wind_full_on_T
     gain_mass = wind.gain_mass
     lose_mass = wind.lose_mass
-
