@@ -10,7 +10,7 @@ def make_merger_MS_HeWD(
         ringdown_time_yr=1e5, # ringdown timescale to HSE
         enable_pgstar=False,
         rgb_wind=True,
-        alpha_semiconvection=0, #4e-2, # semiconvection
+        alpha_semiconvection=0., #4e-2, # semiconvection
         thermohaline_coeff=2., # thermohaline -- probably more important
         source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
         mesh_delta_coeff=1.,
@@ -68,7 +68,7 @@ def helper_merger_MS_HeWD_evolve_rg(enable_pgstar, net_name, MWD_in_Msun, mesh_d
     """
     make RG, evolve to desired core mass
     """
-    inlist = MesaInlist('evolve_rg')
+    inlist = MesaInlist(name='evolve_rg')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/evolve_rg/')
@@ -96,7 +96,7 @@ def helper_merger_MS_HeWD_strip_rg(enable_pgstar, MWD_in_Msun, mesh_delta_coeff)
     """
     remove mass from RG
     """
-    inlist = MesaInlist('strip_rg')
+    inlist = MesaInlist(name='strip_rg')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/strip_rg/')
@@ -123,7 +123,7 @@ def helper_merger_MS_HeWD_cool_he_wd(enable_pgstar, T_WD, mesh_delta_coeff):
     """
     cool He WD to desired temperature
     """
-    inlist = MesaInlist('cool_he_wd')
+    inlist = MesaInlist(name='cool_he_wd')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/cool_he_wd/')
@@ -162,7 +162,7 @@ def helper_merger_MS_HeWD_env_to_th_eq(enable_pgstar, net_name, MMS_in_Msun, mes
     """
     run envelope model to thermal equilibrium (no dxdt_nuc)
     """
-    inlist = MesaInlist('env_to_th_eq')
+    inlist = MesaInlist(name='env_to_th_eq')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/env_to_th_eq/')
@@ -198,7 +198,6 @@ def helper_merger_MS_HeWD_env_to_th_eq(enable_pgstar, net_name, MMS_in_Msun, mes
 
     return inlist
 
-
 def helper_merger_MS_HeWD_merge():
     """
     stitch core and envelope together
@@ -214,7 +213,7 @@ def helper_merger_MS_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr, mesh
     """
     run remnant into HSE
     """
-    inlist = MesaInlist('remnant_ringdown')
+    inlist = MesaInlist(name='remnant_ringdown')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/remnant_ringdown/')
@@ -252,7 +251,7 @@ def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar, rgb_wind, mesh_delta_co
     """
     run remnant to tRGB
     """
-    inlist = MesaInlist('remnant_to_trgb')
+    inlist = MesaInlist(name='remnant_to_trgb')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/remnant_to_trgb/')
@@ -289,7 +288,7 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar, rgb_wind, mesh_delta_coe
     """
     run remnant through He flash to ZACHeB
     """
-    inlist = MesaInlist('trgb_to_zacheb')
+    inlist = MesaInlist(name='trgb_to_zacheb')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/trgb_to_zacheb/')
@@ -338,7 +337,7 @@ def helper_merger_MS_HeWD_zacheb_to_co_wd(enable_pgstar, mesh_delta_coeff):
     """
     run remnant from ZACHEB to CO WD
     """
-    inlist = MesaInlist('zacheb_to_co_wd')
+    inlist = MesaInlist(name='zacheb_to_co_wd')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/zacheb_to_co_wd/')
@@ -379,7 +378,7 @@ def helper_merger_MS_HeWD_cool_co_wd_early(enable_pgstar, alpha_semiconvection, 
     """
     cool leftover CO WD through "early" stages -- include elemental diffusion but not phase separation
     """
-    inlist = MesaInlist('cool_co_wd_early')
+    inlist = MesaInlist(name='cool_co_wd_early')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/cool_co_wd_early/')
@@ -436,7 +435,7 @@ def helper_merger_MS_HeWD_cool_co_wd_late(enable_pgstar, alpha_semiconvection, t
     """
     cool leftover CO WD through "late" stages -- include phase separation but not elemental diffusion
     """
-    inlist = MesaInlist('cool_co_wd_late')
+    inlist = MesaInlist(name='cool_co_wd_late')
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/cool_co_wd_late/')
