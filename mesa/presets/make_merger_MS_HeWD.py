@@ -312,6 +312,10 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar, rgb_wind, mesh_delta_coe
 
     inlist.mesh_delta_coeff(mesh_delta_coeff)
 
+    # predictive mixing
+    inlist.add_predictive_mix_zone(predictive_zone_type='any', predictive_zone_loc='core', predictive_bdy_loc='top',
+                            predictive_superad_thresh=0.01, predictive_avoid_reversal='he4')
+
     # average composition of outer layers for write-out
     inlist.surface_avg_abundance_dq(1e-2)
 
