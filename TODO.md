@@ -34,6 +34,9 @@ add ability to write text parallel to plot
 
 ## automate animations?
 
+incorporate kwargs idiomatically...
+make a directory called "config" with text files for MESA edits, and move some of the code in config.py elsewhere
+
 
 ## automated workflow
 make some "canonical" slides to mix and match
