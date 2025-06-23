@@ -20,10 +20,10 @@ class FancyAxes(plt.Axes):
 
     blank: if True, doing fancy_formatting removes all axes, ticks, etc.
     """
-    def __init__(self, fig, rect, blank=False, *args, **kwargs):
+    def __init__(self, fig, rect, *args, **kwargs):
         """
         """
-        self.blank = blank
+        self.blank = kwargs.get('blank', False)
 
         super().__init__(fig, rect, *args, **kwargs)
         self.fancy_formatting()

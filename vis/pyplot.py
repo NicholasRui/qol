@@ -48,14 +48,14 @@ from matplotlib.pyplot import *
 ###### REDEFINED FUNCTIONS ######
 #################################
 
-def axes(arg: None | tuple[float, float, float, float] = None, blank=False,
+def axes(arg: None | tuple[float, float, float, float] = None,
          **kwargs):
     """
     Redefined to make the axes FancyAxes, and format accordingly
     """
     ax = plt.axes(arg, **kwargs)
     ax.__class__ = FancyAxes
-    ax.blank = blank
+    ax.blank = kwargs.get('blank', False)
     ax.fancy_formatting()
 
     return ax
@@ -71,15 +71,15 @@ def savefig(*args, **kwargs) -> None:
     return res
 
 # @_docstring.interpd
-def subplot(blank=False, *args, **kwargs) -> FancyAxes:
+def subplot(*args, **kwargs) -> FancyAxes:
     ax = plt.subplot(*args, **kwargs)
     ax.__class__ = FancyAxes
-    ax.blank = blank
+    ax.blank = kwargs.get('blank', False)
     ax.fancy_formatting()
 
     return ax
 
-def subplots(nrows=1, ncols=1, blank=False, *, sharex=False, sharey=False, squeeze=True, width_ratios=None, height_ratios=None, subplot_kw=None, gridspec_kw=None, **fig_kw):
+def subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True, width_ratios=None, height_ratios=None, subplot_kw=None, gridspec_kw=None, **fig_kw):
     fig, axs = plt.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey,
                             squeeze=squeeze, width_ratios=width_ratios, height_ratios=height_ratios,
                             subplot_kw=subplot_kw, gridspec_kw=gridspec_kw, **fig_kw)
@@ -87,18 +87,18 @@ def subplots(nrows=1, ncols=1, blank=False, *, sharex=False, sharey=False, squee
     if nrows == ncols == 1:
         ax = axs
         ax.__class__ = FancyAxes
-        ax.blank = blank
+        ax.blank = fig_kw.get('blank', False)
         ax.fancy_formatting()
     elif nrows == 1 or ncols == 1:
         for ax in axs:
             ax.__class__ = FancyAxes
-            ax.blank = blank
+            ax.blank = fig_kw.get('blank', False)
             ax.fancy_formatting()
     else:
         for _, axs_row in enumerate(axs):
             for ax in axs_row:
                 ax.__class__ = FancyAxes
-                ax.blank = blank
+                ax.blank = fig_kw.get('blank', False)
                 ax.fancy_formatting()
     
     return fig, axs
