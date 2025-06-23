@@ -481,6 +481,6 @@ def helper_merger_MS_HeWD_cool_co_wd_late(enable_pgstar, alpha_semiconvection, t
 
     # stop after a long time, if needed... okay to fail here, if sufficiently cooled
     inlist.max_age(1e10)
-    inlist.save_final_model('cool_co_wd.mod')
+    inlist.save_final_model('cool_co_wd_late.mod')
 
     return inlist
