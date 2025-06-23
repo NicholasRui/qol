@@ -37,7 +37,11 @@ class FancyAxes(plt.Axes):
         Formats ticks, grid, etc., to look nicer
         """
         if self.blank: # if blank, remove EVERYTHING
-            self.axis('off')
+            # do it manually to leave the possibility open for adding axis labels if desired
+            for spine in self.spines.values():
+                spine.set_visible(False)
+            self.set_xticks([])
+            self.set_yticks([])
             self.set_facecolor('none')
         else:
             # Put ticks inside axis and on both sides, and configure spines
