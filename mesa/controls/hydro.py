@@ -1,7 +1,7 @@
 # Methods handling controls about hydrodynamics
 
-def toggle_hydrodynamics(self):
-    category = 'enable hydrodynamics'
+def enable_hydrodynamics(self):
+    category = 'hydrodynamics'
 
     self.add_to_star_job(category=category,
             control='change_v_flag', value=True)
@@ -9,7 +9,17 @@ def toggle_hydrodynamics(self):
             control='change_initial_v_flag', value=True)
     self.add_to_star_job(category=category,
             control='new_v_flag', value=True)
-        
+
+def disable_hydrodynamics(self):
+    category = 'hydrodynamics'
+
+    self.add_to_star_job(category=category,
+            control='change_v_flag', value=True)
+    self.add_to_star_job(category=category,
+            control='change_initial_v_flag', value=True)
+    self.add_to_star_job(category=category,
+            control='new_v_flag', value=False)
+
 def add_hydrodynamical_drag(self, drag_coefficient, use_drag_energy=False, min_q_for_drag=None):
     """
     For hydrodynamical mode, add extra drag coefficient
