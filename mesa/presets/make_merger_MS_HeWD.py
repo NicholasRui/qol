@@ -8,6 +8,7 @@ def make_merger_MS_HeWD(
         T_WD,        # temperature of WD
         net_name='pp_cno_extras_o18_ne22.net', #'cno_extras_o18_to_mg26.net', # net
         ringdown_time_yr=1e5, # ringdown timescale to HSE
+        disable_hydro_after_ringdown=False, # if True, disable hydro mode on after ringdown, else keep it enabled
         enable_pgstar=False,
         rgb_wind=True,
         alpha_semiconvection=0., #4e-2, # semiconvection
@@ -19,7 +20,7 @@ def make_merger_MS_HeWD(
     Make merger between HeWD and MS
     This is reproducing what was done in m_plus_wd (Rui & Fuller 2024, OJAp) but going further
     """
-    run_name = f'MS{MMS_in_Msun:.3f}+HeWD{MWD_in_Msun:.3f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_mdc{mesh_delta_coeff:.2f}'
+    run_name = f'MS{MMS_in_Msun:.3f}+HeWD{MWD_in_Msun:.3f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_mdc{mesh_delta_coeff:.2f}_hydro{int(not disable_hydro_after_ringdown)}'
     run_path = f'{root_path}/{run_name}'
 
     # generate tasks
@@ -30,7 +31,7 @@ def make_merger_MS_HeWD(
     task_env_to_th_eq = helper_merger_MS_HeWD_env_to_th_eq(enable_pgstar=enable_pgstar, net_name=net_name, MMS_in_Msun=MMS_in_Msun, mesh_delta_coeff=mesh_delta_coeff)
     task_merge = helper_merger_MS_HeWD_merge()
     task_remnant_ringdown = helper_merger_MS_HeWD_remnant_ringdown(enable_pgstar=enable_pgstar, ringdown_time_yr=ringdown_time_yr, mesh_delta_coeff=mesh_delta_coeff)
-    task_remnant_to_trgb = helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar=enable_pgstar, rgb_wind=rgb_wind, mesh_delta_coeff=mesh_delta_coeff)
+    task_remnant_to_trgb = helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar=enable_pgstar, rgb_wind=rgb_wind, mesh_delta_coeff=mesh_delta_coeff, disable_hydro_after_ringdown=disable_hydro_after_ringdown)
     task_trgb_to_zacheb = helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar=enable_pgstar, rgb_wind=rgb_wind, mesh_delta_coeff=mesh_delta_coeff)
     task_zacheb_to_co_wd = helper_merger_MS_HeWD_zacheb_to_co_wd(enable_pgstar=enable_pgstar, mesh_delta_coeff=mesh_delta_coeff)
     task_cool_co_wd_early = helper_merger_MS_HeWD_cool_co_wd_early(enable_pgstar=enable_pgstar, alpha_semiconvection=alpha_semiconvection, thermohaline_coeff=thermohaline_coeff, mesh_delta_coeff=mesh_delta_coeff)
@@ -247,7 +248,7 @@ def helper_merger_MS_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr, mesh
 
     return inlist
 
-def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar, rgb_wind, mesh_delta_coeff):
+def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar, rgb_wind, mesh_delta_coeff, disable_hydro_after_ringdown):
     """
     run remnant to tRGB
     """
@@ -269,8 +270,11 @@ def helper_merger_MS_HeWD_remnant_to_trgb(enable_pgstar, rgb_wind, mesh_delta_co
     # average composition of outer layers for write-out
     inlist.surface_avg_abundance_dq(1e-2)
 
+    if disable_hydro_after_ringdown:
+        inlist.disable_hydrodynamics()
+
     # add artificial damping to outermost layers
-    inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
+    # inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
 
     # wind
     if rgb_wind:
@@ -319,7 +323,7 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(enable_pgstar, rgb_wind, mesh_delta_coe
     inlist.surface_avg_abundance_dq(1e-2)
 
     # add artificial damping to outermost layers
-    inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
+    # inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
 
     # wind
     if rgb_wind:
@@ -359,7 +363,7 @@ def helper_merger_MS_HeWD_zacheb_to_co_wd(enable_pgstar, mesh_delta_coeff):
     inlist.surface_avg_abundance_dq(1e-2)
 
     # add artificial damping to outermost layers
-    inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
+    # inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
 
     # wind
     inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
@@ -404,7 +408,7 @@ def helper_merger_MS_HeWD_cool_co_wd_early(enable_pgstar, alpha_semiconvection, 
     inlist.surface_avg_abundance_dq(1e-2)
 
     # add artificial damping to outermost layers
-    inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
+    # inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
 
     # wind
     inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
@@ -461,7 +465,7 @@ def helper_merger_MS_HeWD_cool_co_wd_late(enable_pgstar, alpha_semiconvection, t
     inlist.surface_avg_abundance_dq(1e-2)
 
     # add artificial damping to outermost layers
-    inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
+    # inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
 
     # wind
     inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
