@@ -404,6 +404,9 @@ def helper_merger_MS_HeWD_cool_co_wd_early(enable_pgstar, alpha_semiconvection, 
     inlist.min_dq(1e-25)
     inlist.max_surface_cell_dq(1e-18)
 
+    # MLT++ to get through late thermal pulses
+    inlist.okay_to_reduce_gradT_excess()
+
     # average composition of outer layers for write-out
     inlist.surface_avg_abundance_dq(1e-2)
 
@@ -460,6 +463,9 @@ def helper_merger_MS_HeWD_cool_co_wd_late(enable_pgstar, alpha_semiconvection, t
     # resolution
     inlist.min_dq(1e-25)
     inlist.max_surface_cell_dq(1e-18)
+
+    # MLT++ to get through late thermal pulses
+    inlist.okay_to_reduce_gradT_excess()
 
     # average composition of outer layers for write-out
     inlist.surface_avg_abundance_dq(1e-2)

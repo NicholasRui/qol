@@ -272,6 +272,7 @@ class MesaInlist:
     add_overshoot_zone = mix.add_overshoot_zone
     add_predictive_mix_zone = mix.add_predictive_mix_zone
     phase_separation = mix.phase_separation
+    okay_to_reduce_gradT_excess = mix.okay_to_reduce_gradT_excess
 
     relax_to_inner_BC = bc.relax_to_inner_BC
 

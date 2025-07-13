@@ -185,3 +185,10 @@ def phase_separation(self, phase_separation_option,
                 control='min_xa_for_WD_sedimentation_heating', value=min_xa_for_WD_sedimentation_heating)
     elif min_xa_for_WD_sedimentation_heating is not None:
         warnings.warn('since do_WD_sedimentation_heating==False, min_xa_for_WD_sedimentation_heating is unused.')
+
+def okay_to_reduce_gradT_excess(self):
+    """
+    MLT++ (Paxton et al. 2013)
+    """
+    self.add_to_controls(category='mixing',
+            control='okay_to_reduce_gradT_excess', value=True)
