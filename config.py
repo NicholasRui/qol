@@ -15,7 +15,7 @@ if 'MESA_DIR' in os.environ:
     if os.path.exists(f'{MESA_DIR}/data/version_number'):
         with open(f'{MESA_DIR}/data/version_number', 'r') as f:
             mesa_version = f.read().replace('\n', '')
-        mesa_paths[mesa_version] = '/Users/nrui/mesa-r24.08.1/'
+        mesa_paths[mesa_version] = MESA_DIR
 else:
     warnings.warn('No $MESA_DIR found!') # TODO: handle exception better later
 
