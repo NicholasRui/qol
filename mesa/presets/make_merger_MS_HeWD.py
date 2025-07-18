@@ -8,11 +8,11 @@ def make_merger_MS_HeWD(
         T_WD,        # temperature of WD
         net_name='pp_cno_extras_o18_ne22.net', #'cno_extras_o18_to_mg26.net', # net
         ringdown_time_yr=1e5, # ringdown timescale to HSE
-        disable_hydro_after_ringdown=False, # if True, disable hydro mode on after ringdown, else keep it enabled
+        disable_hydro_after_ringdown=True, # if True, disable hydro mode on after ringdown, else keep it enabled
         enable_pgstar=False,
         rgb_wind=True,
         alpha_semiconvection=0., #4e-2, # semiconvection
-        thermohaline_coeff=2., # thermohaline -- probably more important
+        thermohaline_coeff=1., # thermohaline -- probably more important
         source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
         mesh_delta_coeff=1.,
         ):
@@ -424,7 +424,7 @@ def helper_merger_MS_HeWD_cool_co_wd_early(enable_pgstar, alpha_semiconvection, 
     inlist.use_Ledoux_criterion()
 
     inlist.alpha_semiconvection(alpha_semiconvection)
-    inlist.thermohaline_coeff(thermohaline_coeff)
+    inlist.add_thermohaline_mixing(thermohaline_coeff=thermohaline_coeff, thermohaline_option='Brown_Garaud_Stellmach_13')
 
     inlist.gravitational_settling(diffusion_class_representatives=['h1', 'he3', 'he4', 'c12', 'o16', 'ne20', 'ne22', 'mg26'],
             diffusion_use_cgs_solver=True,
@@ -484,7 +484,7 @@ def helper_merger_MS_HeWD_cool_co_wd_late(enable_pgstar, alpha_semiconvection, t
     inlist.use_Ledoux_criterion()
 
     inlist.alpha_semiconvection(alpha_semiconvection)
-    inlist.thermohaline_coeff(thermohaline_coeff)
+    inlist.add_thermohaline_mixing(thermohaline_coeff=thermohaline_coeff, thermohaline_option='Brown_Garaud_Stellmach_13')
 
     # phase separation
     inlist.phase_separation(phase_separation_option='CO', do_phase_separation_heating=True, phase_separation_mixing_use_brunt=True)

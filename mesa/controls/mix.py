@@ -120,6 +120,30 @@ def thermohaline_coeff(self, value):
     self.add_to_controls(category='mixing: composition',
             control='thermohaline_coeff', value=value)
 
+def thermohaline_option(self, value):
+    assert value in ['Kippenhahn', 'Traxler_Garaud_Stellmach_11', 'Brown_Garaud_Stellmach_13']
+
+    self.add_to_controls(category='mixing: composition',
+            control='thermohaline_option', value=value)
+
+def add_thermohaline_mixing(self, thermohaline_coeff, thermohaline_option,
+                            min_thermohaline_gap=None, min_thermohaline_dropout=None, max_dropout_gradL_sub_grada=None):
+    """
+    adds all thermohaline-related options in one function
+    """
+    self.thermohaline_coeff(value=thermohaline_coeff)
+    self.thermohaline_option(value=thermohaline_option)
+
+    # optional
+    category = 'mixing: composition'
+
+    self.add_to_controls(category=category, optional=True,
+            control='min_thermohaline_gap', value=min_thermohaline_gap)
+    self.add_to_controls(category=category, optional=True,
+            control='min_thermohaline_dropout', value=min_thermohaline_dropout)
+    self.add_to_controls(category=category, optional=True,
+            control='max_dropout_gradL_sub_grada', value=max_dropout_gradL_sub_grada)
+
 def gravitational_settling(self, diffusion_class_representatives,
         diffusion_use_cgs_solver=True,
         show_diffusion_info=True,

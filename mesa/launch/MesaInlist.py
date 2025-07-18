@@ -268,6 +268,8 @@ class MesaInlist:
     use_Ledoux_criterion = mix.use_Ledoux_criterion
     alpha_semiconvection = mix.alpha_semiconvection
     thermohaline_coeff = mix.thermohaline_coeff
+    thermohaline_option = mix.thermohaline_option
+    add_thermohaline_mixing = mix.add_thermohaline_mixing
     gravitational_settling = mix.gravitational_settling
     add_overshoot_zone = mix.add_overshoot_zone
     add_predictive_mix_zone = mix.add_predictive_mix_zone
