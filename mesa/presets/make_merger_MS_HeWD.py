@@ -6,8 +6,8 @@ def make_merger_MS_HeWD(
         MWD_in_Msun, # WD mass
         MMS_in_Msun, # MS mass
         T_WD,        # temperature of WD
-        net_name='pp_cno_extras_o18_ne22.net', #'cno_extras_o18_to_mg26.net', # net
-        ringdown_time_yr=1e5, # ringdown timescale to HSE
+        net_name='cno_extras_o18_to_mg26.net', # net
+        ringdown_time_yr=1e4, # ringdown timescale to HSE
         disable_hydro_after_ringdown=True, # if True, disable hydro mode on after ringdown, else keep it enabled
         enable_pgstar=False,
         rgb_wind=True,
@@ -372,7 +372,7 @@ def helper_merger_MS_HeWD_zacheb_to_co_wd(enable_pgstar, mesh_delta_coeff):
     inlist.cool_wind_full_on_T(9.99e9) # force usage of cool wind only
     inlist.hot_wind_full_on_T(1.e10)
 
-    # stop at ZACHEB
+    # stop at WD
     inlist.stop_at_phase_WDCS()
     inlist.save_final_model('hot_co_wd.mod')
 
