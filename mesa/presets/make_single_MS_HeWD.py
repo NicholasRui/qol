@@ -9,7 +9,7 @@ def make_single_MS_HeWD(
         root_path, # absolute path in which to write directory
         MMS_in_Msun, # ZAMS mass
         net_name='cno_extras_o18_to_mg26.net', # net
-        enable_pgstar=False,
+        enable_pgstar=True,
         rgb_wind=True,
         alpha_semiconvection=0., #4e-2, # semiconvection
         thermohaline_coeff=1., # thermohaline -- probably more important
