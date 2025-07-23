@@ -169,47 +169,47 @@ def eta_center_limit(self, value):
     
 def log_center_density_upper_limit(self, value):
     self.add_to_controls(category='termination conditions',
-            control='AAAAAA', value=value)
+            control='log_center_density_upper_limit', value=value)
 
 def log_center_density_lower_limit(self, value):
     self.add_to_controls(category='termination conditions',
-            control='AAAAAA', value=value)
+            control='log_center_density_lower_limit', value=value)
 
 def log_center_temp_upper_limit(self, value):
     self.add_to_controls(category='termination conditions',
-            control='AAAAAA', value=value)
+            control='log_center_temp_upper_limit', value=value)
     
 def log_center_temp_lower_limit(self, value):
     self.add_to_controls(category='termination conditions',
-            control='AAAAAA', value=value)
+            control='log_center_temp_lower_limit', value=value)
 
 def surface_accel_div_grav_limit(self, value):
     self.add_to_controls(category='termination conditions',
-            control='AAAAAA', value=value)
+            control='surface_accel_div_grav_limit', value=value)
 
 def log_max_temp_upper_limit(self, value):
     self.add_to_controls(category='termination conditions',
-            control='AAAAAA', value=value)
+            control='log_max_temp_upper_limit', value=value)
 
 def log_max_temp_lower_limit(self, value):
     self.add_to_controls(category='termination conditions',
-            control='AAAAAA', value=value)
+            control='log_max_temp_lower_limit', value=value)
 
 def center_entropy_upper_limit(self, value):
     self.add_to_controls(category='termination conditions',
-            control='AAAAAA', value=value)
+            control='center_entropy_upper_limit', value=value)
 
 def center_entropy_lower_limit(self, value):
     self.add_to_controls(category='termination conditions',
-            control='AAAAAA', value=value)
+            control='center_entropy_lower_limit', value=value)
     
 def max_entropy_upper_limit(self, value):
     self.add_to_controls(category='termination conditions',
-            control='AAAAAA', value=value)
+            control='max_entropy_upper_limit', value=value)
     
 def max_entropy_lower_limit(self, value):
     self.add_to_controls(category='termination conditions',
-            control='AAAAAA', value=value)
+            control='max_entropy_lower_limit', value=value)
 
 def HB_limit(self, value):
     self.add_to_controls(category='termination conditions',
