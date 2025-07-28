@@ -262,6 +262,7 @@ class MesaInlist:
     max_abar_for_burning = net.max_abar_for_burning
     disable_nuclear_burning = net.disable_nuclear_burning
     disable_dxdt_from_nuclear_burning = net.disable_dxdt_from_nuclear_burning
+    replace_one_element_with_another = net.replace_one_element_with_another
 
     set_min_D_mix = mix.set_min_D_mix
     disable_mixing = mix.disable_mixing

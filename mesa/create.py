@@ -73,13 +73,16 @@ def create_shell_burning_remnant(write_mod_fname, core_mod_fname, env_mod_fname,
     lnT_env_base = np.max(env_model['lnT'])
     Rho_too_low = (core_model['lnd'] < lnRho_env_base)
     match interface_setting:
+        case 'default':
+            pass
+
         case 'excise': # cut out lower-density material
             core_model = core_model[~Rho_too_low]
 
         case 'bulkup': # artificially increase density/temperature of lower-density material
             core_model['lnd'][Rho_too_low] = lnRho_env_base
             core_model['lnd'][Rho_too_low] = lnT_env_base
-        
+
         case _:
             warnings.warn(f'No interface_setting = {interface_setting}', category=UserWarning)
 

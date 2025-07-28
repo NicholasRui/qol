@@ -34,6 +34,8 @@ add ability to write text parallel to plot
 
 TODO: Bug: Currently, if ./re fails, it does not terminate the script but simply goes to the next one, which may not need the one that failed. Then, if it saves a photo, it will never run the failed component. Make it so the products of a run MUST exist before moving on, or break.
 
+TODO: add warning when there is no opacity setting specified -- since MESA will crash if this is not specified
+
 
 ## automate animations?
 

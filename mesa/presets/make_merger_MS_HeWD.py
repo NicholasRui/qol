@@ -206,6 +206,7 @@ def helper_merger_MS_HeWD_merge():
     """
     script = MesaPythonScript(name='merge',
             template=f'{info.qol_path}mesa/templates/scripts/call_create_shell_burning_remnant.py',
+            const_args=['excise', 'change_m'],
             prereqs=['cool_he_wd.mod', 'env_th_eq.mod'],
             products=['remnant_init.mod'])
     
