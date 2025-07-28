@@ -27,7 +27,7 @@ class MesaPythonScript:
         self.data_prereqs = prereqs # model files and other things which are required for this to work
         self.data_products = products # model files and other things which are saved by this python script
 
-        self.args_in = const_args + prereqs + products # arguments in ./rn
+        self.args_in = prereqs + products + const_args # arguments in ./rn
 
         self.LOGS_dir = None
         self.photos_dir = None

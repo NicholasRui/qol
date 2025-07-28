@@ -1,13 +1,13 @@
 # Wrapper script to call create_shell_burning_remant within a MESA directory
 import sys
-from qol.mesa.create import create_shell_burning_remnant
+from mesa.sculpt import create_shell_burning_remnant
 
 # skip argv[0], which is the script path itself
-interface_setting = sys.argv[1]
-readjust_setting = sys.argv[2]
-core_mod_fname = sys.argv[3]
-env_mod_fname = sys.argv[4]
-write_mod_fname = sys.argv[5]
+core_mod_fname = sys.argv[1]
+env_mod_fname = sys.argv[2]
+write_mod_fname = sys.argv[3]
+interface_setting = sys.argv[4]
+readjust_setting = sys.argv[5]
 
 # Append 'data/' to the front of all of these
 core_mod_fname = f'data/{core_mod_fname}'
