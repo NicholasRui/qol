@@ -29,14 +29,16 @@ def make_merger_RG_HeWD(
     # generate tasks
     task_evolve_rg = helper_merger_RG_HeWD_evolve_rg(enable_pgstar=enable_pgstar, net_name=net_name, MWD_in_Msun=MWD_in_Msun, mesh_delta_coeff=mesh_delta_coeff)
     task_strip_rg = helper_merger_RG_HeWD_strip_rg(enable_pgstar=enable_pgstar, MWD_in_Msun=MWD_in_Msun, mesh_delta_coeff=mesh_delta_coeff)
+    task_clean_he_wd = helper_merger_RG_HeWD_clean_he_wd()
     task_cool_he_wd = helper_merger_RG_HeWD_cool_he_wd(enable_pgstar=enable_pgstar, T_WD=T_WD, mesh_delta_coeff=mesh_delta_coeff)
-    task_he_wd_remove_h1 = helper_merger_RG_HeWD_he_wd_remove_h1(enable_pgstar=enable_pgstar)
-    task_he_wd_remove_he3 = helper_merger_RG_HeWD_he_wd_remove_he3(enable_pgstar=enable_pgstar)
+    # task_he_wd_remove_h1 = helper_merger_RG_HeWD_he_wd_remove_h1(enable_pgstar=enable_pgstar)
+    # task_he_wd_remove_he3 = helper_merger_RG_HeWD_he_wd_remove_he3(enable_pgstar=enable_pgstar)
     task_outer_core_inner_bc = helper_merger_RG_HeWD_outer_core_inner_bc(Mcore_in_Msun=Mcore_in_Msun) ###
     task_make_outer_core = helper_merger_RG_HeWD_make_outer_core(enable_pgstar=enable_pgstar, net_name=net_name, Mcore_in_Msun=Mcore_in_Msun, mesh_delta_coeff=mesh_delta_coeff)
     task_outer_core_to_degen = helper_merger_RG_HeWD_outer_core_to_degen(enable_pgstar=enable_pgstar, net_name=net_name, mesh_delta_coeff=mesh_delta_coeff) ###
-    task_outer_core_remove_h1 = helper_merger_RG_HeWD_outer_core_remove_h1(enable_pgstar=enable_pgstar)
-    task_outer_core_remove_he3 = helper_merger_RG_HeWD_outer_core_remove_he3(enable_pgstar=enable_pgstar)
+    task_clean_outer_core = helper_merger_RG_HeWD_clean_outer_core()
+    # task_outer_core_remove_h1 = helper_merger_RG_HeWD_outer_core_remove_h1(enable_pgstar=enable_pgstar)
+    # task_outer_core_remove_he3 = helper_merger_RG_HeWD_outer_core_remove_he3(enable_pgstar=enable_pgstar)
 
     task_merge_core = helper_merger_RG_HeWD_merge_core()
     # print(task_merge_core.data_prereqs)
@@ -61,15 +63,17 @@ def make_merger_RG_HeWD(
 
     work.add_task(task_evolve_rg)
     work.add_task(task_strip_rg)
+    work.add_task(task_clean_he_wd)
     work.add_task(task_cool_he_wd)
-    work.add_task(task_he_wd_remove_h1)
-    work.add_task(task_he_wd_remove_he3)
+    # work.add_task(task_he_wd_remove_h1)
+    # work.add_task(task_he_wd_remove_he3)
     #work.add_task(task_subduct_he_wd) ## new
     work.add_task(task_outer_core_inner_bc)
     work.add_task(task_make_outer_core)
     work.add_task(task_outer_core_to_degen)
-    work.add_task(task_outer_core_remove_h1)
-    work.add_task(task_outer_core_remove_he3)
+    work.add_task(task_clean_outer_core)
+    # work.add_task(task_outer_core_remove_h1)
+    # work.add_task(task_outer_core_remove_he3)
     work.add_task(task_merge_core)
     # work.add_task(task_remove_h1)
     # work.add_task(task_remove_he3)
@@ -143,6 +147,19 @@ def helper_merger_RG_HeWD_strip_rg(enable_pgstar, MWD_in_Msun, mesh_delta_coeff)
 
     return inlist
 
+def helper_merger_RG_HeWD_clean_he_wd():
+    """
+    remove "contaminant" species
+    """
+    script = MesaPythonScript(name='clean_he_wd',
+        template=f'{info.qol_path}mesa/templates/scripts/call_replace_elements.py',
+        const_args=['he4',
+                    'h1', 'he3', 'n13', 'o14', 'o15', 'f17', 'f18', 'ne18'],
+        prereqs=['hot_he_wd.mod'],
+        products=['hot_he_wd_clean.mod'])
+
+    return script
+
 def helper_merger_RG_HeWD_cool_he_wd(enable_pgstar, T_WD, mesh_delta_coeff):
     """
     cool He WD to desired temperature
@@ -153,7 +170,7 @@ def helper_merger_RG_HeWD_cool_he_wd(enable_pgstar, T_WD, mesh_delta_coeff):
     inlist.save_pgstar(write_path='Grid1/cool_he_wd/')
     inlist.use_qol_pgstar()
 
-    inlist.load_model('hot_he_wd.mod')
+    inlist.load_model('hot_he_wd_clean.mod')
     inlist.set_Zbase(0.02)
 
     # average composition of outer layers for write-out
@@ -172,49 +189,49 @@ def helper_merger_RG_HeWD_cool_he_wd(enable_pgstar, T_WD, mesh_delta_coeff):
 
     return inlist
 
-def helper_merger_RG_HeWD_he_wd_remove_h1(enable_pgstar):
-    """
-    removes residual small amounts of h1
-    """
-    inlist = MesaInlist(name='he_wd_remove_h1')
-    if enable_pgstar:
-        inlist.enable_pgstar()
-    inlist.save_pgstar(write_path='Grid1/he_wd_remove_h1/')
-    inlist.use_qol_pgstar()
+# def helper_merger_RG_HeWD_he_wd_remove_h1(enable_pgstar):
+#     """
+#     removes residual small amounts of h1
+#     """
+#     inlist = MesaInlist(name='he_wd_remove_h1')
+#     if enable_pgstar:
+#         inlist.enable_pgstar()
+#     inlist.save_pgstar(write_path='Grid1/he_wd_remove_h1/')
+#     inlist.use_qol_pgstar()
 
-    inlist.load_model('cool_he_wd.mod')
-    inlist.set_Zbase(0.02)
-    inlist.disable_nuclear_burning()
+#     inlist.load_model('cool_he_wd.mod')
+#     inlist.set_Zbase(0.02)
+#     inlist.disable_nuclear_burning()
 
-    # try to remove any residual hydrogen
-    inlist.replace_one_element_with_another(chem_name1='h1', chem_name2='he4')
-    inlist.max_model_number(1)
+#     # try to remove any residual hydrogen
+#     inlist.replace_one_element_with_another(chem_name1='h1', chem_name2='he4')
+#     inlist.max_model_number(1)
 
-    inlist.save_final_model('cool_he_wd_remove_h1.mod')
+#     inlist.save_final_model('cool_he_wd_remove_h1.mod')
 
-    return inlist
+#     return inlist
 
-def helper_merger_RG_HeWD_he_wd_remove_he3(enable_pgstar):
-    """
-    removes residual small amounts of he3
-    """
-    inlist = MesaInlist(name='he_wd_remove_he3')
-    if enable_pgstar:
-        inlist.enable_pgstar()
-    inlist.save_pgstar(write_path='Grid1/he_wd_remove_he3/')
-    inlist.use_qol_pgstar()
+# def helper_merger_RG_HeWD_he_wd_remove_he3(enable_pgstar):
+#     """
+#     removes residual small amounts of he3
+#     """
+#     inlist = MesaInlist(name='he_wd_remove_he3')
+#     if enable_pgstar:
+#         inlist.enable_pgstar()
+#     inlist.save_pgstar(write_path='Grid1/he_wd_remove_he3/')
+#     inlist.use_qol_pgstar()
 
-    inlist.load_model('cool_he_wd_remove_h1.mod')
-    inlist.set_Zbase(0.02)
-    inlist.disable_nuclear_burning()
+#     inlist.load_model('cool_he_wd_remove_h1.mod')
+#     inlist.set_Zbase(0.02)
+#     inlist.disable_nuclear_burning()
 
-    # try to remove any residual hydrogen
-    inlist.replace_one_element_with_another(chem_name1='he3', chem_name2='he4')
-    inlist.max_model_number(1)
+#     # try to remove any residual hydrogen
+#     inlist.replace_one_element_with_another(chem_name1='he3', chem_name2='he4')
+#     inlist.max_model_number(1)
 
-    inlist.save_final_model('cool_he_wd_remove_h1_he3.mod')
+#     inlist.save_final_model('cool_he_wd_remove_h1_he3.mod')
 
-    return inlist
+#     return inlist
 
 # def helper_merger_RG_HeWD_subduct_he_wd(enable_pgstar, MWD_in_Msun, Mcore_in_Msun, mesh_delta_coeff):
 #     mass_change = 1e-3
@@ -294,10 +311,9 @@ def helper_merger_RG_HeWD_make_outer_core(enable_pgstar, net_name, Mcore_in_Msun
     inlist.reset_age()
     inlist.max_age(1)
 
-    inlist.save_final_model('outer_core_hot.mod')
+    inlist.save_final_model('hot_outer_core.mod')
 
     return inlist
-
 
 def helper_merger_RG_HeWD_outer_core_to_degen(enable_pgstar, net_name, mesh_delta_coeff):
     """
@@ -309,7 +325,7 @@ def helper_merger_RG_HeWD_outer_core_to_degen(enable_pgstar, net_name, mesh_delt
     inlist.save_pgstar(write_path='Grid1/outer_core_to_degen/')
     inlist.use_qol_pgstar()
 
-    inlist.load_model('outer_core_hot.mod')
+    inlist.load_model('hot_outer_core.mod')
 
     # try to remove any residual hydrogen
     inlist.replace_one_element_with_another(chem_name1='h1', chem_name2='he4')
@@ -325,59 +341,72 @@ def helper_merger_RG_HeWD_outer_core_to_degen(enable_pgstar, net_name, mesh_delt
     inlist.disable_nuclear_burning()
     inlist.eta_center_limit(15)
 
-    inlist.save_final_model('cool_outer_core.mod')
+    inlist.save_final_model('cool_outer_core_dirty.mod')
 
     return inlist
 
-def helper_merger_RG_HeWD_outer_core_remove_h1(enable_pgstar):
+def helper_merger_RG_HeWD_clean_outer_core():
     """
-    removes residual small amounts of h1
+    remove "contaminant" species
     """
-    inlist = MesaInlist(name='outer_core_remove_h1')
-    if enable_pgstar:
-        inlist.enable_pgstar()
-    inlist.save_pgstar(write_path='Grid1/outer_core_remove_h1/')
-    inlist.use_qol_pgstar()
+    script = MesaPythonScript(name='clean_outer_core',
+        template=f'{info.qol_path}mesa/templates/scripts/call_replace_elements.py',
+        const_args=['he4',
+                    'h1', 'he3', 'n13', 'o14', 'o15', 'f17', 'f18', 'ne18'],
+        prereqs=['cool_outer_core_dirty.mod'],
+        products=['cool_outer_core.mod'])
 
-    inlist.load_model('cool_outer_core.mod')
-    inlist.set_Zbase(0.02)
-    inlist.disable_nuclear_burning()
+    return script
 
-    # try to remove any residual hydrogen
-    inlist.replace_one_element_with_another(chem_name1='h1', chem_name2='he4')
-    inlist.max_model_number(1)
+# def helper_merger_RG_HeWD_outer_core_remove_h1(enable_pgstar):
+#     """
+#     removes residual small amounts of h1
+#     """
+#     inlist = MesaInlist(name='outer_core_remove_h1')
+#     if enable_pgstar:
+#         inlist.enable_pgstar()
+#     inlist.save_pgstar(write_path='Grid1/outer_core_remove_h1/')
+#     inlist.use_qol_pgstar()
 
-    inlist.save_final_model('cool_outer_core_remove_h1.mod')
+#     inlist.load_model('cool_outer_core.mod')
+#     inlist.set_Zbase(0.02)
+#     inlist.disable_nuclear_burning()
 
-    return inlist
+#     # try to remove any residual hydrogen
+#     inlist.replace_one_element_with_another(chem_name1='h1', chem_name2='he4')
+#     inlist.max_model_number(1)
 
-def helper_merger_RG_HeWD_outer_core_remove_he3(enable_pgstar):
-    """
-    removes residual small amounts of he3
-    """
-    inlist = MesaInlist(name='cool_outer_core_remove_he3')
-    if enable_pgstar:
-        inlist.enable_pgstar()
-    inlist.save_pgstar(write_path='Grid1/cool_outer_core_remove_he3/')
-    inlist.use_qol_pgstar()
+#     inlist.save_final_model('cool_outer_core_remove_h1.mod')
 
-    inlist.load_model('cool_outer_core_remove_h1.mod')
-    inlist.set_Zbase(0.02)
-    inlist.disable_nuclear_burning()
+#     return inlist
 
-    # try to remove any residual hydrogen
-    inlist.replace_one_element_with_another(chem_name1='he3', chem_name2='he4')
-    inlist.max_model_number(1)
+# def helper_merger_RG_HeWD_outer_core_remove_he3(enable_pgstar):
+#     """
+#     removes residual small amounts of he3
+#     """
+#     inlist = MesaInlist(name='cool_outer_core_remove_he3')
+#     if enable_pgstar:
+#         inlist.enable_pgstar()
+#     inlist.save_pgstar(write_path='Grid1/cool_outer_core_remove_he3/')
+#     inlist.use_qol_pgstar()
 
-    inlist.save_final_model('cool_outer_core_remove_h1_he3.mod')
+#     inlist.load_model('cool_outer_core_remove_h1.mod')
+#     inlist.set_Zbase(0.02)
+#     inlist.disable_nuclear_burning()
 
-    return inlist
+#     # try to remove any residual hydrogen
+#     inlist.replace_one_element_with_another(chem_name1='he3', chem_name2='he4')
+#     inlist.max_model_number(1)
+
+#     inlist.save_final_model('cool_outer_core_remove_h1_he3.mod')
+
+#     return inlist
 
 def helper_merger_RG_HeWD_merge_core():
     script = MesaPythonScript(name='merge_core',
         template=f'{info.qol_path}mesa/templates/scripts/call_create_shell_burning_remnant.py',
         const_args=['default', 'change_m'],
-        prereqs=['cool_he_wd_remove_h1_he3.mod', 'cool_outer_core_remove_h1_he3.mod'],
+        prereqs=['cool_he_wd.mod', 'cool_outer_core.mod'],
         products=['subduct_he_wd.mod'])
 
     return script

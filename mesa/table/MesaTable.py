@@ -201,7 +201,7 @@ class MesaTable(Table):
         if 'mlt_vc' in self.colnames:
             self.mlt_vc = self['mlt_vc']
 
-    def write_model(self, fname, model_setting=36):
+    def write_model(self, fname, model_setting=36, model_number=1, star_age=0., time=0.):
         """
         model_setting is the integer option at the top of the model file
         """
@@ -217,28 +217,38 @@ class MesaTable(Table):
                 version_number = self.attr['version_number']
                 M_in_Msun = self.attr['M/Msun']
                 initial_z = self.attr['initial_z']
-                model_number = 1
-                star_age = 0
-                N_shells = previous_N_shells = len(self)
+                n_shells = previous_n_shells = len(self)
                 net_name = self.attr['net_name']
                 species = self.attr['species']
-                time = 0
                 previous_mass_grams = const.Msun * M_in_Msun
-                timestep_seconds = dt_next_seconds = 100 * const.secyer # arbitrary
+                timestep_seconds = dt_next_seconds = 100. * const.secyer # arbitrary
+
+                format_attribute = lambda name, val: f'{name:>32}   {formatter.to_fortran(val)}' '\n'
+
+                attributes_text = ''
+                attributes_text += format_attribute('version_number', version_number)
+                attributes_text += format_attribute('M/Msun', M_in_Msun)
+                attributes_text += format_attribute('initial_z', initial_z)
+                attributes_text += format_attribute('model_number', model_number)
+                attributes_text += format_attribute('star_age', star_age)
+                attributes_text += format_attribute('n_shells', n_shells)
+                attributes_text += format_attribute('net_name', net_name)
+                attributes_text += format_attribute('species', species)
+                attributes_text += format_attribute('time', time)
+
+                # Add some other important attributes if they exist
+                if 'xmstar' in self.attr.keys():
+                    xmstar = self.attr['xmstar']
+                    attributes_text += format_attribute('xmstar', xmstar)
+                if 'R_center' in self.attr.keys():
+                    R_center = self.attr['R_center']
+                    attributes_text += format_attribute('R_center', R_center)
 
                 with open(template_path, 'r') as f:
                     text = f.read()
                 
-                text = text.replace('<<VERSION_NUMBER>>', formatter.to_fortran(version_number))
-                text = text.replace('<<M_IN_MSUN>>', formatter.to_fortran(M_in_Msun))
-                text = text.replace('<<INITIAL_Z>>', formatter.to_fortran(initial_z))
-                text = text.replace('<<MODEL_NUMBER>>', formatter.to_fortran(model_number))
-                text = text.replace('<<STAR_AGE>>', formatter.to_fortran(star_age))
-                text = text.replace('<<N_SHELLS>>', formatter.to_fortran(N_shells))
-                text = text.replace('<<NET_NAME>>', formatter.to_fortran(net_name))
-                text = text.replace('<<SPECIES>>', formatter.to_fortran(species))
-                text = text.replace('<<TIME>>', formatter.to_fortran(time))
-                text = text.replace('<<PREVIOUS_N_SHELLS>>', formatter.to_fortran(previous_N_shells))
+                text = text.replace('<<ATTRIBUTES_TEXT>>', attributes_text)
+                text = text.replace('<<PREVIOUS_N_SHELLS>>', formatter.to_fortran(previous_n_shells))
                 text = text.replace('<<PREVIOUS_MASS_GRAMS>>', formatter.to_fortran(previous_mass_grams))
                 text = text.replace('<<TIMESTEP_SECONDS>>', formatter.to_fortran(timestep_seconds))
                 text = text.replace('<<DT_NEXT_SECONDS>>', formatter.to_fortran(dt_next_seconds))

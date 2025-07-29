@@ -1,6 +1,6 @@
 # Wrapper script to call create_env_inlist_from_core within a MESA directory
 import sys
-from mesa.sculpt import create_env_inlist_from_core
+from qol.mesa.sculpt import create_env_inlist_from_core
 
 # skip argv[0], which is the script path itself
 core_mod_fname = sys.argv[1]

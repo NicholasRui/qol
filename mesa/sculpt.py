@@ -13,7 +13,6 @@ from astropy.table import vstack
 
 import warnings
 
-
 def create_env_inlist_from_core(run_path, task_name, core_mod_fname, M_env_Msun):
     """
     Given a core model, save an inlist which implements boundary conditions for corresponding envelope
@@ -36,8 +35,6 @@ def create_env_inlist_from_core(run_path, task_name, core_mod_fname, M_env_Msun)
 
     # Save inlist
     inlist.save(run_path, subdir='data')
-
-
 
 def create_shell_burning_remnant(write_mod_fname, core_mod_fname, env_mod_fname,
                                  interface_setting=None, readjust_setting=None):
@@ -128,8 +125,24 @@ def create_shell_burning_remnant(write_mod_fname, core_mod_fname, env_mod_fname,
            'net_name': net_name,
             'species': species}
     
-    full_mod = MesaTable(full_tab, attr=attr, tabtype='model')
-    full_mod.write_model(write_mod_fname)
+    full_model = MesaTable(full_tab, attr=attr, tabtype='model')
+    full_model.write_model(write_mod_fname)
 
-    return full_mod
+    return full_model
+
+def replace_elements(write_mod_fname, init_mod_fname, new_species, *old_species_arr):
+    """
+    takes args list old_species_arr, replaces each one with new_species, and writes it out
+    """
+    init_model = read_mod(init_mod_fname)
+
+    # loop through species and set their abundances to zero
+    old_species_X = np.zeros(len(init_model))
+    for old_species in old_species_arr:
+        old_species_X += init_model[old_species]
+        init_model[old_species] = 0.
     
+    # add mass fraction to new species
+    init_model[new_species] += old_species_X
+
+    init_model.write_model(write_mod_fname)
