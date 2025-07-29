@@ -186,12 +186,17 @@ class MesaTable(Table):
         
         if 'dq' in self.colnames:
             self.dq = dq = self['dq']
-            
             if 'M/Msun' in self.attr.keys():
                 M = self.attr['M/Msun']
 
-                self.dM_in_Msun = dM_in_Msun = M * dq
-                self.M_in_Msun = np.flip(np.cumsum(np.flip(dM_in_Msun)))
+                # need to account correctly if xmstar is nonzero
+                if 'xmstar' in self.attr.keys():
+                    self.M_center = M_center = M - self.attr['xmstar'] / const.Msun
+                else:
+                    self.M_center = M_center = 0
+
+                self.dM_in_Msun = dM_in_Msun = (M - M_center) * dq
+                self.M_in_Msun = np.flip(np.cumsum(np.flip(dM_in_Msun))) + M_center
 
                 self.dM = self.dM_in_Msun / const.Msun
                 self.M = self.M_in_Msun / const.Msun
