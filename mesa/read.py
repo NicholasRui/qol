@@ -2,6 +2,7 @@ import numpy as np
 from astropy.table import Table, Column, unique
 
 from qol.mesa.table.MesaTable import MesaTable
+from qol.tools import formatter
 
 # Attributes to look for and store
 model_attr_data_raw = \
@@ -189,15 +190,17 @@ def read_mod(fname):
                             attr_entry = str(attr_entry.replace('"', '').replace("'", ''))
                             
                         case 'float':
-                            attr_entry = attr_entry.lower()
-                            attr_entry = attr_entry.replace('d', 'e')
+                            # attr_entry = attr_entry.lower()
+                            # attr_entry = attr_entry.replace('d', 'e')
 
                             # kludge: MESA sometimes overwrites the d if the exponential is too long
                             # just replace with 0, since this usually means a very large negative exponent
-                            if (attr_entry.count('-') > 1):
-                                attr_entry = 0
+                            # if (attr_entry.count('-') > 1):
+                            #     attr_entry = 0
                             
-                            attr_entry = float(attr_entry)
+                            # attr_entry = float(attr_entry)
+
+                            attr_entry = formatter.mesa_num_to_float(attr_entry)
                             
                         case 'int':
                             attr_entry = int(attr_entry)
@@ -214,7 +217,7 @@ def read_mod(fname):
 
         # log data row
         # exclude first item, since it labels the row number
-        entries = [float(item.lower().replace('d', 'e')) for item in items[1:]]
+        entries = [formatter.mesa_num_to_float(item) for item in items[1:]]
         table_data.append(entries)
     
     table_data = np.array(table_data)

@@ -19,3 +19,18 @@ def to_fortran(value):
             return ''
         case _:
             raise ValueError(f'to_fortran: invalid type {type(value)}')
+
+def mesa_num_to_float(mesa_num):
+    """
+    Read in MESA number and return float
+    """
+    # replace D and d with e
+    mesa_num = mesa_num.lower().replace('d', 'e')
+
+    # there is a bug where exponents of -100 overwrite the D
+    # since this is vanishingly small, 
+    if len(mesa_num) >= 4:
+        if mesa_num[-4:] == '-100':
+            return 0
+    
+    return float(mesa_num)

@@ -1,6 +1,7 @@
 # Wrapper script to call create_env_inlist_from_core within a MESA directory
 import sys
 from qol.mesa.sculpt import create_env_inlist_from_core
+from qol.tools import formatter
 
 # skip argv[0], which is the script path itself
 core_mod_fname = sys.argv[1]
@@ -15,7 +16,7 @@ assert inlist_fname[:7] == 'inlist_'
 task_name = inlist_fname[7:]
 
 try:
-    M_env_Msun = float(M_env_Msun.lower().replace('d', 'e'))
+    M_env_Msun = formatter.mesa_num_to_float(M_env_Msun)
 except:
     raise ValueError(f'M_env_Msun -- cannot interpret as float: {M_env_Msun}')
 
