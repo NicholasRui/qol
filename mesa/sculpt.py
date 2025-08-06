@@ -55,6 +55,8 @@ def create_shell_burning_remnant(write_mod_fname, core_mod_fname, env_mod_fname,
     assert core_model.attr['net_name'] == env_model.attr['net_name']
     assert core_model.attr['species'] == env_model.attr['species']
 
+    assert 'R_center' in env_model.attr.keys()
+
     version_number = core_model.attr['version_number']
     model_setting = core_model.attr['model_setting']
     net_name = core_model.attr['net_name']

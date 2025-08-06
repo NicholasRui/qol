@@ -35,12 +35,27 @@ def make_merger_RG_HeWD(
     # task_he_wd_remove_he3 = helper_merger_RG_HeWD_he_wd_remove_he3(enable_pgstar=enable_pgstar)
     task_outer_core_inner_bc = helper_merger_RG_HeWD_outer_core_inner_bc(Mcore_in_Msun=Mcore_in_Msun) ###
     task_make_outer_core = helper_merger_RG_HeWD_make_outer_core(enable_pgstar=enable_pgstar, net_name=net_name, Mcore_in_Msun=Mcore_in_Msun, mesh_delta_coeff=mesh_delta_coeff)
-    task_outer_core_to_degen = helper_merger_RG_HeWD_outer_core_to_degen(enable_pgstar=enable_pgstar, net_name=net_name, mesh_delta_coeff=mesh_delta_coeff) ###
+
+
+
+
+    # task_outer_core_to_degen = helper_merger_RG_HeWD_outer_core_to_degen(enable_pgstar=enable_pgstar, net_name=net_name, mesh_delta_coeff=mesh_delta_coeff) ###
+
+
     task_clean_outer_core = helper_merger_RG_HeWD_clean_outer_core()
+
+
+
+
+
+
     # task_outer_core_remove_h1 = helper_merger_RG_HeWD_outer_core_remove_h1(enable_pgstar=enable_pgstar)
     # task_outer_core_remove_he3 = helper_merger_RG_HeWD_outer_core_remove_he3(enable_pgstar=enable_pgstar)
 
     task_merge_core = helper_merger_RG_HeWD_merge_core()
+
+    # task_cool_core = helper_merger_RG_HeWD_cool_core(enable_pgstar=enable_pgstar, mesh_delta_coeff=mesh_delta_coeff)
+
     # print(task_merge_core.data_prereqs)
     # task_remove_h1 = helper_merger_RG_HeWD_remove_h1(enable_pgstar=enable_pgstar)
     # task_remove_he3 = helper_merger_RG_HeWD_remove_he3(enable_pgstar=enable_pgstar)
@@ -50,7 +65,7 @@ def make_merger_RG_HeWD(
     task_merge = helper_merger_RG_HeWD_merge_env()
     task_remnant_ringdown = helper_merger_RG_HeWD_remnant_ringdown(enable_pgstar=enable_pgstar, ringdown_time_yr=ringdown_time_yr, mesh_delta_coeff=mesh_delta_coeff)
     # task_remnant_to_trgb = helper_merger_RG_HeWD_remnant_to_trgb(enable_pgstar=enable_pgstar, rgb_wind=rgb_wind, mesh_delta_coeff=mesh_delta_coeff, disable_hydro_after_ringdown=disable_hydro_after_ringdown)
-    task_remnant_to_zacheb = helper_merger_RG_HeWD_remnant_to_zacheb(enable_pgstar=enable_pgstar, rgb_wind=rgb_wind, mesh_delta_coeff=mesh_delta_coeff, disable_hydro_after_ringdown=disable_hydro_after_ringdown)
+    # task_remnant_to_zacheb = helper_merger_RG_HeWD_remnant_to_zacheb(enable_pgstar=enable_pgstar, rgb_wind=rgb_wind, mesh_delta_coeff=mesh_delta_coeff, disable_hydro_after_ringdown=disable_hydro_after_ringdown)
     task_zacheb_to_co_wd = helper_merger_RG_HeWD_zacheb_to_co_wd(enable_pgstar=enable_pgstar, mesh_delta_coeff=mesh_delta_coeff)
     task_cool_co_wd_early = helper_merger_RG_HeWD_cool_co_wd_early(enable_pgstar=enable_pgstar, alpha_semiconvection=alpha_semiconvection, thermohaline_coeff=thermohaline_coeff, mesh_delta_coeff=mesh_delta_coeff)
     task_cool_co_wd_late = helper_merger_RG_HeWD_cool_co_wd_late(enable_pgstar=enable_pgstar, alpha_semiconvection=alpha_semiconvection, thermohaline_coeff=thermohaline_coeff, mesh_delta_coeff=mesh_delta_coeff)
@@ -70,11 +85,24 @@ def make_merger_RG_HeWD(
     #work.add_task(task_subduct_he_wd) ## new
     work.add_task(task_outer_core_inner_bc)
     work.add_task(task_make_outer_core)
-    work.add_task(task_outer_core_to_degen)
+
+
+    # schematically:
+    # clean core
+    # merge core
+    # cool core
+
+
+
+
+
+    # work.add_task(task_outer_core_to_degen)
     work.add_task(task_clean_outer_core)
     # work.add_task(task_outer_core_remove_h1)
     # work.add_task(task_outer_core_remove_he3)
     work.add_task(task_merge_core)
+
+    # work.add_task(task_cool_core)
     # work.add_task(task_remove_h1)
     # work.add_task(task_remove_he3)
     work.add_task(task_env_inner_bc) ## new
@@ -82,7 +110,7 @@ def make_merger_RG_HeWD(
     work.add_task(task_merge) ## new
     work.add_task(task_remnant_ringdown)
     # work.add_task(task_remnant_to_trgb)
-    work.add_task(task_remnant_to_zacheb)
+    # work.add_task(task_remnant_to_zacheb)
     work.add_task(task_zacheb_to_co_wd)
     work.add_task(task_cool_co_wd_early)
     work.add_task(task_cool_co_wd_late)
@@ -311,39 +339,39 @@ def helper_merger_RG_HeWD_make_outer_core(enable_pgstar, net_name, Mcore_in_Msun
     inlist.reset_age()
     inlist.max_age(1)
 
-    inlist.save_final_model('hot_outer_core.mod')
+    inlist.save_final_model('hot_outer_core_dirty.mod')
 
     return inlist
 
-def helper_merger_RG_HeWD_outer_core_to_degen(enable_pgstar, net_name, mesh_delta_coeff):
-    """
-    evolve outer core until it is a degenerate ball
-    """
-    inlist = MesaInlist(name='outer_core_to_degen')
-    if enable_pgstar:
-        inlist.enable_pgstar()
-    inlist.save_pgstar(write_path='Grid1/outer_core_to_degen/')
-    inlist.use_qol_pgstar()
+# def helper_merger_RG_HeWD_outer_core_to_degen(enable_pgstar, net_name, mesh_delta_coeff):
+#     """
+#     evolve outer core until it is a degenerate ball
+#     """
+#     inlist = MesaInlist(name='outer_core_to_degen')
+#     if enable_pgstar:
+#         inlist.enable_pgstar()
+#     inlist.save_pgstar(write_path='Grid1/outer_core_to_degen/')
+#     inlist.use_qol_pgstar()
 
-    inlist.load_model('hot_outer_core.mod')
+#     inlist.load_model('hot_outer_core.mod')
 
-    # try to remove any residual hydrogen
-    inlist.replace_one_element_with_another(chem_name1='h1', chem_name2='he4')
+#     # try to remove any residual hydrogen
+#     inlist.replace_one_element_with_another(chem_name1='h1', chem_name2='he4')
 
-    # opacity
-    inlist.set_Zbase(0.02)
-    inlist.change_net(net_name)
+#     # opacity
+#     inlist.set_Zbase(0.02)
+#     inlist.change_net(net_name)
 
-    # average composition of outer layers for write-out
-    inlist.surface_avg_abundance_dq(1e-2)
+#     # average composition of outer layers for write-out
+#     inlist.surface_avg_abundance_dq(1e-2)
 
-    # disable nuclear burning and stop when base of outer core gets degenerate enough
-    inlist.disable_nuclear_burning()
-    inlist.eta_center_limit(15)
+#     # disable nuclear burning and stop when base of outer core gets degenerate enough
+#     inlist.disable_nuclear_burning()
+#     inlist.eta_center_limit(15)
 
-    inlist.save_final_model('cool_outer_core_dirty.mod')
+#     inlist.save_final_model('cool_outer_core_dirty.mod')
 
-    return inlist
+#     return inlist
 
 def helper_merger_RG_HeWD_clean_outer_core():
     """
@@ -353,8 +381,8 @@ def helper_merger_RG_HeWD_clean_outer_core():
         template=f'{info.qol_path}mesa/templates/scripts/call_replace_elements.py',
         const_args=['he4',
                     'h1', 'he3', 'n13', 'o14', 'o15', 'f17', 'f18', 'ne18'],
-        prereqs=['cool_outer_core_dirty.mod'],
-        products=['cool_outer_core.mod'])
+        prereqs=['hot_outer_core_dirty.mod'],
+        products=['hot_outer_core.mod'])
 
     return script
 
@@ -405,11 +433,54 @@ def helper_merger_RG_HeWD_clean_outer_core():
 def helper_merger_RG_HeWD_merge_core():
     script = MesaPythonScript(name='merge_core',
         template=f'{info.qol_path}mesa/templates/scripts/call_create_shell_burning_remnant.py',
-        const_args=['default', 'change_m'],
-        prereqs=['cool_he_wd.mod', 'cool_outer_core.mod'],
-        products=['subduct_he_wd.mod'])
+        const_args=['excise', 'change_m'],
+        prereqs=['cool_he_wd.mod', 'hot_outer_core.mod'],
+        products=['hot_subduct_he_wd.mod'])
 
     return script
+
+# def helper_merger_RG_HeWD_cool_core(enable_pgstar, mesh_delta_coeff):
+#     """
+#     cool core so envelope is not big
+#     """
+#     inlist = MesaInlist(name='cool_core')
+#     if enable_pgstar:
+#         inlist.enable_pgstar()
+#     inlist.save_pgstar(write_path='Grid1/cool_core/')
+#     inlist.use_qol_pgstar()
+
+#     inlist.load_model('hot_subduct_he_wd.mod')
+#     inlist.set_Zbase(0.02)
+
+#     # average composition of outer layers for write-out
+#     inlist.surface_avg_abundance_dq(1e-2)
+
+#     # resolution
+#     # inlist.min_dq(1e-25)
+#     # inlist.max_surface_cell_dq(1e-18)
+    
+#     # cool core without burning for not too long
+#     inlist.enable_hydrodynamics()
+#     inlist.add_hydrodynamical_drag(drag_coefficient=1.)
+
+#     inlist.disable_nuclear_burning()
+#     inlist.reset_age()
+#     inlist.max_age(1e6)
+
+#     inlist.energy_eqn_option('eps_grav')
+#     inlist.mesh_delta_coeff(mesh_delta_coeff)
+
+#     inlist.save_final_model('subduct_he_wd.mod')
+
+#     return inlist
+
+
+
+
+
+
+
+
 
 # def helper_merger_RG_HeWD_remove_h1(enable_pgstar):
 #     """
@@ -459,7 +530,7 @@ def helper_merger_RG_HeWD_env_inner_bc(Menv_in_Msun):
     # Generate envelope boundary conditions
     script = MesaPythonScript(name='env_inner_bc',
             template=f'{info.qol_path}mesa/templates/scripts/call_create_env_inlist_from_core.py',
-                const_args=[Menv_in_Msun], prereqs=['subduct_he_wd.mod'], products=['inlist_env_inner_bc'])
+                const_args=[Menv_in_Msun], prereqs=['hot_subduct_he_wd.mod'], products=['inlist_env_inner_bc'])
 
     return script
 
@@ -498,7 +569,7 @@ def helper_merger_RG_HeWD_env_to_th_eq(enable_pgstar, net_name, MMS_in_Msun, mes
 
     inlist.mesh_delta_coeff(mesh_delta_coeff)
 
-    inlist.max_age(1e10)
+    inlist.max_age(1e4)
     inlist.save_final_model('env_th_eq.mod')
 
     return inlist
@@ -506,8 +577,8 @@ def helper_merger_RG_HeWD_env_to_th_eq(enable_pgstar, net_name, MMS_in_Msun, mes
 def helper_merger_RG_HeWD_merge_env():
     script = MesaPythonScript(name='merge_env',
         template=f'{info.qol_path}mesa/templates/scripts/call_create_shell_burning_remnant.py',
-        const_args=['excise', 'change_m'],
-        prereqs=['subduct_he_wd.mod', 'env_th_eq.mod'],
+        const_args=['default', 'change_m'],
+        prereqs=['hot_subduct_he_wd.mod', 'env_th_eq.mod'],
         products=['remnant_init.mod'])
 
     return script
@@ -539,7 +610,7 @@ def helper_merger_RG_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr, mesh
     inlist.use_gold_tolerances(False)
     inlist.convergence_ignore_equL_residuals(True)
     # inlist.disable_dxdt_from_nuclear_burning()
-    # inlist.disable_mixing()
+    inlist.disable_mixing()
     inlist.disable_nuclear_burning()
 
     inlist.limit_for_rel_error_in_energy_conservation(-1.)
@@ -549,6 +620,9 @@ def helper_merger_RG_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr, mesh
     # set arbitrary ringdown time
     inlist.max_age(ringdown_time_yr)
     inlist.save_final_model('remnant_hse.mod')
+
+    # initial timestep
+    inlist.set_initial_dt(years_for_initial_dt=1e-8)
 
     return inlist
 
@@ -589,55 +663,55 @@ def helper_merger_RG_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr, mesh
 
 #     return inlist
 
-def helper_merger_RG_HeWD_remnant_to_zacheb(enable_pgstar, rgb_wind, mesh_delta_coeff, disable_hydro_after_ringdown):
-    """
-    run remnant through He flash to ZACHeB
-    """
-    inlist = MesaInlist(name='remnant_to_zacheb')
-    if enable_pgstar:
-        inlist.enable_pgstar()
-    inlist.save_pgstar(write_path='Grid1/remnant_to_zacheb/')
-    inlist.use_qol_pgstar()
+# def helper_merger_RG_HeWD_remnant_to_zacheb(enable_pgstar, rgb_wind, mesh_delta_coeff, disable_hydro_after_ringdown):
+#     """
+#     run remnant through He flash to ZACHeB
+#     """
+#     inlist = MesaInlist(name='remnant_to_zacheb')
+#     if enable_pgstar:
+#         inlist.enable_pgstar()
+#     inlist.save_pgstar(write_path='Grid1/remnant_to_zacheb/')
+#     inlist.use_qol_pgstar()
 
-    # Write GYRE model files
-    inlist.write_gyre_data_with_profile()
+#     # Write GYRE model files
+#     inlist.write_gyre_data_with_profile()
 
-    # inlist.load_model('remnant_trgb.mod')
-    inlist.load_model('remnant_hse.mod')
-    inlist.he_core_boundary_h1_fraction(1e-3)
+#     # inlist.load_model('remnant_trgb.mod')
+#     inlist.load_model('remnant_hse.mod')
+#     inlist.he_core_boundary_h1_fraction(1e-3)
 
-    inlist.set_Zbase(0.02)
+#     inlist.set_Zbase(0.02)
 
-    if disable_hydro_after_ringdown:
-        inlist.disable_hydrodynamics()
+#     if disable_hydro_after_ringdown:
+#         inlist.disable_hydrodynamics()
 
-    # relax some convergence conditions
-    inlist.min_timestep_limit(1e-12)
-    inlist.energy_eqn_option('eps_grav')
-    inlist.use_gold_tolerances(False)
-    inlist.convergence_ignore_equL_residuals(True)
-    inlist.set_max_num_retries(3000)
+#     # relax some convergence conditions
+#     inlist.min_timestep_limit(1e-12)
+#     inlist.energy_eqn_option('eps_grav')
+#     inlist.use_gold_tolerances(False)
+#     inlist.convergence_ignore_equL_residuals(True)
+#     inlist.set_max_num_retries(3000)
 
-    inlist.mesh_delta_coeff(mesh_delta_coeff)
+#     inlist.mesh_delta_coeff(mesh_delta_coeff)
 
-    # predictive mixing
-    inlist.add_predictive_mix_zone(predictive_zone_type='any', predictive_zone_loc='core', predictive_bdy_loc='top',
-                            predictive_superad_thresh=0.01, predictive_avoid_reversal='he4')
+#     # predictive mixing
+#     inlist.add_predictive_mix_zone(predictive_zone_type='any', predictive_zone_loc='core', predictive_bdy_loc='top',
+#                             predictive_superad_thresh=0.01, predictive_avoid_reversal='he4')
 
-    # average composition of outer layers for write-out
-    inlist.surface_avg_abundance_dq(1e-2)
+#     # average composition of outer layers for write-out
+#     inlist.surface_avg_abundance_dq(1e-2)
 
-    # wind
-    if rgb_wind:
-        inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
-        inlist.cool_wind_AGB(scheme='Blocker', scaling_factor=0.1)
-        inlist.RGB_to_AGB_wind_switch(1e-4)
+#     # wind
+#     if rgb_wind:
+#         inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
+#         inlist.cool_wind_AGB(scheme='Blocker', scaling_factor=0.1)
+#         inlist.RGB_to_AGB_wind_switch(1e-4)
 
-    # stop at ZACHEB
-    inlist.stop_at_phase_ZACHeB()
-    inlist.save_final_model('remnant_zacheb.mod')
+#     # stop at ZACHEB
+#     inlist.stop_at_phase_ZACHeB()
+#     inlist.save_final_model('remnant_zacheb.mod')
 
-    return inlist
+#     return inlist
 
 def helper_merger_RG_HeWD_zacheb_to_co_wd(enable_pgstar, mesh_delta_coeff):
     """
@@ -652,7 +726,7 @@ def helper_merger_RG_HeWD_zacheb_to_co_wd(enable_pgstar, mesh_delta_coeff):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('remnant_zacheb.mod')
+    inlist.load_model('remnant_hse.mod')
     inlist.he_core_boundary_h1_fraction(1e-3)
     inlist.co_core_boundary_he4_fraction(1e-3)
 

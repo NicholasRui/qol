@@ -36,6 +36,7 @@ TODO: Bug: Currently, if ./re fails, it does not terminate the script but simply
 
 TODO: add warning when there is no opacity setting specified -- since MESA will crash if this is not specified
 
+Bug: when xlabel and ylabel are used before axis is initialized, it doesn't apply proper formatting to them
 
 ## automate animations?
 

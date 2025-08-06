@@ -290,6 +290,8 @@ class MesaInlist:
     max_surface_cell_dq = resolution.max_surface_cell_dq
 
     set_dX_limits = timestep.set_dX_limits
+    set_delta_lg_star_mass_limits = timestep.set_delta_lg_star_mass_limits
+    set_initial_dt = timestep.set_initial_dt
 
     max_age = stop.max_age
     Teff_upper_limit = stop.Teff_upper_limit

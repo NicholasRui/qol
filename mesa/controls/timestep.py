@@ -82,3 +82,16 @@ def set_delta_lg_star_mass_limits(self, delta_lg_star_mass_limit,
     self.add_to_controls(category='delta_lg_star_mass limits', optional=True,
             control='delta_lg_star_mass_hard_limit', value=delta_lg_star_mass_hard_limit)
 
+def set_initial_dt(self, years_for_initial_dt=None, seconds_for_initial_dt=None):
+    # make sure not to specify both
+    assert (years_for_initial_dt is None) or (seconds_for_initial_dt is None)
+    assert (not years_for_initial_dt is None) or (not seconds_for_initial_dt is None)
+
+    category = 'initial timestep'
+    self.add_to_star_job(category=category,
+            control='set_initial_dt', value=True)
+    self.add_to_star_job(category=category, optional=True,
+            control='years_for_initial_dt', value=years_for_initial_dt)
+    self.add_to_star_job(category=category, optional=True,
+            control='seconds_for_initial_dt', value=seconds_for_initial_dt)
+
