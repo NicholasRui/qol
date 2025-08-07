@@ -20,8 +20,10 @@ class MesaTable(Table):
 
         self.attr = attr
         self.tabtype = tabtype
-
         self.update_attributes()
+        # rewrite n_shells just in case
+        if self.tabtype == 'model':
+            self.attr['n_shells'] = len(self)
 
     def update_attributes(self):
         # save some additional attributes, depending on tabtype
@@ -340,6 +342,20 @@ class MesaTable(Table):
         else:
             return 0.
 
+    def __getitem__(self, item):
+        """
+        For model tables, redefine getitem (i.e., table[:5]) to keep attributes
+        """
+        result = super().__getitem__(item)
+
+        # only if the output is a MesaTable (vs. Row, Column)
+        if isinstance(result, MesaTable) and self.tabtype == 'model':
+            result.attr = self.attr
+            result.tabtype = 'model'
+            result.update_attributes()
+            result.attr['n_shells'] = len(result)
+
+        return result
 
 
 

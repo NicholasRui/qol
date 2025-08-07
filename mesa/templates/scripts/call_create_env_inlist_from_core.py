@@ -4,6 +4,8 @@ from qol.mesa.sculpt import create_env_inlist_from_core
 from qol.tools import formatter
 
 # skip argv[0], which is the script path itself
+assert len(sys.argv) == 4
+
 core_mod_fname = sys.argv[1]
 inlist_fname = sys.argv[2]
 M_env_Msun = sys.argv[3]

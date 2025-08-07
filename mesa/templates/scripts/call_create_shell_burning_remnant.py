@@ -3,6 +3,8 @@ import sys
 from qol.mesa.sculpt import create_shell_burning_remnant
 
 # skip argv[0], which is the script path itself
+assert len(sys.argv) == 6
+
 core_mod_fname = sys.argv[1]
 env_mod_fname = sys.argv[2]
 write_mod_fname = sys.argv[3]
