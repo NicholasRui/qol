@@ -26,20 +26,20 @@ def make_merger_RG_HeWD(
     run_name = f'RGc{Mcore_in_Msun:.3f}e{Menv_in_Msun:.3f}+HeWD{MWD_in_Msun:.3f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_w{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}_hydro{int(not disable_hydro_after_ringdown)}'
     run_path = f'{root_path}/{run_name}'
 
-    # generate tasks
-    task_evolve_rg = helper_merger_RG_HeWD_evolve_rg(enable_pgstar=enable_pgstar, net_name=net_name, MWD_in_Msun=MWD_in_Msun, mesh_delta_coeff=mesh_delta_coeff)
-    task_strip_rg = helper_merger_RG_HeWD_strip_rg(enable_pgstar=enable_pgstar, MWD_in_Msun=MWD_in_Msun, mesh_delta_coeff=mesh_delta_coeff)
-    task_clean_he_wd = helper_merger_RG_HeWD_clean_he_wd()
-    task_cool_he_wd = helper_merger_RG_HeWD_cool_he_wd(enable_pgstar=enable_pgstar, T_WD=T_WD, mesh_delta_coeff=mesh_delta_coeff)
-    task_outer_core_inner_bc = helper_merger_RG_HeWD_outer_core_inner_bc(Mcore_in_Msun=Mcore_in_Msun) ###
-    task_make_outer_core = helper_merger_RG_HeWD_make_outer_core(enable_pgstar=enable_pgstar, net_name=net_name, Mcore_in_Msun=Mcore_in_Msun, mesh_delta_coeff=mesh_delta_coeff)
-    task_clean_outer_core = helper_merger_RG_HeWD_clean_outer_core()
-    task_accrete_env = helper_merger_RG_HeWD_accrete_env(enable_pgstar=enable_pgstar, Menv_in_Msun=Menv_in_Msun, Mcore_in_Msun=Mcore_in_Msun, MWD_in_Msun=MWD_in_Msun, mesh_delta_coeff=mesh_delta_coeff)
-    task_merge = helper_merger_RG_HeWD_merge()
-    task_remnant_ringdown = helper_merger_RG_HeWD_remnant_ringdown(enable_pgstar=enable_pgstar, ringdown_time_yr=ringdown_time_yr, mesh_delta_coeff=mesh_delta_coeff)
-    task_zacheb_to_co_wd = helper_merger_RG_HeWD_zacheb_to_co_wd(enable_pgstar=enable_pgstar, disable_hydro_after_ringdown=disable_hydro_after_ringdown, mesh_delta_coeff=mesh_delta_coeff)
-    task_cool_co_wd_early = helper_merger_RG_HeWD_cool_co_wd_early(enable_pgstar=enable_pgstar, alpha_semiconvection=alpha_semiconvection, thermohaline_coeff=thermohaline_coeff, mesh_delta_coeff=mesh_delta_coeff)
-    task_cool_co_wd_late = helper_merger_RG_HeWD_cool_co_wd_late(enable_pgstar=enable_pgstar, alpha_semiconvection=alpha_semiconvection, thermohaline_coeff=thermohaline_coeff, mesh_delta_coeff=mesh_delta_coeff)
+    argdict = {'root_path': root_path,
+               'MWD_in_Msun': MWD_in_Msun,
+               'Mcore_in_Msun': Mcore_in_Msun,
+               'Menv_in_Msun': Menv_in_Msun,
+               'T_WD': T_WD,
+               'net_name': net_name,
+               'ringdown_time_yr': ringdown_time_yr,
+               'disable_hydro_after_ringdown': disable_hydro_after_ringdown,
+               'enable_pgstar': enable_pgstar,
+               'rgb_wind': rgb_wind,
+               'alpha_semiconvection': alpha_semiconvection,
+               'thermohaline_coeff': thermohaline_coeff,
+               'source_sdk': source_sdk,
+               'mesh_delta_coeff': mesh_delta_coeff,}
 
     # create and save work directory
     work = MesaWorkingDirectory(run_path=run_path)
@@ -47,28 +47,33 @@ def make_merger_RG_HeWD(
     work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns_qol.list')
     work.load_qol_pgstar()
 
-    work.add_task(task_evolve_rg)
-    work.add_task(task_strip_rg)
-    work.add_task(task_clean_he_wd)
-    work.add_task(task_cool_he_wd)
-    work.add_task(task_outer_core_inner_bc)
-    work.add_task(task_make_outer_core)
-    work.add_task(task_clean_outer_core)
-    work.add_task(task_accrete_env)
-    work.add_task(task_merge)
-    work.add_task(task_remnant_ringdown)
-    work.add_task(task_zacheb_to_co_wd)
-    work.add_task(task_cool_co_wd_early)
-    work.add_task(task_cool_co_wd_late)
+    work.add_task(helper_merger_RG_HeWD_evolve_rg(argdict))
+    work.add_task(helper_merger_RG_HeWD_strip_rg(argdict))
+    work.add_task(helper_merger_RG_HeWD_clean_he_wd(argdict))
+    work.add_task(helper_merger_RG_HeWD_cool_he_wd(argdict))
+    work.add_task(helper_merger_RG_HeWD_outer_core_inner_bc(argdict))
+    work.add_task(helper_merger_RG_HeWD_make_outer_core(argdict))
+    work.add_task(helper_merger_RG_HeWD_clean_outer_core(argdict))
+    work.add_task(helper_merger_RG_HeWD_accrete_env(argdict))
+    work.add_task(helper_merger_RG_HeWD_merge(argdict))
+    work.add_task(helper_merger_RG_HeWD_remnant_ringdown(argdict))
+    work.add_task(helper_merger_RG_HeWD_zacheb_to_co_wd(argdict))
+    work.add_task(helper_merger_RG_HeWD_cool_co_wd_early(argdict))
+    work.add_task(helper_merger_RG_HeWD_cool_co_wd_late(argdict))
 
     work.save_directory(grant_perms=True, source_sdk=source_sdk)
 
 
 
-def helper_merger_RG_HeWD_evolve_rg(enable_pgstar, net_name, MWD_in_Msun, mesh_delta_coeff):
+def helper_merger_RG_HeWD_evolve_rg(argdict):
     """
     make RG, evolve to desired core mass
     """
+    enable_pgstar = argdict['enable_pgstar']
+    net_name = argdict['net_name']
+    MWD_in_Msun = argdict['MWD_in_Msun']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+
     inlist = MesaInlist(name='evolve_rg')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -93,10 +98,14 @@ def helper_merger_RG_HeWD_evolve_rg(enable_pgstar, net_name, MWD_in_Msun, mesh_d
 
     return inlist
 
-def helper_merger_RG_HeWD_strip_rg(enable_pgstar, MWD_in_Msun, mesh_delta_coeff):
+def helper_merger_RG_HeWD_strip_rg(argdict):
     """
     remove mass from RG
     """
+    enable_pgstar = argdict['enable_pgstar']
+    MWD_in_Msun = argdict['MWD_in_Msun']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+
     inlist = MesaInlist(name='strip_rg')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -120,7 +129,7 @@ def helper_merger_RG_HeWD_strip_rg(enable_pgstar, MWD_in_Msun, mesh_delta_coeff)
 
     return inlist
 
-def helper_merger_RG_HeWD_clean_he_wd():
+def helper_merger_RG_HeWD_clean_he_wd(argdict):
     """
     remove "contaminant" species
     """
@@ -133,10 +142,14 @@ def helper_merger_RG_HeWD_clean_he_wd():
 
     return script
 
-def helper_merger_RG_HeWD_cool_he_wd(enable_pgstar, T_WD, mesh_delta_coeff):
+def helper_merger_RG_HeWD_cool_he_wd(argdict):
     """
     cool He WD to desired temperature
     """
+    enable_pgstar = argdict['enable_pgstar']
+    T_WD = argdict['T_WD']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+
     inlist = MesaInlist(name='cool_he_wd')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -162,11 +175,13 @@ def helper_merger_RG_HeWD_cool_he_wd(enable_pgstar, T_WD, mesh_delta_coeff):
 
     return inlist
 
-def helper_merger_RG_HeWD_outer_core_inner_bc(Mcore_in_Msun):
+def helper_merger_RG_HeWD_outer_core_inner_bc(argdict):
     """
     we will try to construct the core model by creating a helium pre-MS model to "warm" degeneracy
     and putting it on the HeWD
     """
+    Mcore_in_Msun = argdict['Mcore_in_Msun']
+
     # Generate envelope boundary conditions
     script = MesaPythonScript(name='outer_core_inner_bc',
             template=f'{info.qol_path}mesa/templates/scripts/call_create_env_inlist_from_core.py',
@@ -174,10 +189,15 @@ def helper_merger_RG_HeWD_outer_core_inner_bc(Mcore_in_Msun):
 
     return script
 
-def helper_merger_RG_HeWD_make_outer_core(enable_pgstar, net_name, Mcore_in_Msun, mesh_delta_coeff):
+def helper_merger_RG_HeWD_make_outer_core(argdict):
     """
     create outer core model (shell-burning He object)
     """
+    enable_pgstar = argdict['enable_pgstar']
+    net_name = argdict['net_name']
+    Mcore_in_Msun = argdict['Mcore_in_Msun']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+
     inlist = MesaInlist(name='make_outer_core')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -212,7 +232,7 @@ def helper_merger_RG_HeWD_make_outer_core(enable_pgstar, net_name, Mcore_in_Msun
 
     return inlist
 
-def helper_merger_RG_HeWD_clean_outer_core():
+def helper_merger_RG_HeWD_clean_outer_core(argdict):
     """
     remove "contaminant" species
     """
@@ -225,10 +245,16 @@ def helper_merger_RG_HeWD_clean_outer_core():
 
     return script
 
-def helper_merger_RG_HeWD_accrete_env(enable_pgstar, Menv_in_Msun, Mcore_in_Msun, MWD_in_Msun, mesh_delta_coeff):
+def helper_merger_RG_HeWD_accrete_env(argdict):
     """
     accrete envelope onto clean outer core before doing any "merging"
     """
+    enable_pgstar = argdict['enable_pgstar']
+    Menv_in_Msun = argdict['Menv_in_Msun']
+    Mcore_in_Msun = argdict['Mcore_in_Msun']
+    MWD_in_Msun = argdict['MWD_in_Msun']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+
     inlist = MesaInlist(name='accrete_env')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -269,7 +295,7 @@ def helper_merger_RG_HeWD_accrete_env(enable_pgstar, Menv_in_Msun, Mcore_in_Msun
 
     return inlist
 
-def helper_merger_RG_HeWD_merge():
+def helper_merger_RG_HeWD_merge(argdict):
     script = MesaPythonScript(name='merge',
         template=f'{info.qol_path}mesa/templates/scripts/call_create_shell_burning_remnant.py',
         const_args=['excise', 'change_m'],
@@ -278,10 +304,14 @@ def helper_merger_RG_HeWD_merge():
 
     return script
 
-def helper_merger_RG_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr, mesh_delta_coeff):
+def helper_merger_RG_HeWD_remnant_ringdown(argdict):
     """
     run remnant into HSE
     """
+    enable_pgstar = argdict['enable_pgstar']
+    ringdown_time_yr = argdict['ringdown_time_yr']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+
     inlist = MesaInlist(name='remnant_ringdown')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -321,10 +351,14 @@ def helper_merger_RG_HeWD_remnant_ringdown(enable_pgstar, ringdown_time_yr, mesh
 
     return inlist
 
-def helper_merger_RG_HeWD_zacheb_to_co_wd(enable_pgstar, disable_hydro_after_ringdown, mesh_delta_coeff):
+def helper_merger_RG_HeWD_zacheb_to_co_wd(argdict):
     """
     run remnant from ZACHEB to CO WD
     """
+    enable_pgstar = argdict['enable_pgstar']
+    disable_hydro_after_ringdown = argdict['disable_hydro_after_ringdown']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+
     inlist = MesaInlist(name='zacheb_to_co_wd')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -370,10 +404,15 @@ def helper_merger_RG_HeWD_zacheb_to_co_wd(enable_pgstar, disable_hydro_after_rin
 
     return inlist
 
-def helper_merger_RG_HeWD_cool_co_wd_early(enable_pgstar, alpha_semiconvection, thermohaline_coeff, mesh_delta_coeff):
+def helper_merger_RG_HeWD_cool_co_wd_early(argdict):
     """
     cool leftover CO WD through "early" stages -- include elemental diffusion but not phase separation
     """
+    enable_pgstar = argdict['enable_pgstar']
+    alpha_semiconvection = argdict['alpha_semiconvection']
+    thermohaline_coeff = argdict['thermohaline_coeff']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+
     inlist = MesaInlist(name='cool_co_wd_early')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -427,10 +466,15 @@ def helper_merger_RG_HeWD_cool_co_wd_early(enable_pgstar, alpha_semiconvection, 
 
     return inlist
 
-def helper_merger_RG_HeWD_cool_co_wd_late(enable_pgstar, alpha_semiconvection, thermohaline_coeff, mesh_delta_coeff):
+def helper_merger_RG_HeWD_cool_co_wd_late(argdict):
     """
     cool leftover CO WD through "late" stages -- include phase separation but not elemental diffusion
     """
+    enable_pgstar = argdict['enable_pgstar']
+    alpha_semiconvection = argdict['alpha_semiconvection']
+    thermohaline_coeff = argdict['thermohaline_coeff']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+
     inlist = MesaInlist(name='cool_co_wd_late')
     if enable_pgstar:
         inlist.enable_pgstar()

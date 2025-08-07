@@ -25,7 +25,15 @@ def make_MS_single(root_path, # absolute path in which to write directory
     run_name = f'M{M_in_Msun:.2f}_z{initial_z:.4f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}'
     run_path = f'{root_path}/{run_name}'
 
-    task_zams_to_mt = helper_MS_mass_changer_zams_to_mt(enable_pgstar=enable_pgstar, M_initial_in_Msun=M_in_Msun, Xcen_accrete=None, initial_z=initial_z, overshoot_f=overshoot_f, overshoot_f0=overshoot_f0, alpha_semiconvection=alpha_semiconvection)
+    argdict = {'root_path': root_path,
+               'M_in_Msun': M_in_Msun,
+               'initial_z': initial_z,
+               'overshoot_f': overshoot_f,
+               'overshoot_f0': overshoot_f0,
+               'enable_pgstar': enable_pgstar,
+               'source_sdk': source_sdk,
+               'to_lower_rgb': to_lower_rgb,
+               'alpha_semiconvection': alpha_semiconvection,}
 
     # Put it together
     work = MesaWorkingDirectory(run_path=run_path)
@@ -33,11 +41,9 @@ def make_MS_single(root_path, # absolute path in which to write directory
     work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns.list')
     work.load_qol_pgstar()
 
-    work.add_task(task_zams_to_mt)
-
+    work.add_task(helper_MS_mass_changer_zams_to_mt(argdict))
     if to_lower_rgb:
-        task_tams_to_lower_rgb = helper_MS_mass_changer_tams_to_lower_rgb(enable_pgstar=enable_pgstar, initial_z=initial_z, last_task='zams_to_mt', alpha_semiconvection=alpha_semiconvection)
-        work.add_task(task_tams_to_lower_rgb)
+        work.add_task(helper_MS_mass_changer_tams_to_lower_rgb(argdict))
 
     work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
 
@@ -63,8 +69,18 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
     run_name = f'M{M_initial_in_Msun:.2f}to{M_final_in_Msun:.2f}atX{Xcen_accrete:.2f}_dM{log_abs_Mdot_accrete:.1f}_z{initial_z:.4f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}_sc{alpha_semiconvection:.4f}'
     run_path = f'{root_path}/{run_name}'
 
-    task_zams_to_mt = helper_MS_mass_changer_zams_to_mt(enable_pgstar=enable_pgstar, M_initial_in_Msun=M_initial_in_Msun, Xcen_accrete=Xcen_accrete, initial_z=initial_z, overshoot_f=overshoot_f, overshoot_f0=overshoot_f0, alpha_semiconvection=alpha_semiconvection)
-    task_mt_to_tams = helper_MS_mass_changer_mt_to_tams(enable_pgstar=enable_pgstar, M_initial_in_Msun=M_initial_in_Msun, M_final_in_Msun=M_final_in_Msun, log_abs_Mdot_accrete=log_abs_Mdot_accrete, initial_z=initial_z, overshoot_f=overshoot_f, overshoot_f0=overshoot_f0, alpha_semiconvection=alpha_semiconvection)
+    argdict = {'root_path': root_path,
+               'M_initial_in_Msun': M_initial_in_Msun,
+               'M_final_in_Msun': M_final_in_Msun,
+               'Xcen_accrete': Xcen_accrete,
+               'log_abs_Mdot_accrete': log_abs_Mdot_accrete,
+               'initial_z': initial_z,
+               'overshoot_f': overshoot_f,
+               'overshoot_f0': overshoot_f0,
+               'enable_pgstar': enable_pgstar,
+               'source_sdk': source_sdk,
+               'to_lower_rgb': to_lower_rgb,
+               'alpha_semiconvection': alpha_semiconvection,}
 
     # Put it together
     work = MesaWorkingDirectory(run_path=run_path)
@@ -72,21 +88,28 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
     work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns.list')
     work.load_qol_pgstar()
 
-    work.add_task(task_zams_to_mt)
-    work.add_task(task_mt_to_tams)
-
+    work.add_task(helper_MS_mass_changer_zams_to_mt(argdict))
+    work.add_task(helper_MS_mass_changer_mt_to_tams(argdict))
     if to_lower_rgb:
-        task_tams_to_lower_rgb = helper_MS_mass_changer_tams_to_lower_rgb(enable_pgstar=enable_pgstar, initial_z=initial_z, last_task='mt_to_tams', alpha_semiconvection=alpha_semiconvection)
-        work.add_task(task_tams_to_lower_rgb)
+        work.add_task(helper_MS_mass_changer_tams_to_lower_rgb(argdict, last_task='mt_to_tams'))
 
     work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
 
     return work
 
-def helper_MS_mass_changer_zams_to_mt(enable_pgstar, M_initial_in_Msun, Xcen_accrete, initial_z, overshoot_f, overshoot_f0, alpha_semiconvection):
+def helper_MS_mass_changer_zams_to_mt(argdict):
     """
     Evolve up to the mass transfer time
-    """    
+    """
+    enable_pgstar = argdict['enable_pgstar']
+    M_initial_in_Msun = argdict['M_initial_in_Msun']
+    Xcen_accrete = argdict['Xcen_accrete']
+    initial_z = argdict['initial_z']
+    overshoot_f = argdict['overshoot_f']
+    overshoot_f0 = argdict['overshoot_f0']
+    alpha_semiconvection = argdict['alpha_semiconvection']
+
+
     inlist = MesaInlist('zams_to_mt')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -126,10 +149,19 @@ def helper_MS_mass_changer_zams_to_mt(enable_pgstar, M_initial_in_Msun, Xcen_acc
 
     return inlist
 
-def helper_MS_mass_changer_mt_to_tams(enable_pgstar, M_initial_in_Msun, M_final_in_Msun, log_abs_Mdot_accrete, initial_z, overshoot_f, overshoot_f0, alpha_semiconvection):
+def helper_MS_mass_changer_mt_to_tams(argdict):
     """
     Perform mass transfer and evolve to TAMS
     """
+    enable_pgstar = argdict['enable_pgstar']
+    M_initial_in_Msun = argdict['M_initial_in_Msun']
+    M_final_in_Msun = argdict['M_final_in_Msun']
+    log_abs_Mdot_accrete = argdict['log_abs_Mdot_accrete']
+    initial_z = argdict['initial_z']
+    initial_f = argdict['initial_f']
+    initial_f0 = argdict['initial_f0']
+    alpha_semiconvection = argdict['alpha_semiconvection']
+    
     inlist = MesaInlist('mt_to_tams')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -171,7 +203,11 @@ def helper_MS_mass_changer_mt_to_tams(enable_pgstar, M_initial_in_Msun, M_final_
 
     return inlist
 
-def helper_MS_mass_changer_tams_to_lower_rgb(enable_pgstar, initial_z, last_task, alpha_semiconvection):
+def helper_MS_mass_changer_tams_to_lower_rgb(argdict, last_task):
+    enable_pgstar = argdict['enable_pgstar']
+    initial_z = argdict['initial_z']
+    alpha_semiconvection = argdict['alpha_semiconvection']
+
     inlist = MesaInlist('tams_to_lower_rgb')
     if enable_pgstar:
         inlist.enable_pgstar()

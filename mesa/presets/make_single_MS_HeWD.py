@@ -19,32 +19,39 @@ def make_single_MS_HeWD(
     run_name = f'MS{MMS_in_Msun:.3f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_w{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}'
     run_path = f'{root_path}/{run_name}'
 
-    # generate tasks
-    task_zams_to_tams = helper_single_MS_HeWD_zams_to_tams(enable_pgstar=enable_pgstar, MMS_in_Msun=MMS_in_Msun, net_name=net_name, mesh_delta_coeff=mesh_delta_coeff)
-    task_tams_to_trgb = helper_single_MS_HeWD_tams_to_trgb(enable_pgstar=enable_pgstar, rgb_wind=rgb_wind, mesh_delta_coeff=mesh_delta_coeff)
-    task_trgb_to_zacheb = helper_single_MS_HeWD_trgb_to_zacheb(enable_pgstar=enable_pgstar, rgb_wind=rgb_wind, mesh_delta_coeff=mesh_delta_coeff)
-    task_zacheb_to_co_wd = helper_single_MS_HeWD_zacheb_to_co_wd(enable_pgstar=enable_pgstar, mesh_delta_coeff=mesh_delta_coeff)
-    task_cool_co_wd_early = helper_single_MS_HeWD_cool_co_wd_early(enable_pgstar=enable_pgstar, alpha_semiconvection=alpha_semiconvection, thermohaline_coeff=thermohaline_coeff, mesh_delta_coeff=mesh_delta_coeff)
-    task_cool_co_wd_late = helper_single_MS_HeWD_cool_co_wd_late(enable_pgstar=enable_pgstar, alpha_semiconvection=alpha_semiconvection, thermohaline_coeff=thermohaline_coeff, mesh_delta_coeff=mesh_delta_coeff)
-
+    argdict = {'root_path': root_path,
+               'MMS_in_Msun': MMS_in_Msun,
+               'net_name': net_name,
+               'enable_pgstar': enable_pgstar,
+               'rgb_wind': rgb_wind,
+               'alpha_semiconvection': alpha_semiconvection,
+               'thermohaline_coeff': thermohaline_coeff,
+               'source_sdk': source_sdk,
+               'mesh_delta_coeff': mesh_delta_coeff,}
+    
     # create and save work directory
     work = MesaWorkingDirectory(run_path=run_path)
     work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns_hewd_ms.list')
     work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns_qol.list')
     work.load_qol_pgstar()
 
-    work.add_task(task_zams_to_tams)
-    work.add_task(task_tams_to_trgb)
-    work.add_task(task_trgb_to_zacheb)
-    work.add_task(task_zacheb_to_co_wd)
-    work.add_task(task_cool_co_wd_early)
-    work.add_task(task_cool_co_wd_late)
+    work.add_task(helper_single_MS_HeWD_zams_to_tams(argdict))
+    work.add_task(helper_single_MS_HeWD_tams_to_trgb(argdict))
+    work.add_task(helper_single_MS_HeWD_trgb_to_zacheb(argdict))
+    work.add_task(helper_single_MS_HeWD_zacheb_to_co_wd(argdict))
+    work.add_task(helper_single_MS_HeWD_cool_co_wd_early(argdict))
+    work.add_task(helper_single_MS_HeWD_cool_co_wd_late(argdict))
 
     work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
 
     return work
 
-def helper_single_MS_HeWD_zams_to_tams(enable_pgstar, MMS_in_Msun, net_name, mesh_delta_coeff):
+def helper_single_MS_HeWD_zams_to_tams(argdict):
+    enable_pgstar = argdict['enable_pgstar']
+    MMS_in_Msun = argdict['MMS_in_Msun']
+    net_name = argdict['net_name']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+    
     inlist = MesaInlist(name='zams_to_tams')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -69,7 +76,11 @@ def helper_single_MS_HeWD_zams_to_tams(enable_pgstar, MMS_in_Msun, net_name, mes
 
     return inlist
 
-def helper_single_MS_HeWD_tams_to_trgb(enable_pgstar, rgb_wind, mesh_delta_coeff):
+def helper_single_MS_HeWD_tams_to_trgb(argdict):
+    enable_pgstar = argdict['enable_pgstar']
+    rgb_wind = argdict['rgb_wind']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+
     inlist = MesaInlist(name='tams_to_trgb')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -100,10 +111,14 @@ def helper_single_MS_HeWD_tams_to_trgb(enable_pgstar, rgb_wind, mesh_delta_coeff
 
     return inlist
 
-def helper_single_MS_HeWD_trgb_to_zacheb(enable_pgstar, rgb_wind, mesh_delta_coeff):
+def helper_single_MS_HeWD_trgb_to_zacheb(argdict):
     """
     run remnant through He flash to ZACHeB
     """
+    enable_pgstar = argdict['enable_pgstar']
+    rgb_wind = argdict['rgb_wind']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+
     inlist = MesaInlist(name='trgb_to_zacheb')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -146,10 +161,13 @@ def helper_single_MS_HeWD_trgb_to_zacheb(enable_pgstar, rgb_wind, mesh_delta_coe
 
     return inlist
 
-def helper_single_MS_HeWD_zacheb_to_co_wd(enable_pgstar, mesh_delta_coeff):
+def helper_single_MS_HeWD_zacheb_to_co_wd(argdict):
     """
     run remnant from ZACHEB to CO WD
     """
+    enable_pgstar = argdict['enable_pgstar']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+
     inlist = MesaInlist(name='zacheb_to_co_wd')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -184,10 +202,15 @@ def helper_single_MS_HeWD_zacheb_to_co_wd(enable_pgstar, mesh_delta_coeff):
 
     return inlist
 
-def helper_single_MS_HeWD_cool_co_wd_early(enable_pgstar, alpha_semiconvection, thermohaline_coeff, mesh_delta_coeff):
+def helper_single_MS_HeWD_cool_co_wd_early(argdict):
     """
     cool leftover CO WD through "early" stages -- include elemental diffusion but not phase separation
     """
+    enable_pgstar = argdict['enable_pgstar']
+    alpha_semiconvection = argdict['alpha_semiconvection']
+    thermohaline_coeff = argdict['thermohaline_coeff']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+    
     inlist = MesaInlist(name='cool_co_wd_early')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -241,10 +264,15 @@ def helper_single_MS_HeWD_cool_co_wd_early(enable_pgstar, alpha_semiconvection, 
 
     return inlist
 
-def helper_single_MS_HeWD_cool_co_wd_late(enable_pgstar, alpha_semiconvection, thermohaline_coeff, mesh_delta_coeff):
+def helper_single_MS_HeWD_cool_co_wd_late(argdict):
     """
     cool leftover CO WD through "late" stages -- include phase separation but not elemental diffusion
     """
+    enable_pgstar = argdict['enable_pgstar']
+    alpha_semiconvection = argdict['alpha_semiconvection']
+    thermohaline_coeff = argdict['thermohaline_coeff']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+    
     inlist = MesaInlist(name='cool_co_wd_late')
     if enable_pgstar:
         inlist.enable_pgstar()
@@ -294,4 +322,3 @@ def helper_single_MS_HeWD_cool_co_wd_late(enable_pgstar, alpha_semiconvection, t
     inlist.save_final_model('cool_co_wd_late.mod')
 
     return inlist
-
