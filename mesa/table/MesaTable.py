@@ -290,6 +290,8 @@ class MesaTable(Table):
         assert np.isin(['h1', 'he4'], self.colnames).all()
         bad_frac, good_frac = self['h1'], self['he4']
 
+        # print(type(bad_frac), type(bad_frac_thresh), type(good_frac), type(min_boundary_fraction))
+
         cond = (bad_frac <= bad_frac_thresh) & (good_frac >= min_boundary_fraction)
         if cond.any():
             k = np.where(cond)[0][0] # get qualifying index

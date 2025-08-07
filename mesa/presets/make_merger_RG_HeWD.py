@@ -51,6 +51,21 @@ def make_merger_RG_HeWD(
     work.add_task(helper_merger_RG_HeWD_strip_rg(argdict))
     work.add_task(helper_merger_RG_HeWD_clean_he_wd(argdict))
     work.add_task(helper_merger_RG_HeWD_cool_he_wd(argdict))
+
+    # create envelope for the purpose of compressing the outer layers of the WD
+    # add envelope on it
+    # ringdown (no burning)
+    # sanitize bad elements from WD
+    work.add_task(helper_merger_MS_HeWD_inner_bc_for_compress(argdict))
+    work.add_task(helper_merger_MS_HeWD_env_for_compress(argdict))
+    work.add_task(helper_merger_MS_HeWD_merge_for_compress(argdict))
+    work.add_task(helper_merger_MS_HeWD_ringdown_for_compress(argdict))
+    work.add_task(helper_merger_RG_HeWD_disable_hydro_for_he_wd_with_env(argdict))
+    work.add_task(helper_merger_MS_HeWD_remove_compress_env(argdict))
+    work.add_task(helper_merger_RG_HeWD_clean_compressed_he_wd(argdict))
+
+
+
     work.add_task(helper_merger_RG_HeWD_outer_core_inner_bc(argdict))
     work.add_task(helper_merger_RG_HeWD_make_outer_core(argdict))
     work.add_task(helper_merger_RG_HeWD_clean_outer_core(argdict))
@@ -175,6 +190,171 @@ def helper_merger_RG_HeWD_cool_he_wd(argdict):
 
     return inlist
 
+
+
+
+# create envelope for the purpose of compressing the outer layers of the WD
+# add envelope on it
+# ringdown (no burning)
+# sanitize bad elements from WD
+
+
+
+def helper_merger_MS_HeWD_inner_bc_for_compress(argdict):
+    """
+    boundary condition for cool HeWD in order to compress the outer layers of HeWD
+    """
+    script = MesaPythonScript(name='inner_bc_for_compress',
+            template=f'{info.qol_path}mesa/templates/scripts/call_create_env_inlist_from_core.py',
+              const_args=[1.0], prereqs=['cool_he_wd.mod'], products=['inlist_inner_bc_for_compress'])
+    
+    return script
+
+def helper_merger_MS_HeWD_env_for_compress(argdict):
+    """
+    create artificial H envelope to compress the outer layers of the HeWD
+    """
+    enable_pgstar = argdict['enable_pgstar']
+    net_name = argdict['net_name']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+
+    inlist = MesaInlist(name='env_for_compress')
+    if enable_pgstar:
+        inlist.enable_pgstar()
+    inlist.save_pgstar(write_path='Grid1/env_for_compress/')
+    inlist.use_qol_pgstar()
+
+    # set inner boundary condition
+    inlist.read_extra_inlist(namelist='star_job', rel_path='inlist_inner_bc_for_compress', category='relax inner BC to accommodate core model')
+
+    # initialize as pre-MS
+    inlist.create_pre_main_sequence_model(True)
+    inlist.initial_mass(1.0) # arbitrarily chosen envelope mass
+    inlist.initial_y(0.28)
+    inlist.initial_z(0.02)
+    inlist.set_Zbase(0.02)
+    inlist.change_net(net_name)
+
+    # average composition of outer layers for write-out
+    inlist.surface_avg_abundance_dq(1e-2)
+
+    # relax some convergence conditions, disable dx/dt from burning
+    inlist.min_timestep_limit(1e-12)
+    inlist.energy_eqn_option('dedt')
+    inlist.use_gold_tolerances(False)
+    inlist.convergence_ignore_equL_residuals(True)
+    inlist.set_max_num_retries(3000)
+    inlist.limit_for_rel_error_in_energy_conservation(-1.)
+    inlist.disable_dxdt_from_nuclear_burning()
+
+    inlist.mesh_delta_coeff(mesh_delta_coeff)
+
+    inlist.max_age(1e10)
+    inlist.save_final_model('env_for_compress.mod')
+
+    return inlist
+
+def helper_merger_MS_HeWD_merge_for_compress(argdict):
+    """
+    merge envelope with cool HeWD in order to compress the HeWD's outer layers
+    """
+    script = MesaPythonScript(name='merge_for_compress',
+            template=f'{info.qol_path}mesa/templates/scripts/call_create_shell_burning_remnant.py',
+            const_args=['excise', 'change_m'],
+            prereqs=['cool_he_wd.mod', 'env_for_compress.mod'],
+            products=['cool_he_wd_with_env.mod'])
+    
+    return script
+
+def helper_merger_MS_HeWD_ringdown_for_compress(argdict):
+    """
+    run remnant into HSE
+    """
+    enable_pgstar = argdict['enable_pgstar']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+    
+    inlist = MesaInlist(name='ringdown_for_compress')
+    if enable_pgstar:
+        inlist.enable_pgstar()
+    inlist.save_pgstar(write_path='Grid1/ringdown_for_compress/')
+    inlist.use_qol_pgstar()
+
+    # Write GYRE model files
+    inlist.write_gyre_data_with_profile()
+
+    inlist.load_model('cool_he_wd_with_env.mod')
+    inlist.set_Zbase(0.02)
+
+    # average composition of outer layers for write-out
+    inlist.surface_avg_abundance_dq(1e-2)
+
+    # enable hydro with drag
+    # disable burning
+    inlist.enable_hydrodynamics()
+    inlist.add_hydrodynamical_drag(drag_coefficient=1.)
+    inlist.energy_eqn_option('eps_grav')
+    inlist.min_timestep_limit(1e-12)
+    inlist.use_gold_tolerances(False)
+    inlist.convergence_ignore_equL_residuals(True)
+    inlist.disable_nuclear_burning()
+    inlist.disable_mixing()
+
+    inlist.mesh_delta_coeff(mesh_delta_coeff)
+
+    inlist.max_age(1e4) # chosen somewhat arbitrarily
+    inlist.save_final_model('cool_he_wd_with_env_rungdown.mod')
+
+    return inlist
+
+def helper_merger_RG_HeWD_disable_hydro_for_he_wd_with_env(argdict):
+    """
+    simply read in compressed HeWD model with envelope and save it again but with hydro turned off
+    """
+    enable_pgstar = argdict['enable_pgstar']
+
+    inlist = MesaInlist(name='disable_hydro_for_he_wd_with_env')
+    if enable_pgstar:
+        inlist.enable_pgstar()
+    inlist.save_pgstar(write_path='Grid1/disable_hydro_for_he_wd_with_env/')
+    inlist.use_qol_pgstar()
+    
+    inlist.disable_hydrodynamics()
+    inlist.load_model('cool_he_wd_with_env_rungdown.mod')
+    inlist.set_Zbase(0.02)
+
+    inlist.max_model_number(1)
+    inlist.save_final_model('cool_he_wd_with_env_hse.mod')
+
+    return inlist
+
+def helper_merger_MS_HeWD_remove_compress_env(argdict):
+    """
+    excise artificial envelope used to compress outer layers of cool HeWD
+    """
+    bad_frac_thresh = 1e-3
+    min_boundary_fraction = 0.1
+
+    script = MesaPythonScript(name='remove_compress_env',
+            template=f'{info.qol_path}mesa/templates/scripts/excise_envelope.py',
+            const_args=['he', bad_frac_thresh, min_boundary_fraction],
+            prereqs=['cool_he_wd_with_env_hse.mod'],
+            products=['cool_he_wd_compress_dirty.mod'])
+    
+    return script
+
+def helper_merger_RG_HeWD_clean_compressed_he_wd(argdict):
+    """
+    remove "contaminant" species
+    """
+    script = MesaPythonScript(name='clean_compressed_he_wd',
+        template=f'{info.qol_path}mesa/templates/scripts/call_replace_elements.py',
+        const_args=['he4',
+                    'h1', 'he3', 'n13', 'o14', 'o15', 'f17', 'f18', 'ne18'],
+        prereqs=['cool_he_wd_compress_dirty.mod'],
+        products=['cool_he_wd_compress.mod'])
+
+    return script
+
 def helper_merger_RG_HeWD_outer_core_inner_bc(argdict):
     """
     we will try to construct the core model by creating a helium pre-MS model to "warm" degeneracy
@@ -185,7 +365,7 @@ def helper_merger_RG_HeWD_outer_core_inner_bc(argdict):
     # Generate envelope boundary conditions
     script = MesaPythonScript(name='outer_core_inner_bc',
             template=f'{info.qol_path}mesa/templates/scripts/call_create_env_inlist_from_core.py',
-                const_args=[Mcore_in_Msun], prereqs=['cool_he_wd.mod'], products=['inlist_outer_core_inner_bc'])
+                const_args=[Mcore_in_Msun], prereqs=['cool_he_wd_compress.mod'], products=['inlist_outer_core_inner_bc'])
 
     return script
 
@@ -298,8 +478,8 @@ def helper_merger_RG_HeWD_accrete_env(argdict):
 def helper_merger_RG_HeWD_merge(argdict):
     script = MesaPythonScript(name='merge',
         template=f'{info.qol_path}mesa/templates/scripts/call_create_shell_burning_remnant.py',
-        const_args=['excise', 'change_m'],
-        prereqs=['cool_he_wd.mod', 'hot_outer_core_and_env.mod'],
+        const_args=['default', 'change_m'],
+        prereqs=['cool_he_wd_compress.mod', 'hot_outer_core_and_env.mod'],
         products=['remnant_init.mod'])
 
     return script
