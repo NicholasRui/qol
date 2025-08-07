@@ -271,3 +271,78 @@ class MesaTable(Table):
         # Write model file
         with open(fname, 'w') as f:
             f.write(text)
+
+    def get_he_core_mass(self, he_core_boundary_h1_fraction=0.1, min_boundary_fraction=0.1):
+        """
+        MESA documentation says:
+        If fraction >= 0, boundary is outermost location where h1 mass fraction is <= this value,
+        and he4 mass fraction >= min_boundary_fraction (see below). If fraction < 0, boundary is
+        outermost location where he4 is the most abundant species.
+
+        (just handle the first case for now)
+        """
+        assert self.tabtype in ['profile', 'model']
+        assert hasattr(self, 'M_in_Msun')
+
+        bad_frac_thresh = he_core_boundary_h1_fraction
+        assert np.isin(['h1', 'he4'], self.colnames).all()
+        bad_frac, good_frac = self['h1'], self['he4']
+
+        cond = (bad_frac <= bad_frac_thresh) & (good_frac >= min_boundary_fraction)
+        if cond.any():
+            k = np.where(cond)[0][0] # get qualifying index
+            core_mass = float(self.M_in_Msun[k])
+            return core_mass
+        else:
+            return 0.
+
+    def get_co_core_mass(self, co_core_boundary_he4_fraction=0.1, min_boundary_fraction=0.1):
+        """
+        MESA documentation says:
+        If fraction >= 0, boundary is outermost location where he4 mass fraction is <= this value,
+        and c12+o16 mass fraction >= min_boundary_fraction (see below). If fraction < 0, boundary is
+        outermost location where c12+o16 is more abundant than any other species.
+        """
+        assert self.tabtype in ['profile', 'model']
+        assert hasattr(self, 'M_in_Msun')
+
+        bad_frac_thresh = co_core_boundary_he4_fraction
+        assert np.isin(['he4', 'c12', 'o16'], self.colnames).all()
+        bad_frac, good_frac = self['he4'], self['c12']+self['o16']
+
+        cond = (bad_frac <= bad_frac_thresh) & (good_frac >= min_boundary_fraction)
+        if cond.any():
+            k = np.where(cond)[0][0] # get qualifying index
+            core_mass = float(self.M_in_Msun[k])
+            return core_mass
+        else:
+            return 0.
+
+    def get_one_core_mass(self, one_core_boundary_he4_c12_fraction=0.1, min_boundary_fraction=0.1):
+        """
+        MESA documentation says:
+        If fraction >= 0, boundary is outermost location where combine he4+c12 mass fraction is <= this value,
+        and o16+ne20 mass fraction >= min_boundary_fraction (see below). If fraction < 0, boundary is
+        outermost location where o16+ne20 is more abundant than any other species.
+        """
+        assert self.tabtype in ['profile', 'model']
+        assert hasattr(self, 'M_in_Msun')
+
+        bad_frac_thresh = one_core_boundary_he4_c12_fraction
+        assert np.isin(['he4', 'c12', 'o16', 'ne20'], self.colnames).all()
+        bad_frac, good_frac = self['he4']+self['c12'], self['o16']+self['ne20']
+
+        cond = (bad_frac <= bad_frac_thresh) & (good_frac >= min_boundary_fraction)
+        if cond.any():
+            k = np.where(cond)[0][0] # get qualifying index
+            core_mass = float(self.M_in_Msun[k])
+            return core_mass
+        else:
+            return 0.
+
+
+
+
+
+
+
