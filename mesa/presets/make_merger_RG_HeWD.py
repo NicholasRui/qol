@@ -47,15 +47,13 @@ def make_merger_RG_HeWD(
     work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns_qol.list')
     work.load_qol_pgstar()
 
+    # forming and cooling the HeWD
     work.add_task(helper_merger_RG_HeWD_evolve_rg(argdict))
     work.add_task(helper_merger_RG_HeWD_strip_rg(argdict))
     work.add_task(helper_merger_RG_HeWD_clean_he_wd(argdict))
     work.add_task(helper_merger_RG_HeWD_cool_he_wd(argdict))
 
-    # create envelope for the purpose of compressing the outer layers of the WD
-    # add envelope on it
-    # ringdown (no burning)
-    # sanitize bad elements from WD
+    # artificially increasing the density of the outer layers of the HeWD
     work.add_task(helper_merger_MS_HeWD_inner_bc_for_compress(argdict))
     work.add_task(helper_merger_MS_HeWD_env_for_compress(argdict))
     work.add_task(helper_merger_MS_HeWD_merge_for_compress(argdict))
@@ -64,21 +62,23 @@ def make_merger_RG_HeWD(
     work.add_task(helper_merger_MS_HeWD_remove_compress_env(argdict))
     work.add_task(helper_merger_RG_HeWD_clean_compressed_he_wd(argdict))
 
-
-
+    # create hot outer core of merger remnant (progenitor: RG core)
     work.add_task(helper_merger_RG_HeWD_outer_core_inner_bc(argdict))
     work.add_task(helper_merger_RG_HeWD_make_outer_core(argdict))
     work.add_task(helper_merger_RG_HeWD_clean_outer_core(argdict))
+
+    # add hydrogen to outer core and merge with HeWD
     work.add_task(helper_merger_RG_HeWD_accrete_env(argdict))
     work.add_task(helper_merger_RG_HeWD_merge(argdict))
     work.add_task(helper_merger_RG_HeWD_remnant_ringdown(argdict))
+
+    # evolve merger remnant
+    work.add_task(helper_merger_RG_HeWD_ignite_he(argdict))
     work.add_task(helper_merger_RG_HeWD_zacheb_to_co_wd(argdict))
     work.add_task(helper_merger_RG_HeWD_cool_co_wd_early(argdict))
     work.add_task(helper_merger_RG_HeWD_cool_co_wd_late(argdict))
 
     work.save_directory(grant_perms=True, source_sdk=source_sdk)
-
-
 
 def helper_merger_RG_HeWD_evolve_rg(argdict):
     """
@@ -189,16 +189,6 @@ def helper_merger_RG_HeWD_cool_he_wd(argdict):
     inlist.save_final_model('cool_he_wd.mod')
 
     return inlist
-
-
-
-
-# create envelope for the purpose of compressing the outer layers of the WD
-# add envelope on it
-# ringdown (no burning)
-# sanitize bad elements from WD
-
-
 
 def helper_merger_MS_HeWD_inner_bc_for_compress(argdict):
     """
@@ -531,18 +521,18 @@ def helper_merger_RG_HeWD_remnant_ringdown(argdict):
 
     return inlist
 
-def helper_merger_RG_HeWD_zacheb_to_co_wd(argdict):
+def helper_merger_RG_HeWD_ignite_he(argdict):
     """
-    run remnant from ZACHEB to CO WD
+    helium flash: make this a separate inlist to disable remeshing during this stage
     """
     enable_pgstar = argdict['enable_pgstar']
     disable_hydro_after_ringdown = argdict['disable_hydro_after_ringdown']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
 
-    inlist = MesaInlist(name='zacheb_to_co_wd')
+    inlist = MesaInlist(name='ignite_he')
     if enable_pgstar:
         inlist.enable_pgstar()
-    inlist.save_pgstar(write_path='Grid1/zacheb_to_co_wd/')
+    inlist.save_pgstar(write_path='Grid1/ignite_he/')
     inlist.use_qol_pgstar()
 
     if disable_hydro_after_ringdown:
@@ -557,8 +547,11 @@ def helper_merger_RG_HeWD_zacheb_to_co_wd(argdict):
 
     inlist.set_Zbase(0.02)
 
-    inlist.energy_eqn_option('eps_grav')
     inlist.mesh_delta_coeff(mesh_delta_coeff)
+
+    # important! disable remeshing and initialize timestep to something low
+    inlist.okay_to_remesh(False)
+    inlist.set_initial_dt(1e-8)
 
     # relax some convergence conditions to get through degenerate helium ignition
     inlist.min_timestep_limit(1e-12)
@@ -567,6 +560,51 @@ def helper_merger_RG_HeWD_zacheb_to_co_wd(argdict):
     inlist.convergence_ignore_equL_residuals(True)
     inlist.set_max_num_retries(3000)
     inlist.limit_for_rel_error_in_energy_conservation(-1.)
+
+    # average composition of outer layers for write-out
+    inlist.surface_avg_abundance_dq(1e-2)
+
+    # wind
+    inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
+    inlist.cool_wind_AGB(scheme='Blocker', scaling_factor=0.1)
+    inlist.RGB_to_AGB_wind_switch(1e-4)
+    inlist.cool_wind_full_on_T(9.99e9) # force usage of cool wind only
+    inlist.hot_wind_full_on_T(1.e10)
+
+    # stop at ZACHeB
+    inlist.stop_at_phase_ZACHeB()
+    inlist.save_final_model('zacheb.mod')
+
+    return inlist
+
+def helper_merger_RG_HeWD_zacheb_to_co_wd(argdict):
+    """
+    run remnant from ZACHeB to CO WD
+    """
+    enable_pgstar = argdict['enable_pgstar']
+    mesh_delta_coeff = argdict['mesh_delta_coeff']
+
+    inlist = MesaInlist(name='zacheb_to_co_wd')
+    if enable_pgstar:
+        inlist.enable_pgstar()
+    inlist.save_pgstar(write_path='Grid1/zacheb_to_co_wd/')
+    inlist.use_qol_pgstar()
+
+    # Write GYRE model files
+    inlist.write_gyre_data_with_profile()
+
+    inlist.load_model('zacheb.mod')
+    inlist.he_core_boundary_h1_fraction(1e-3)
+    inlist.co_core_boundary_he4_fraction(1e-3)
+
+    inlist.set_Zbase(0.02)
+
+    inlist.energy_eqn_option('eps_grav')
+    inlist.mesh_delta_coeff(mesh_delta_coeff)
+
+    # predictive mixing
+    inlist.add_predictive_mix_zone(predictive_zone_type='any', predictive_zone_loc='core', predictive_bdy_loc='top',
+                            predictive_superad_thresh=0.01, predictive_avoid_reversal='he4')
 
     # average composition of outer layers for write-out
     inlist.surface_avg_abundance_dq(1e-2)

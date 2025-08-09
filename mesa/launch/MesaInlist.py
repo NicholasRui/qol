@@ -1,8 +1,6 @@
 
 from qol.mesa.launch.MesaControl import MesaControl
 import qol.config as config
-import qol.mesa.const as const
-import qol.tools.formatter as formatter
 import qol.info as info
 
 import qol.mesa.controls.io as io
@@ -14,7 +12,7 @@ import qol.mesa.controls.net as net
 import qol.mesa.controls.stop as stop
 import qol.mesa.controls.bc as bc
 import qol.mesa.controls.pgstar as pgstar
-import qol.mesa.controls.resolution as resolution
+import qol.mesa.controls.mesh as mesh
 import qol.mesa.controls.solver as solver
 import qol.mesa.controls.timestep as timestep
 import qol.mesa.controls.coredef as coredef
@@ -22,9 +20,6 @@ import qol.mesa.controls.wind as wind
 
 import numpy as np
 from collections.abc import Iterable
-
-import warnings
-
 
 class MesaInlist:
     """
@@ -285,9 +280,10 @@ class MesaInlist:
     convergence_ignore_equL_residuals = solver.convergence_ignore_equL_residuals
     limit_for_rel_error_in_energy_conservation = solver.limit_for_rel_error_in_energy_conservation
 
-    mesh_delta_coeff = resolution.mesh_delta_coeff
-    min_dq = resolution.min_dq
-    max_surface_cell_dq = resolution.max_surface_cell_dq
+    mesh_delta_coeff = mesh.mesh_delta_coeff
+    min_dq = mesh.min_dq
+    max_surface_cell_dq = mesh.max_surface_cell_dq
+    okay_to_remesh = mesh.okay_to_remesh
 
     set_dX_limits = timestep.set_dX_limits
     set_delta_lg_star_mass_limits = timestep.set_delta_lg_star_mass_limits

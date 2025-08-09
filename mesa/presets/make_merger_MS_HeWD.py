@@ -350,15 +350,8 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(argdict):
 
     inlist.mesh_delta_coeff(mesh_delta_coeff)
 
-    # predictive mixing
-    inlist.add_predictive_mix_zone(predictive_zone_type='any', predictive_zone_loc='core', predictive_bdy_loc='top',
-                            predictive_superad_thresh=0.01, predictive_avoid_reversal='he4')
-
     # average composition of outer layers for write-out
     inlist.surface_avg_abundance_dq(1e-2)
-
-    # add artificial damping to outermost layers
-    # inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
 
     # wind
     if rgb_wind:
@@ -366,7 +359,7 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(argdict):
         inlist.cool_wind_AGB(scheme='Blocker', scaling_factor=0.1)
         inlist.RGB_to_AGB_wind_switch(1e-4)
 
-    # stop at ZACHEB
+    # stop at ZACHeB
     inlist.stop_at_phase_ZACHeB()
     inlist.save_final_model('remnant_zacheb.mod')
 
@@ -374,7 +367,7 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(argdict):
 
 def helper_merger_MS_HeWD_zacheb_to_co_wd(argdict):
     """
-    run remnant from ZACHEB to CO WD
+    run remnant from ZACHeB to CO WD
     """
     enable_pgstar = argdict['enable_pgstar']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
@@ -400,8 +393,9 @@ def helper_merger_MS_HeWD_zacheb_to_co_wd(argdict):
     # average composition of outer layers for write-out
     inlist.surface_avg_abundance_dq(1e-2)
 
-    # add artificial damping to outermost layers
-    # inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
+    # predictive mixing
+    inlist.add_predictive_mix_zone(predictive_zone_type='any', predictive_zone_loc='core', predictive_bdy_loc='top',
+                            predictive_superad_thresh=0.01, predictive_avoid_reversal='he4')
 
     # wind
     inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
