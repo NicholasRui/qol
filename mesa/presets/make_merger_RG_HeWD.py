@@ -6,7 +6,7 @@ import qol.info as info
 def make_merger_RG_HeWD(
         root_path, # absolute path in which to write directory
         MWD_in_Msun, # WD mass
-        Mcore_in_Msun, # RG core mass mass
+        Mcore_in_Msun, # RG core mass
         Menv_in_Msun, # RG envelope mass
         T_WD,        # temperature of WD
         net_name='cno_extras_o18_to_mg26.net', # 'pp_cno_extras_o18_ne22.net' # net
