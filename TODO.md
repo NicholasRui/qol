@@ -38,6 +38,8 @@ TODO: add warning when there is no opacity setting specified -- since MESA will 
 
 Bug: when xlabel and ylabel are used before axis is initialized, it doesn't apply proper formatting to them
 
+make MESA_DIR environment variable changeable by the user, in case the user changed MESA_DIR to some other name
+
 ## automate animations?
 
 incorporate kwargs idiomatically...

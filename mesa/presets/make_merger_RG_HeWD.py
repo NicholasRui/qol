@@ -10,7 +10,7 @@ def make_merger_RG_HeWD(
         Menv_in_Msun, # RG envelope mass
         T_WD,        # temperature of WD
         net_name='cno_extras_o18_to_mg26.net', # 'pp_cno_extras_o18_ne22.net' # net
-        ringdown_time_yr=1e2, # ringdown timescale to HSE
+        ringdown_time_yr=1e3, # ringdown timescale to HSE
         disable_hydro_after_ringdown=True, # if True, disable hydro mode on after ringdown, else keep it enabled
         enable_pgstar=True,
         rgb_wind=True,
@@ -446,7 +446,9 @@ def helper_merger_RG_HeWD_accrete_env(argdict):
     Z = 0.02
     Y = 0.24 + 2 * Z
 
-    inlist.gain_mass(max_star_mass_for_gain=Menv_in_Msun+Mcore_in_Msun+MWD_in_Msun, mass_change=1e-3,
+    Mdot = 1e-4 # set to allow convergence somehow
+
+    inlist.gain_mass(max_star_mass_for_gain=Menv_in_Msun+Mcore_in_Msun+MWD_in_Msun, mass_change=Mdot,
                  accrete_same_as_surface=False, accretion_h1=1. - Y - Z, accretion_h2=0.,
                  accretion_he3=He3_div_Y * Y, accretion_he4=(1-He3_div_Y) * Y, accretion_zfracs=3)
 
@@ -504,9 +506,10 @@ def helper_merger_RG_HeWD_remnant_ringdown(argdict):
     inlist.min_timestep_limit(1e-12)
     inlist.use_gold_tolerances(False)
     inlist.convergence_ignore_equL_residuals(True)
-    # inlist.disable_dxdt_from_nuclear_burning()
     inlist.disable_mixing()
-    inlist.disable_nuclear_burning()
+    # inlist.disable_nuclear_burning()
+    inlist.max_abar_for_burning(3) # allow pp chain to happen but disable helium burning
+    inlist.disable_dxdt_from_nuclear_burning()
 
     inlist.limit_for_rel_error_in_energy_conservation(-1.)
 
@@ -550,8 +553,9 @@ def helper_merger_RG_HeWD_ignite_he(argdict):
     inlist.mesh_delta_coeff(mesh_delta_coeff)
 
     # important! disable remeshing and initialize timestep to something low
-    inlist.okay_to_remesh(False)
-    inlist.set_initial_dt(1e-8)
+    # new note: seems to not be necessary if you allow some thermalization across the entropy jump in the core during ringdown
+    # inlist.okay_to_remesh(False)
+    # inlist.set_initial_dt(1e-8)
 
     # relax some convergence conditions to get through degenerate helium ignition
     inlist.min_timestep_limit(1e-12)

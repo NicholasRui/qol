@@ -618,7 +618,7 @@
    !log_g_rad ne20   ! log10 acceleration from radiative levitation
 
 !# Phase Separation
-   !eps_phase_separation
+   eps_phase_separation
 
 !# Oscillations
    brunt_N2 ! brunt-vaisala frequency squared

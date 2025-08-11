@@ -779,7 +779,7 @@
       !total_non_nuc_neu_cooling
       !total_irradiation_heating
       !total_extra_heating ! extra heat integrated over the model times dt (erg)
-      !total_WD_sedimentation_heating
+      total_WD_sedimentation_heating
 
       !rel_run_E_err
 
