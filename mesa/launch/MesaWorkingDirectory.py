@@ -224,6 +224,8 @@ class MesaWorkingDirectory:
         rn_text += '#!/bin/bash\n\n'
         rn_text += '# rn script\n\n'
 
+        rn_text += 'if [ ! -f "star" ]; then\n    echo "QoL Error: Did you forget to do ./mk?"\n    exit 1\n    fi\n\n' # check if ./mk was run
+        
         # root prereqs
         rn_text += '# Check root prereqs\n'
         rn_text += check_if_missing(fname_list=self.rel_paths_root_prereq, \
@@ -234,6 +236,8 @@ class MesaWorkingDirectory:
         re_text = ''
         re_text += '#!/bin/bash\n\n'
         re_text += '# re script\n\n'
+
+        re_text += 'if [ ! -f "star" ]; then\n    echo "QoL Error: Did you forget to do ./mk?"\n    exit 1\n    fi\n\n' # check if ./mk was run
 
         re_text += '# Check root prereqs\n'
         re_text += check_if_missing(fname_list=self.rel_paths_root_prereq, \
