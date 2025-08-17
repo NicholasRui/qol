@@ -15,6 +15,7 @@ def make_merger_MS_HeWD(
         thermohaline_coeff=1., # thermohaline -- probably more important
         source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
         mesh_delta_coeff=1.,
+        include_late=False, # include "late" WD cooling phase with crystallization but no settling
         ):
     """
     Make merger between HeWD and MS
@@ -35,7 +36,8 @@ def make_merger_MS_HeWD(
                'alpha_semiconvection': alpha_semiconvection,
                'thermohaline_coeff': thermohaline_coeff,
                'source_sdk': source_sdk,
-               'mesh_delta_coeff': mesh_delta_coeff,}
+               'mesh_delta_coeff': mesh_delta_coeff,
+               'include_late': include_late,}
     
     # create and save work directory
     work = MesaWorkingDirectory(run_path=run_path)
@@ -43,18 +45,24 @@ def make_merger_MS_HeWD(
     work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns_qol.list')
     work.load_qol_pgstar()
 
+    # create HeWD
     work.add_task(helper_merger_MS_HeWD_evolve_rg(argdict))
     work.add_task(helper_merger_MS_HeWD_strip_rg(argdict))
     work.add_task(helper_merger_MS_HeWD_cool_he_wd(argdict))
+
+    # create envelope
     work.add_task(helper_merger_MS_HeWD_inner_bc(argdict))
     work.add_task(helper_merger_MS_HeWD_env_to_th_eq(argdict))
+
+    # create and evolve merger remnant
     work.add_task(helper_merger_MS_HeWD_merge(argdict))
     work.add_task(helper_merger_MS_HeWD_remnant_ringdown(argdict))
     work.add_task(helper_merger_MS_HeWD_remnant_to_trgb(argdict))
     work.add_task(helper_merger_MS_HeWD_trgb_to_zacheb(argdict))
     work.add_task(helper_merger_MS_HeWD_zacheb_to_co_wd(argdict))
     work.add_task(helper_merger_MS_HeWD_cool_co_wd_early(argdict))
-    work.add_task(helper_merger_MS_HeWD_cool_co_wd_late(argdict))
+    if include_late:
+        work.add_task(helper_merger_MS_HeWD_cool_co_wd_late(argdict))
 
     work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
 
@@ -418,6 +426,7 @@ def helper_merger_MS_HeWD_cool_co_wd_early(argdict):
     alpha_semiconvection = argdict['alpha_semiconvection']
     thermohaline_coeff = argdict['thermohaline_coeff']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
+    include_late = argdict['include_late']
     
     inlist = MesaInlist(name='cool_co_wd_early')
     if enable_pgstar:
@@ -470,7 +479,10 @@ def helper_merger_MS_HeWD_cool_co_wd_early(argdict):
             diffusion_maxsteps_for_isolve=2000)
 
     # stop after cool down enough
-    inlist.log_L_lower_limit(0.)
+    if include_late:
+        inlist.log_L_lower_limit(0.)
+    else:
+        inlist.max_age(1e10)
     inlist.save_final_model('cool_co_wd_early.mod')
 
     return inlist
