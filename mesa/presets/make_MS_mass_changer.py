@@ -10,23 +10,25 @@ dX_nuc_drop_limit = 1e-2
 delta_lg_star_mass_limit = delta_lg_star_mass_hard_limit = 1e-5
 
 def make_MS_single(root_path, # absolute path in which to write directory
-                   M_in_Msun,
+                   M_initial_in_Msun,
                    initial_z=0.02, # metallicity
                    overshoot_f=0.015, # overshoot parameter f
                    overshoot_f0=0.005, # overshoot parameter f0
-                   enable_pgstar=False,
+                   enable_pgstar=True,
                    source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
                    to_lower_rgb=False, # add task evolving to lower RGB)
                    alpha_semiconvection=0., # semiconvection parameter
+                   save_directory=True, # if False, don't save directory
                    ):
     """
     single MS star model for comparison purposes
     """
-    run_name = f'M{M_in_Msun:.2f}_z{initial_z:.4f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}'
+    run_name = f'M{M_initial_in_Msun:.2f}_z{initial_z:.4f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}'
     run_path = f'{root_path}/{run_name}'
 
     argdict = {'root_path': root_path,
-               'M_in_Msun': M_in_Msun,
+               'M_initial_in_Msun': M_initial_in_Msun,
+               'Xcen_accrete': None,
                'initial_z': initial_z,
                'overshoot_f': overshoot_f,
                'overshoot_f0': overshoot_f0,
@@ -37,15 +39,16 @@ def make_MS_single(root_path, # absolute path in which to write directory
 
     # Put it together
     work = MesaWorkingDirectory(run_path=run_path)
-    work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns.list')
-    work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns.list')
+    work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns_qol.list')
+    work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns_qol.list')
     work.load_qol_pgstar()
 
     work.add_task(helper_MS_mass_changer_zams_to_mt(argdict))
     if to_lower_rgb:
-        work.add_task(helper_MS_mass_changer_tams_to_lower_rgb(argdict))
+        work.add_task(helper_MS_mass_changer_tams_to_lower_rgb(argdict, last_task='zams_to_mt'))
 
-    work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
+    if save_directory:
+        work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
 
     return work
 
@@ -58,10 +61,11 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
                          initial_z=0.02, # metallicity
                          overshoot_f=0.015, # overshoot parameter f
                          overshoot_f0=0.005, # overshoot parameter f0
-                         enable_pgstar=False,
+                         enable_pgstar=True,
                          source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
                          to_lower_rgb=False, # add task evolving to lower RGB
                          alpha_semiconvection=0., # semiconvection parameter
+                         save_directory=True, # if False, don't save directory
                          ):
     """
     Evolve an MS star for a bit before adding / removing mass from it
@@ -84,8 +88,8 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
 
     # Put it together
     work = MesaWorkingDirectory(run_path=run_path)
-    work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns.list')
-    work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns.list')
+    work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns_qol.list')
+    work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns_qol.list')
     work.load_qol_pgstar()
 
     work.add_task(helper_MS_mass_changer_zams_to_mt(argdict))
@@ -93,7 +97,8 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
     if to_lower_rgb:
         work.add_task(helper_MS_mass_changer_tams_to_lower_rgb(argdict, last_task='mt_to_tams'))
 
-    work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
+    if save_directory:
+        work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
 
     return work
 
@@ -158,8 +163,8 @@ def helper_MS_mass_changer_mt_to_tams(argdict):
     M_final_in_Msun = argdict['M_final_in_Msun']
     log_abs_Mdot_accrete = argdict['log_abs_Mdot_accrete']
     initial_z = argdict['initial_z']
-    initial_f = argdict['initial_f']
-    initial_f0 = argdict['initial_f0']
+    overshoot_f = argdict['overshoot_f']
+    overshoot_f0 = argdict['overshoot_f0']
     alpha_semiconvection = argdict['alpha_semiconvection']
     
     inlist = MesaInlist('mt_to_tams')

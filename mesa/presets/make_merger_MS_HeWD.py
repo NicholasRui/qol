@@ -16,6 +16,7 @@ def make_merger_MS_HeWD(
         source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
         mesh_delta_coeff=1.,
         include_late=False, # include "late" WD cooling phase with crystallization but no settling
+        save_directory=True, # if False, don't save directory
         ):
     """
     Make merger between HeWD and MS
@@ -64,7 +65,8 @@ def make_merger_MS_HeWD(
     if include_late:
         work.add_task(helper_merger_MS_HeWD_cool_co_wd_late(argdict))
 
-    work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
+    if save_directory:
+        work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
 
     return work
 

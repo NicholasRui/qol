@@ -15,6 +15,7 @@ def make_single_MS_HeWD(
         thermohaline_coeff=1., # thermohaline -- probably more important
         source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
         mesh_delta_coeff=1.,
+        save_directory=True, # if False, don't save directory
         ):
     run_name = f'MS{MMS_in_Msun:.3f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_w{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}'
     run_path = f'{root_path}/{run_name}'
@@ -42,7 +43,8 @@ def make_single_MS_HeWD(
     work.add_task(helper_single_MS_HeWD_cool_co_wd_early(argdict))
     work.add_task(helper_single_MS_HeWD_cool_co_wd_late(argdict))
 
-    work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
+    if save_directory:
+        work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
 
     return work
 
