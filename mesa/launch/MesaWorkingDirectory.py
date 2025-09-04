@@ -236,6 +236,7 @@ class MesaWorkingDirectory:
         re_text = ''
         re_text += '#!/bin/bash\n\n'
         re_text += '# re script\n\n'
+        re_text += 'started=0\n\n'
 
         re_text += 'if [ ! -f "star" ]; then\n    echo "QoL Error: Did you forget to do ./mk?"\n    exit 1\n    fi\n\n' # check if ./mk was run
 
@@ -279,9 +280,18 @@ class MesaWorkingDirectory:
                     full_rn_string += check_if_missing(fname_list=task.data_prereqs, \
                             if_none_missing=task.rn_string(), \
                             if_some_missing=f"echo 'QoL: SOME PREREQS MISSING FOR tasks/{task.rel_path}, EXIT'\n    exit 1")
+                    
+                    # for re_string, add an if statement depending on 'started' variable
+                    # if the re-run has started already but needed data is missing, that means something crashed and we shouldn't continue
+                    re_string_with_check_started = 'if [ $started -eq 0 ]; then\n'
+                    re_string_with_check_started += f'        {task.re_string()}\n'
+                    re_string_with_check_started += '        started=1\n'
+                    re_string_with_check_started += '    else\n'
+                    re_string_with_check_started += f"        echo 'QoL: SOME PREREQS MISSING FOR tasks/{task.rel_path}, EXIT'\n        exit 1\n"
+                    re_string_with_check_started += '    fi'
                     full_re_string += check_if_missing(fname_list=task.data_products, \
                             if_none_missing=f"echo 'QoL: All products found, skipping tasks/{task.rel_path}'", \
-                            if_some_missing=task.re_string())
+                            if_some_missing=re_string_with_check_started)
                     
                     rn_text += full_rn_string
                     re_text += full_re_string
