@@ -1,4 +1,4 @@
-# Wrapper script to call create_env_inlist_from_core within a MESA directory
+# Wrapper script to call replace_elements within a MESA directory
 import sys
 from qol.mesa.sculpt import replace_elements
 
@@ -6,13 +6,18 @@ from qol.mesa.sculpt import replace_elements
 init_mod_fname = sys.argv[1]
 write_mod_fname = sys.argv[2]
 new_species = sys.argv[3]
-old_species_arr = sys.argv[4:]
+absdir = sys.argv[4]
+old_species_arr = sys.argv[5:]
 
 run_path = '.'
 
-# Append 'data/' to the front of all of these
-write_mod_fname = f'data/{write_mod_fname}'
-init_mod_fname = f'data/{init_mod_fname}'
+# sanitize absdir by adding / if needed
+if absdir[-1] != '/':
+    absdir += '/'
+
+# Append data path to the front of all of these
+write_mod_fname = f'{absdir}{write_mod_fname}'
+init_mod_fname = f'{absdir}{init_mod_fname}'
 
 replace_elements(write_mod_fname,
                  init_mod_fname,

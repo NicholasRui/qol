@@ -16,6 +16,7 @@ def make_single_MS_HeWD(
         source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
         mesh_delta_coeff=1.,
         save_directory=True, # if False, don't save directory
+        data_path='data/',
         ):
     run_name = f'MS{MMS_in_Msun:.3f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_w{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}'
     run_path = f'{root_path}/{run_name}'
@@ -28,7 +29,8 @@ def make_single_MS_HeWD(
                'alpha_semiconvection': alpha_semiconvection,
                'thermohaline_coeff': thermohaline_coeff,
                'source_sdk': source_sdk,
-               'mesh_delta_coeff': mesh_delta_coeff,}
+               'mesh_delta_coeff': mesh_delta_coeff,
+               'data_path': data_path,}
     
     # create and save work directory
     work = MesaWorkingDirectory(run_path=run_path)
@@ -82,6 +84,7 @@ def helper_single_MS_HeWD_tams_to_trgb(argdict):
     enable_pgstar = argdict['enable_pgstar']
     rgb_wind = argdict['rgb_wind']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
+    data_path = argdict['data_path']
 
     inlist = MesaInlist(name='tams_to_trgb')
     if enable_pgstar:
@@ -92,7 +95,7 @@ def helper_single_MS_HeWD_tams_to_trgb(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('tams.mod')
+    inlist.load_model('tams.mod', absdir=data_path)
     inlist.set_Zbase(0.02)
 
     inlist.energy_eqn_option('eps_grav')
@@ -120,6 +123,7 @@ def helper_single_MS_HeWD_trgb_to_zacheb(argdict):
     enable_pgstar = argdict['enable_pgstar']
     rgb_wind = argdict['rgb_wind']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
+    data_path = argdict['data_path']
 
     inlist = MesaInlist(name='trgb_to_zacheb')
     if enable_pgstar:
@@ -130,7 +134,7 @@ def helper_single_MS_HeWD_trgb_to_zacheb(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('trgb.mod')
+    inlist.load_model('trgb.mod', absdir=data_path)
     inlist.he_core_boundary_h1_fraction(1e-3)
 
     inlist.set_Zbase(0.02)
@@ -169,6 +173,7 @@ def helper_single_MS_HeWD_zacheb_to_co_wd(argdict):
     """
     enable_pgstar = argdict['enable_pgstar']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
+    data_path = argdict['data_path']
 
     inlist = MesaInlist(name='zacheb_to_co_wd')
     if enable_pgstar:
@@ -179,7 +184,7 @@ def helper_single_MS_HeWD_zacheb_to_co_wd(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('zacheb.mod')
+    inlist.load_model('zacheb.mod', absdir=data_path)
     inlist.he_core_boundary_h1_fraction(1e-3)
     inlist.co_core_boundary_he4_fraction(1e-3)
 
@@ -212,6 +217,7 @@ def helper_single_MS_HeWD_cool_co_wd_early(argdict):
     alpha_semiconvection = argdict['alpha_semiconvection']
     thermohaline_coeff = argdict['thermohaline_coeff']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
+    data_path = argdict['data_path']
     
     inlist = MesaInlist(name='cool_co_wd_early')
     if enable_pgstar:
@@ -222,7 +228,7 @@ def helper_single_MS_HeWD_cool_co_wd_early(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('hot_co_wd.mod')
+    inlist.load_model('hot_co_wd.mod', absdir=data_path)
     inlist.he_core_boundary_h1_fraction(1e-3)
     inlist.co_core_boundary_he4_fraction(1e-3)
 
@@ -274,6 +280,7 @@ def helper_single_MS_HeWD_cool_co_wd_late(argdict):
     alpha_semiconvection = argdict['alpha_semiconvection']
     thermohaline_coeff = argdict['thermohaline_coeff']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
+    data_path = argdict['data_path']
     
     inlist = MesaInlist(name='cool_co_wd_late')
     if enable_pgstar:
@@ -284,7 +291,7 @@ def helper_single_MS_HeWD_cool_co_wd_late(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('cool_co_wd_early.mod')
+    inlist.load_model('cool_co_wd_early.mod', absdir=data_path)
     inlist.he_core_boundary_h1_fraction(1e-3)
     inlist.co_core_boundary_he4_fraction(1e-3)
 

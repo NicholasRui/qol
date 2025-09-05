@@ -19,6 +19,7 @@ def make_MS_single(root_path, # absolute path in which to write directory
                    to_lower_rgb=False, # add task evolving to lower RGB)
                    alpha_semiconvection=0., # semiconvection parameter
                    save_directory=True, # if False, don't save directory
+                   data_path='data/',
                    ):
     """
     single MS star model for comparison purposes
@@ -35,7 +36,8 @@ def make_MS_single(root_path, # absolute path in which to write directory
                'enable_pgstar': enable_pgstar,
                'source_sdk': source_sdk,
                'to_lower_rgb': to_lower_rgb,
-               'alpha_semiconvection': alpha_semiconvection,}
+               'alpha_semiconvection': alpha_semiconvection,
+               'data_path': data_path,}
 
     # Put it together
     work = MesaWorkingDirectory(run_path=run_path)
@@ -66,6 +68,7 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
                          to_lower_rgb=False, # add task evolving to lower RGB
                          alpha_semiconvection=0., # semiconvection parameter
                          save_directory=True, # if False, don't save directory
+                         data_path='data/',
                          ):
     """
     Evolve an MS star for a bit before adding / removing mass from it
@@ -84,7 +87,8 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
                'enable_pgstar': enable_pgstar,
                'source_sdk': source_sdk,
                'to_lower_rgb': to_lower_rgb,
-               'alpha_semiconvection': alpha_semiconvection,}
+               'alpha_semiconvection': alpha_semiconvection,
+               'data_path': data_path,}
 
     # Put it together
     work = MesaWorkingDirectory(run_path=run_path)
@@ -113,7 +117,7 @@ def helper_MS_mass_changer_zams_to_mt(argdict):
     overshoot_f = argdict['overshoot_f']
     overshoot_f0 = argdict['overshoot_f0']
     alpha_semiconvection = argdict['alpha_semiconvection']
-
+    data_path = argdict['data_path']
 
     inlist = MesaInlist('zams_to_mt')
     if enable_pgstar:
@@ -145,7 +149,7 @@ def helper_MS_mass_changer_zams_to_mt(argdict):
     if Xcen_accrete is not None:
         inlist.add_xa_central_lower_limit(xa_central_lower_limit_species='h1',
                                         xa_central_lower_limit=Xcen_accrete) # stop this evolution when core drops to desired hydrogen fraction
-    inlist.save_final_model('zams_to_mt.mod')
+    inlist.save_final_model('zams_to_mt.mod', absdir=data_path)
 
     # Overshoot
     inlist.add_overshoot_zone(overshoot_scheme='exponential',
@@ -166,6 +170,7 @@ def helper_MS_mass_changer_mt_to_tams(argdict):
     overshoot_f = argdict['overshoot_f']
     overshoot_f0 = argdict['overshoot_f0']
     alpha_semiconvection = argdict['alpha_semiconvection']
+    data_path = argdict['data_path']
     
     inlist = MesaInlist('mt_to_tams')
     if enable_pgstar:
@@ -174,7 +179,7 @@ def helper_MS_mass_changer_mt_to_tams(argdict):
     inlist.use_qol_pgstar()
 
     # Initial conditions
-    inlist.load_model('zams_to_mt.mod')
+    inlist.load_model('zams_to_mt.mod', absdir=data_path)
     inlist.set_Zbase(initial_z)
 
     inlist.alpha_semiconvection(alpha_semiconvection)
@@ -199,7 +204,7 @@ def helper_MS_mass_changer_mt_to_tams(argdict):
 
     # Termination conditions
     inlist.stop_at_phase_TAMS()
-    inlist.save_final_model('mt_to_tams.mod')
+    inlist.save_final_model('mt_to_tams.mod', absdir=data_path)
 
     # Overshoot
     inlist.add_overshoot_zone(overshoot_scheme='exponential',
@@ -212,6 +217,7 @@ def helper_MS_mass_changer_tams_to_lower_rgb(argdict, last_task):
     enable_pgstar = argdict['enable_pgstar']
     initial_z = argdict['initial_z']
     alpha_semiconvection = argdict['alpha_semiconvection']
+    data_path = argdict['data_path']
 
     inlist = MesaInlist('tams_to_lower_rgb')
     if enable_pgstar:
@@ -223,9 +229,9 @@ def helper_MS_mass_changer_tams_to_lower_rgb(argdict, last_task):
     inlist.set_Zbase(initial_z)
     match last_task:
         case 'zams_to_mt':
-            inlist.load_model('zams_to_mt.mod')
+            inlist.load_model('zams_to_mt.mod', absdir=data_path)
         case 'mt_to_tams':
-            inlist.load_model('mt_to_tams.mod')
+            inlist.load_model('mt_to_tams.mod', absdir=data_path)
         case _:
             raise ValueError(f"invalid last_task {last_task}: must be either 'zams_to_mt' or 'mt_to_tams'")
 
@@ -237,6 +243,6 @@ def helper_MS_mass_changer_tams_to_lower_rgb(argdict, last_task):
     # Termination conditions
     inlist.he_core_mass_limit(0.20)
     inlist.he_core_boundary_h1_fraction(1e-3)
-    inlist.save_final_model('tams_to_lower_rgb.mod')
+    inlist.save_final_model('tams_to_lower_rgb.mod', absdir=data_path)
 
     return inlist

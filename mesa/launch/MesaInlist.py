@@ -137,7 +137,7 @@ class MesaInlist:
         self.add_control(namelist='pgstar', control=control, value=value, category=category, comment=comment, optional=optional)
 
     def add_list_to_star_job(self, control, values, category=None, comment=None, optional=False):
-        self.add_list_control(namelist='star_job', control=control, values=values, category=category, comment=comment, optional=optional)
+        self.add_read_extra_inlistlist_control(namelist='star_job', control=control, values=values, category=category, comment=comment, optional=optional)
     def add_list_to_eos(self, control, values, category=None, comment=None, optional=False):
         self.add_list_control(namelist='eos', control=control, values=values, category=category, comment=comment, optional=optional)
     def add_list_to_kap(self, control, values, category=None, comment=None, optional=False):
@@ -147,13 +147,15 @@ class MesaInlist:
     def add_list_to_pgstar(self, control, values, category=None, comment=None, optional=False):
         self.add_list_control(namelist='pgstar', control=control, values=values, category=category, comment=comment, optional=optional)
 
-    def save(self, run_path, subdir='tasks'):
+    def save(self, run_path, subdir='tasks', absdir=None):
         """
         for saving inlist file and return text of inlist file
         run_path refers to a DIRECTORY, not the filename
         what is saved is run_path/tasks/rel_path
 
         ## if abs_path is None, still return the text but don't save anything
+
+        if absdir is given, save file to directory at this absolute path instead
         """
         namelist_names = ['star_job', 'eos', 'kap', 'controls', 'pgstar']
         namelist_texts = []
@@ -200,7 +202,10 @@ class MesaInlist:
 
         inlist_text += ''.join(namelist_texts)
 
-        abs_path = f'{run_path}/{subdir}/{self.rel_path}'
+        if absdir is None:
+            abs_path = f'{run_path}/{subdir}/{self.rel_path}'
+        else:
+            abs_path = f'{absdir}/{self.rel_path}'
 
         #if abs_path is not None:
         with open(abs_path, 'w') as f:

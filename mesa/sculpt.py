@@ -13,14 +13,16 @@ from astropy.table import vstack
 
 import warnings
 
-def create_env_inlist_from_core(run_path, task_name, core_mod_fname, M_env_Msun):
+def create_env_inlist_from_core(run_path, task_name, core_mod_fname, M_env_Msun, subdir='data', absdir=None):
     """
     Given a core model, save an inlist which implements boundary conditions for corresponding envelope
     This is meant to be called when creating an inlist as a prereq, i.e., when M_center and R_center are not known in advance of the run
       but depend on the output of another run. If this is not the case, just use MesaInlist.relax_to_inner_BC by itself.
+
+    note: core_mod_fname should be an ABSOLUTE path
     """
     # Read models
-    core_model = read_mod(f'data/{core_mod_fname}')
+    core_model = read_mod(core_mod_fname)
 
     # Calculate enclosed radius and mass needed
     M_center_Msun = core_model.M_in_Msun[0]
@@ -34,7 +36,7 @@ def create_env_inlist_from_core(run_path, task_name, core_mod_fname, M_env_Msun)
                              dlgR_per_step=dlgR_per_step)
 
     # Save inlist
-    inlist.save(run_path, subdir='data')
+    inlist.save(run_path, subdir=subdir, absdir=absdir)
 
 def create_shell_burning_remnant(write_mod_fname, core_mod_fname, env_mod_fname,
                                  interface_setting=None, readjust_setting=None):
