@@ -46,7 +46,7 @@ class MesaWorkingDirectory:
         (something used by an inlist which is there from the beginning,
                     not outputted as an intermediate product by a task)
         
-        Copy from copy_from_abs_path (absolute path) to rel_path (relative path in work/data/ subdirectory)
+        Copy from copy_from_abs_path (absolute path) to rel_path (relative path in, e.g., work/data/ subdirectory)
         """
         if not os.path.exists(copy_from_abs_path):
             raise ValueError(f'Path not found: {copy_from_abs_path}')
@@ -125,13 +125,18 @@ class MesaWorkingDirectory:
                        slurm_job_name=None, slurm_job_time=config.slurm_job_time_default,
                        slurm_job_ntasks=config.slurm_job_ntasks_default, slurm_job_nodes=config.slurm_job_nodes_default,
                        slurm_job_mem_per_cpu=config.slurm_job_mem_per_cpu_default,
-                       slurm_job_email_user=True, OMP_NUM_THREADS=config.mesa_OMP_NUM_THREADS):
+                       slurm_job_email_user=True, OMP_NUM_THREADS=config.mesa_OMP_NUM_THREADS,
+                       data_path='data/'):
         """
         Create MESA directory
 
         grant_perms: if True, grants permissions for bash files that need to be run
         slurm_job_name: if not None, saves a bash script for sending this job with this arg as job_name
         source_sdk: if True, have submit/restart files do 'source $MESASDK_ROOT/bin/mesasdk_init.sh'
+
+        data_path: write all data to this path (can be absolute) --
+                   non-default choices of *absolute* path are intended to allow multiple runs to share
+                      data in order to avoid redoing runs with the exact same parameters
         """
         # CREATE NEW MESA DIRECTORY
         run_path = self.run_path
@@ -140,6 +145,9 @@ class MesaWorkingDirectory:
         if run_path[-1] != '/':
             run_path += '/'
         
+        if data_path[-1] != '/':
+            data_path += '/'
+
         if os.path.exists(run_path):
             raise ValueError(f'Path already exists: {run_path}')
         os.mkdir(run_path)
@@ -215,7 +223,7 @@ class MesaWorkingDirectory:
         check_missing_template += 'fi\n\n'
 
         check_if_missing = lambda fname_list, if_none_missing, if_some_missing: \
-          check_missing_template.replace('<<FILES>>', ' '.join([formatter.to_fortran(f'data/{fname}') for fname in fname_list])) \
+          check_missing_template.replace('<<FILES>>', ' '.join([formatter.to_fortran(f'{data_path}{fname}') for fname in fname_list])) \
                                 .replace('<<NONE_MISSING>>', if_none_missing) \
                                 .replace('<<SOME_MISSING>>', if_some_missing)
 
@@ -248,7 +256,7 @@ class MesaWorkingDirectory:
         # copy all root prereqs
         for ii, rel_path in enumerate(self.rel_paths_root_prereq):
             copy_from_abs_path = self.copy_from_path_root_prereqs[ii]
-            shutil.copy(copy_from_abs_path, f'{self.run_path}/data/{rel_path}')
+            shutil.copy(copy_from_abs_path, f'{self.run_path}/{data_path}{rel_path}')
 
         # LOOP OVER TASKS AND RUN THEM IN ORDER
         vlevels = [] # vertical level in chart
@@ -283,16 +291,25 @@ class MesaWorkingDirectory:
                     
                     # for re_string, add an if statement depending on 'started' variable
                     # if the re-run has started already but needed data is missing, that means something crashed and we shouldn't continue
-                    re_string_with_check_started = 'if [ $started -eq 0 ]; then\n'
-                    re_string_with_check_started += f'        {task.re_string()}\n'
-                    re_string_with_check_started += '        started=1\n'
-                    re_string_with_check_started += '    else\n'
-                    re_string_with_check_started += f"        echo 'QoL: SOME PREREQS MISSING FOR tasks/{task.rel_path}, EXIT'\n        exit 1\n"
-                    re_string_with_check_started += '    fi'
+                    # re_string_with_check_started = 'if [ $started -eq 0 ]; then\n'
+                    # re_string_with_check_started += f'        {task.re_string()}\n'
+                    # re_string_with_check_started += '        started=1\n'
+                    # re_string_with_check_started += '    else\n'
+                    # re_string_with_check_started += f"        echo 'QoL: SOME PREREQS MISSING FOR tasks/{task.rel_path}, EXIT'\n        exit 1\n"
+                    # re_string_with_check_started += '    fi'
+                    # full_re_string += check_if_missing(fname_list=task.data_products, \
+                    #         if_none_missing=f"echo 'QoL: All products found, skipping tasks/{task.rel_path}'", \
+                    #         if_some_missing=re_string_with_check_started)
+                    
                     full_re_string += check_if_missing(fname_list=task.data_products, \
                             if_none_missing=f"echo 'QoL: All products found, skipping tasks/{task.rel_path}'", \
-                            if_some_missing=re_string_with_check_started)
+                            if_some_missing=task.re_string())
                     
+                    full_re_string = f'# Check that the products of tasks/{task.rel_path} have been generated\n'
+                    full_re_string += check_if_missing(fname_list=task.data_products, \
+                            if_none_missing=f"echo 'QoL: Attempted and failed to restart tasks/{task.rel_path}, EXITING'", \
+                            if_some_missing=task.re_string())
+
                     rn_text += full_rn_string
                     re_text += full_re_string
 
