@@ -37,7 +37,7 @@ def run_mesa_tests():
     tests_total += 1
     name = 'qol.mesa.presets.make_single_MS_HeWD.make_single_MS_HeWD'
     try:
-        _ = make_single_MS_HeWD.make_single_MS_HeWD(root_path='.', MMS_in_Msun=1., net_name='cno_extras_o18_to_mg26.net', enable_pgstar=True, rgb_wind=True, alpha_semiconvection=4e-2, thermohaline_coeff=1., source_sdk=True, mesh_delta_coeff=1., save_directory=False,)
+        _ = make_single_MS_HeWD.make_single_MS_HeWD(root_path='.', MMS_in_Msun=1., net_name='cno_extras_o18_to_mg26.net', enable_pgstar=True, rgb_wind=True, alpha_semiconvection=4e-2, thermohaline_coeff=1., thermohaline_option='Brown_Garaud_Stellmach_13', source_sdk=True, mesh_delta_coeff=1., save_directory=False,)
         print(f'passed: {name}')
     except Exception as e:
         print(f'**FAILED**: {name}')
@@ -50,7 +50,7 @@ def run_mesa_tests():
     tests_total += 1
     name = 'qol.mesa.presets.make_merger_MS_HeWD.make_merger_MS_HeWD'
     try:
-        _ = make_merger_MS_HeWD.make_merger_MS_HeWD(root_path='.', MWD_in_Msun=0.4, MMS_in_Msun=0.4, T_WD=1e4, net_name='cno_extras_o18_to_mg26.net', ringdown_time_yr=1e4, disable_hydro_after_ringdown=True, enable_pgstar=True, rgb_wind=True, alpha_semiconvection=4e-2, thermohaline_coeff=1., source_sdk=True, mesh_delta_coeff=1., include_late=True, save_directory=False,)
+        _ = make_merger_MS_HeWD.make_merger_MS_HeWD(root_path='.', MWD_in_Msun=0.4, MMS_in_Msun=0.4, T_WD=1e4, net_name='cno_extras_o18_to_mg26.net', ringdown_time_yr=1e4, disable_hydro_after_ringdown=True, enable_pgstar=True, rgb_wind=True, alpha_semiconvection=4e-2, thermohaline_coeff=1., thermohaline_option='Brown_Garaud_Stellmach_13', source_sdk=True, mesh_delta_coeff=1., include_late=True, save_directory=False,)
         print(f'passed: {name}')
     except Exception as e:
         print(f'**FAILED**: {name}')
@@ -63,7 +63,7 @@ def run_mesa_tests():
     tests_total += 1
     name = 'qol.mesa.presets.make_merger_RG_HeWD.make_merger_RG_HeWD'
     try:
-        _ = make_merger_RG_HeWD.make_merger_RG_HeWD(root_path='.', MWD_in_Msun=0.4, Mcore_in_Msun=0.2, Menv_in_Msun=1., T_WD=1e4, net_name='cno_extras_o18_to_mg26.net', ringdown_time_yr=1e3, disable_hydro_after_ringdown=True, enable_pgstar=True, rgb_wind=True, alpha_semiconvection=4e-2, thermohaline_coeff=1., source_sdk=True, mesh_delta_coeff=1., include_late=True, save_directory=False,)
+        _ = make_merger_RG_HeWD.make_merger_RG_HeWD(root_path='.', MWD_in_Msun=0.4, Mcore_in_Msun=0.2, Menv_in_Msun=1., T_WD=1e4, net_name='cno_extras_o18_to_mg26.net', ringdown_time_yr=1e3, disable_hydro_after_ringdown=True, enable_pgstar=True, rgb_wind=True, alpha_semiconvection=4e-2, thermohaline_coeff=1.,  thermohaline_option='Brown_Garaud_Stellmach_13', source_sdk=True, mesh_delta_coeff=1., include_late=True, save_directory=False,)
         print(f'passed: {name}')
     except Exception as e:
         print(f'**FAILED**: {name}')

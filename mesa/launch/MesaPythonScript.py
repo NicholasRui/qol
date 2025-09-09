@@ -7,7 +7,7 @@ class MesaPythonScript:
     Keeps track of information related to Python scripts inserted
     within MESA workflow
     """
-    def __init__(self, name, template, const_args=[], prereqs=[], products=[]):
+    def __init__(self, name, template, const_args=[], prereqs=[], products=[], data_path='data/'):
         """
         name: an informative name
         template: .py file to copy
@@ -19,6 +19,7 @@ class MesaPythonScript:
         fed into script using sys package
         """
         self.name = name
+        self.set_data_path(data_path)
         
         self.rel_path = f'script_{name}.py'
         self.template = template
@@ -32,6 +33,12 @@ class MesaPythonScript:
         self.LOGS_dir = None
         self.photos_dir = None
         
+    def set_data_path(self, data_path):
+        if data_path[-1] != '/':
+            data_path += '/'
+
+        self.data_path = data_path
+
     def rn_string(self):
         return f'ipython tasks/{self.rel_path} ' + ' '.join([formatter.to_fortran(arg_in) for arg_in in self.args_in])
 

@@ -2,11 +2,11 @@
 
 import qol.info as info
 
-def enable_pgstar(self, abs_path=None):
+def enable_pgstar(self):
     self.add_to_star_job(category='enable pgstar',
             control='pgstar_flag', value=True)
 
-def use_qol_pgstar(self):    
+def use_qol_pgstar(self):
     self.read_extra_inlist(namelist='pgstar', rel_path='inlist_pgstar', category='default qol pgstar inlist')
 
 def save_pgstar(self, write_path,

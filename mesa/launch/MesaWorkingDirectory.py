@@ -154,7 +154,9 @@ class MesaWorkingDirectory:
         os.mkdir(f'{run_path}make')
         os.mkdir(f'{run_path}src')
         os.mkdir(f'{run_path}tasks') # store inlists and python scripts here
-        os.mkdir(f'{run_path}data') # store prereqs and products here
+
+        if data_path[0] != '/': # if not absolute path, store prereqs and products here
+            os.mkdir(f'{run_path}data')
 
         mesadir = config.mesa_paths[self.mesa_version]
         workdir = f'{mesadir}/star/work/'
@@ -256,7 +258,12 @@ class MesaWorkingDirectory:
         # copy all root prereqs
         for ii, rel_path in enumerate(self.rel_paths_root_prereq):
             copy_from_abs_path = self.copy_from_path_root_prereqs[ii]
-            shutil.copy(copy_from_abs_path, f'{self.run_path}/{data_path}{rel_path}')
+
+            # do different behavior depending on whether data_path is absolute or not
+            if data_path[0] == '/': # absolute path
+                shutil.copy(copy_from_abs_path, f'{data_path}{rel_path}')
+            else:
+                shutil.copy(copy_from_abs_path, f'{self.run_path}/{data_path}{rel_path}')
 
         # LOOP OVER TASKS AND RUN THEM IN ORDER
         vlevels = [] # vertical level in chart
@@ -274,6 +281,8 @@ class MesaWorkingDirectory:
             new_tasks = 0
 
             for ii, task in enumerate(self.tasks):
+                task.set_data_path(data_path=data_path) # set data_path of task
+
                 # if task visited before, skip it
                 if ii in task_ids:
                     continue
@@ -288,18 +297,6 @@ class MesaWorkingDirectory:
                     full_rn_string += check_if_missing(fname_list=task.data_prereqs, \
                             if_none_missing=task.rn_string(), \
                             if_some_missing=f"echo 'QoL: SOME PREREQS MISSING FOR tasks/{task.rel_path}, EXIT'\n    exit 1")
-                    
-                    # for re_string, add an if statement depending on 'started' variable
-                    # if the re-run has started already but needed data is missing, that means something crashed and we shouldn't continue
-                    # re_string_with_check_started = 'if [ $started -eq 0 ]; then\n'
-                    # re_string_with_check_started += f'        {task.re_string()}\n'
-                    # re_string_with_check_started += '        started=1\n'
-                    # re_string_with_check_started += '    else\n'
-                    # re_string_with_check_started += f"        echo 'QoL: SOME PREREQS MISSING FOR tasks/{task.rel_path}, EXIT'\n        exit 1\n"
-                    # re_string_with_check_started += '    fi'
-                    # full_re_string += check_if_missing(fname_list=task.data_products, \
-                    #         if_none_missing=f"echo 'QoL: All products found, skipping tasks/{task.rel_path}'", \
-                    #         if_some_missing=re_string_with_check_started)
                     
                     full_re_string += check_if_missing(fname_list=task.data_products, \
                             if_none_missing=f"echo 'QoL: All products found, skipping tasks/{task.rel_path}'", \

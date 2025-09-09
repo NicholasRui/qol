@@ -13,6 +13,7 @@ def make_merger_MS_HeWD(
         rgb_wind=True,
         alpha_semiconvection=0., #4e-2, # semiconvection
         thermohaline_coeff=1., # thermohaline -- probably more important
+        thermohaline_option='Brown_Garaud_Stellmach_13', # can be 'Kippenhahn', 'Traxler_Garaud_Stellmach_11', or 'Brown_Garaud_Stellmach_13'
         source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
         mesh_delta_coeff=1.,
         include_late=False, # include "late" WD cooling phase with crystallization but no settling
@@ -23,6 +24,8 @@ def make_merger_MS_HeWD(
     Make merger between HeWD and MS
     This is reproducing what was done in m_plus_wd (Rui & Fuller 2024, OJAp) but going further
     """
+    assert thermohaline_option in ['Kippenhahn', 'Traxler_Garaud_Stellmach_11', 'Brown_Garaud_Stellmach_13'], "thermohaline_option must be one of 'Kippenhahn', 'Traxler_Garaud_Stellmach_11', or 'Brown_Garaud_Stellmach_13'"
+
     run_name = f'MS{MMS_in_Msun:.3f}+HeWD{MWD_in_Msun:.3f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_w{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}_hydro{int(not disable_hydro_after_ringdown)}'
     run_path = f'{root_path}/{run_name}'
 
@@ -37,11 +40,17 @@ def make_merger_MS_HeWD(
                'rgb_wind': rgb_wind,
                'alpha_semiconvection': alpha_semiconvection,
                'thermohaline_coeff': thermohaline_coeff,
+               'thermohaline_option': thermohaline_option,
                'source_sdk': source_sdk,
                'mesh_delta_coeff': mesh_delta_coeff,
                'include_late': include_late,
-               'data_path': data_path,}
-    
+               'data_path': data_path,
+               'id_str': '-', # # appended to by each function to keep track of used inputs
+               }
+
+    if data_path[-1] != '/':
+        data_path += '/'
+
     # create and save work directory
     work = MesaWorkingDirectory(run_path=run_path)
     work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns_hewd_ms.list')
@@ -68,7 +77,7 @@ def make_merger_MS_HeWD(
         work.add_task(helper_merger_MS_HeWD_cool_co_wd_late(argdict))
 
     if save_directory:
-        work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
+        work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk, data_path=data_path)
 
     return work
 
@@ -85,8 +94,12 @@ def helper_merger_MS_HeWD_evolve_rg(argdict):
     net_name = argdict['net_name']
     MWD_in_Msun = argdict['MWD_in_Msun']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
+    data_path = argdict['data_path']
 
-    inlist = MesaInlist(name='evolve_rg')
+    argdict['id_str'] += f'{net_name}_MWD{MWD_in_Msun:.3f}_mdc{mesh_delta_coeff:.2f}'
+    id_str = argdict['id_str']
+
+    inlist = MesaInlist(name='evolve_rg', data_path=data_path)
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/evolve_rg/')
@@ -105,9 +118,8 @@ def helper_merger_MS_HeWD_evolve_rg(argdict):
 
     # terminate when core reaches desired He WD mass
     inlist.he_core_boundary_h1_fraction(1e-3)
-    # inlist.he_core_boundary_h1_fraction(1e-10)
     inlist.he_core_mass_limit(MWD_in_Msun)
-    inlist.save_final_model('rg.mod')
+    inlist.save_final_model(f'rg.mod{id_str}')
 
     return inlist
 
@@ -120,7 +132,9 @@ def helper_merger_MS_HeWD_strip_rg(argdict):
     mesh_delta_coeff = argdict['mesh_delta_coeff']
     data_path = argdict['data_path']
     
-    inlist = MesaInlist(name='strip_rg')
+    id_str = argdict['id_str']
+
+    inlist = MesaInlist(name='strip_rg', data_path=data_path)
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/strip_rg/')
@@ -129,7 +143,7 @@ def helper_merger_MS_HeWD_strip_rg(argdict):
     inlist.surface_avg_abundance_dq(1e-2)
 
     # remove envelope by relaxation
-    inlist.load_model('rg.mod', absdir=data_path)
+    inlist.load_model(f'rg.mod{id_str}')
     inlist.relax_initial_mass(M_new_Msun=MWD_in_Msun, lg_max_abs_mdot=-3)
     inlist.he_core_boundary_h1_fraction(1e-3)
 
@@ -139,7 +153,7 @@ def helper_merger_MS_HeWD_strip_rg(argdict):
     inlist.mesh_delta_coeff(mesh_delta_coeff)
 
     inlist.max_model_number(1)
-    inlist.save_final_model('hot_he_wd.mod')
+    inlist.save_final_model(f'hot_he_wd.mod{id_str}')
 
     return inlist
 
@@ -152,13 +166,15 @@ def helper_merger_MS_HeWD_cool_he_wd(argdict):
     mesh_delta_coeff = argdict['mesh_delta_coeff']
     data_path = argdict['data_path']
 
-    inlist = MesaInlist(name='cool_he_wd')
+    id_str = argdict['id_str']
+
+    inlist = MesaInlist(name='cool_he_wd', data_path=data_path)
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/cool_he_wd/')
     inlist.use_qol_pgstar()
 
-    inlist.load_model('hot_he_wd.mod', absdir=data_path)
+    inlist.load_model(f'hot_he_wd.mod{id_str}')
     inlist.set_Zbase(0.02)
 
     # average composition of outer layers for write-out
@@ -173,7 +189,11 @@ def helper_merger_MS_HeWD_cool_he_wd(argdict):
 
     # terminate when He WD reaches desired temperature
     inlist.Teff_lower_limit(T_WD)
-    inlist.save_final_model('cool_he_wd.mod')
+
+    argdict['id_str'] += f'TWD{T_WD/1000.:.1f}'
+    id_str = argdict['id_str0'] = argdict['id_str']
+
+    inlist.save_final_model(f'cool_he_wd.mod{id_str}')
 
     return inlist
 
@@ -184,10 +204,17 @@ def helper_merger_MS_HeWD_inner_bc(argdict):
     MMS_in_Msun = argdict['MMS_in_Msun']
     data_path = argdict['data_path']
     
+    argdict['id_str'] += f'MMS{MMS_in_Msun:.3f}'
+    id_str = argdict['id_str']
+    id_str0 = argdict['id_str0']
+
     script = MesaPythonScript(name='inner_bc',
             template=f'{info.qol_path}mesa/templates/scripts/call_create_env_inlist_from_core.py',
-              const_args=[MMS_in_Msun, data_path], prereqs=['cool_he_wd.mod'], products=['inlist_env_inner_bc'])
-    
+            const_args=[MMS_in_Msun, data_path],
+            prereqs=[f'cool_he_wd.mod{id_str0}'],
+            products=[f'inlist_env_inner_bc{id_str}'],
+            data_path=data_path)
+
     return script
 
 def helper_merger_MS_HeWD_env_to_th_eq(argdict):
@@ -200,14 +227,16 @@ def helper_merger_MS_HeWD_env_to_th_eq(argdict):
     mesh_delta_coeff = argdict['mesh_delta_coeff']
     data_path = argdict['data_path']
 
-    inlist = MesaInlist(name='env_to_th_eq')
+    id_str = argdict['id_str']
+
+    inlist = MesaInlist(name='env_to_th_eq', data_path=data_path)
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/env_to_th_eq/')
     inlist.use_qol_pgstar()
 
     # set inner boundary condition
-    inlist.read_extra_inlist(namelist='star_job', rel_path='inlist_env_inner_bc', absdir=data_path,
+    inlist.read_extra_inlist(namelist='star_job', rel_path=f'inlist_env_inner_bc{id_str}',
                              category='relax inner BC to accommodate core model')
 
     # initialize as pre-MS
@@ -233,7 +262,7 @@ def helper_merger_MS_HeWD_env_to_th_eq(argdict):
     inlist.mesh_delta_coeff(mesh_delta_coeff)
 
     inlist.max_age(1e10)
-    inlist.save_final_model('env_th_eq.mod')
+    inlist.save_final_model(f'env_th_eq.mod{id_str}')
 
     return inlist
 
@@ -243,12 +272,16 @@ def helper_merger_MS_HeWD_merge(argdict):
     """
     data_path = argdict['data_path']
 
+    id_str = argdict['id_str']
+    id_str0 = argdict['id_str0']
+
     script = MesaPythonScript(name='merge',
             template=f'{info.qol_path}mesa/templates/scripts/call_create_shell_burning_remnant.py',
             const_args=['excise', 'change_m', data_path],
-            prereqs=['cool_he_wd.mod', 'env_th_eq.mod'],
-            products=['remnant_init.mod'])
-    
+            prereqs=[f'cool_he_wd.mod{id_str0}', f'env_th_eq.mod{id_str}'],
+            products=[f'remnant_init.mod{id_str}'],
+            data_path=data_path)
+
     return script
 
 def helper_merger_MS_HeWD_remnant_ringdown(argdict):
@@ -260,7 +293,9 @@ def helper_merger_MS_HeWD_remnant_ringdown(argdict):
     mesh_delta_coeff = argdict['mesh_delta_coeff']
     data_path = argdict['data_path']
 
-    inlist = MesaInlist(name='remnant_ringdown')
+    id_str = argdict['id_str']
+
+    inlist = MesaInlist(name='remnant_ringdown', data_path=data_path)
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/remnant_ringdown/')
@@ -269,7 +304,7 @@ def helper_merger_MS_HeWD_remnant_ringdown(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('remnant_init.mod', absdir=data_path)
+    inlist.load_model(f'remnant_init.mod{id_str}')
     inlist.set_Zbase(0.02)
 
     # average composition of outer layers for write-out
@@ -289,8 +324,11 @@ def helper_merger_MS_HeWD_remnant_ringdown(argdict):
     inlist.mesh_delta_coeff(mesh_delta_coeff)
 
     # set arbitrary ringdown time
+    argdict['id_str'] += f'_trd{ringdown_time_yr:.0f}'
+    id_str = argdict['id_str']
+
     inlist.max_age(ringdown_time_yr)
-    inlist.save_final_model('remnant_hse.mod')
+    inlist.save_final_model(f'remnant_hse.mod{id_str}')
 
     return inlist
 
@@ -303,8 +341,10 @@ def helper_merger_MS_HeWD_remnant_to_trgb(argdict):
     mesh_delta_coeff = argdict['mesh_delta_coeff']
     disable_hydro_after_ringdown = argdict['disable_hydro_after_ringdown']
     data_path = argdict['data_path']
+
+    id_str = argdict['id_str']    
     
-    inlist = MesaInlist(name='remnant_to_trgb')
+    inlist = MesaInlist(name='remnant_to_trgb', data_path=data_path)
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/remnant_to_trgb/')
@@ -313,7 +353,7 @@ def helper_merger_MS_HeWD_remnant_to_trgb(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('remnant_hse.mod', absdir=data_path)
+    inlist.load_model(f'remnant_hse.mod{id_str}')
     inlist.set_Zbase(0.02)
 
     inlist.energy_eqn_option('eps_grav')
@@ -336,7 +376,11 @@ def helper_merger_MS_HeWD_remnant_to_trgb(argdict):
 
     # evolve remnant up to tRGB
     inlist.stop_at_phase_He_Burn()
-    inlist.save_final_model('remnant_trgb.mod')
+
+    argdict['id_str'] += f'_rgbw{int(rgb_wind)}_dhar{int(disable_hydro_after_ringdown)}'
+    id_str = argdict['id_str'] 
+
+    inlist.save_final_model(f'remnant_trgb.mod{id_str}')
 
     return inlist
 
@@ -348,8 +392,10 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(argdict):
     rgb_wind = argdict['rgb_wind']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
     data_path = argdict['data_path']
+
+    id_str = argdict['id_str']    
     
-    inlist = MesaInlist(name='trgb_to_zacheb')
+    inlist = MesaInlist(name='trgb_to_zacheb', data_path=data_path)
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/trgb_to_zacheb/')
@@ -358,7 +404,7 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('remnant_trgb.mod', absdir=data_path)
+    inlist.load_model(f'remnant_trgb.mod{id_str}')
     inlist.he_core_boundary_h1_fraction(1e-3)
 
     inlist.set_Zbase(0.02)
@@ -383,7 +429,7 @@ def helper_merger_MS_HeWD_trgb_to_zacheb(argdict):
 
     # stop at ZACHeB
     inlist.stop_at_phase_ZACHeB()
-    inlist.save_final_model('remnant_zacheb.mod')
+    inlist.save_final_model(f'remnant_zacheb.mod{id_str}')
 
     return inlist
 
@@ -395,7 +441,9 @@ def helper_merger_MS_HeWD_zacheb_to_co_wd(argdict):
     mesh_delta_coeff = argdict['mesh_delta_coeff']
     data_path = argdict['data_path']
     
-    inlist = MesaInlist(name='zacheb_to_co_wd')
+    id_str = argdict['id_str']
+
+    inlist = MesaInlist(name='zacheb_to_co_wd', data_path=data_path)
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/zacheb_to_co_wd/')
@@ -404,7 +452,7 @@ def helper_merger_MS_HeWD_zacheb_to_co_wd(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('remnant_zacheb.mod', absdir=data_path)
+    inlist.load_model(f'remnant_zacheb.mod{id_str}')
     inlist.he_core_boundary_h1_fraction(1e-3)
     inlist.co_core_boundary_he4_fraction(1e-3)
 
@@ -429,7 +477,7 @@ def helper_merger_MS_HeWD_zacheb_to_co_wd(argdict):
 
     # stop at WD
     inlist.stop_at_phase_WDCS()
-    inlist.save_final_model('hot_co_wd.mod')
+    inlist.save_final_model(f'hot_co_wd.mod{id_str}')
 
     return inlist
 
@@ -440,11 +488,14 @@ def helper_merger_MS_HeWD_cool_co_wd_early(argdict):
     enable_pgstar = argdict['enable_pgstar']
     alpha_semiconvection = argdict['alpha_semiconvection']
     thermohaline_coeff = argdict['thermohaline_coeff']
+    thermohaline_option = argdict['thermohaline_option']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
     include_late = argdict['include_late']
     data_path = argdict['data_path']
     
-    inlist = MesaInlist(name='cool_co_wd_early')
+    id_str = argdict['id_str']
+    
+    inlist = MesaInlist(name='cool_co_wd_early', data_path=data_path)
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/cool_co_wd_early/')
@@ -453,7 +504,7 @@ def helper_merger_MS_HeWD_cool_co_wd_early(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('hot_co_wd.mod', absdir=data_path)
+    inlist.load_model(f'hot_co_wd.mod{id_str}')
     inlist.he_core_boundary_h1_fraction(1e-3)
     inlist.co_core_boundary_he4_fraction(1e-3)
 
@@ -486,7 +537,7 @@ def helper_merger_MS_HeWD_cool_co_wd_early(argdict):
     inlist.use_Ledoux_criterion()
 
     inlist.alpha_semiconvection(alpha_semiconvection)
-    inlist.add_thermohaline_mixing(thermohaline_coeff=thermohaline_coeff, thermohaline_option='Brown_Garaud_Stellmach_13')
+    inlist.add_thermohaline_mixing(thermohaline_coeff=thermohaline_coeff, thermohaline_option=thermohaline_option)
 
     inlist.gravitational_settling(diffusion_class_representatives=['h1', 'he3', 'he4', 'c12', 'o16', 'ne20', 'ne22', 'mg26'],
             diffusion_use_cgs_solver=True,
@@ -499,7 +550,12 @@ def helper_merger_MS_HeWD_cool_co_wd_early(argdict):
         inlist.log_L_lower_limit(0.)
     else:
         inlist.max_age(1e10)
-    inlist.save_final_model('cool_co_wd_early.mod')
+
+    tho_string_dict = {'Kippenhahn': 'K80', 'Traxler_Garaud_Stellmach_11': 'TGS11', 'Brown_Garaud_Stellmach_13': 'BGS13'}
+    argdict['id_str'] += f'_sc{alpha_semiconvection:.2f}_th{thermohaline_coeff:.1f}_tho{tho_string_dict[thermohaline_option]}_il{int(include_late)}'
+    id_str = argdict['id_str']
+
+    inlist.save_final_model(f'cool_co_wd_early.mod{id_str}')
 
     return inlist
 
@@ -510,10 +566,13 @@ def helper_merger_MS_HeWD_cool_co_wd_late(argdict):
     enable_pgstar = argdict['enable_pgstar']
     alpha_semiconvection = argdict['alpha_semiconvection']
     thermohaline_coeff = argdict['thermohaline_coeff']
+    thermohaline_option = argdict['thermohaline_option']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
     data_path = argdict['data_path']
     
-    inlist = MesaInlist(name='cool_co_wd_late')
+    id_str = argdict['id_str']
+
+    inlist = MesaInlist(name='cool_co_wd_late', data_path=data_path)
     if enable_pgstar:
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/cool_co_wd_late/')
@@ -522,7 +581,7 @@ def helper_merger_MS_HeWD_cool_co_wd_late(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('cool_co_wd_early.mod', absdir=data_path)
+    inlist.load_model(f'cool_co_wd_early.mod{id_str}')
     inlist.he_core_boundary_h1_fraction(1e-3)
     inlist.co_core_boundary_he4_fraction(1e-3)
 
@@ -555,13 +614,13 @@ def helper_merger_MS_HeWD_cool_co_wd_late(argdict):
     inlist.use_Ledoux_criterion()
 
     inlist.alpha_semiconvection(alpha_semiconvection)
-    inlist.add_thermohaline_mixing(thermohaline_coeff=thermohaline_coeff, thermohaline_option='Brown_Garaud_Stellmach_13')
+    inlist.add_thermohaline_mixing(thermohaline_coeff=thermohaline_coeff, thermohaline_option=thermohaline_option)
 
     # phase separation
     inlist.phase_separation(phase_separation_option='CO', do_phase_separation_heating=True, phase_separation_mixing_use_brunt=True)
 
     # stop after a long time, if needed... okay to fail here, if sufficiently cooled
     inlist.max_age(1e10)
-    inlist.save_final_model('cool_co_wd_late.mod')
+    inlist.save_final_model(f'cool_co_wd_late.mod{id_str}')
 
     return inlist

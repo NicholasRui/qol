@@ -13,11 +13,18 @@ def make_single_MS_HeWD(
         rgb_wind=True,
         alpha_semiconvection=0., #4e-2, # semiconvection
         thermohaline_coeff=1., # thermohaline -- probably more important
+        thermohaline_option='Brown_Garaud_Stellmach_13', # can be 'Kippenhahn', 'Traxler_Garaud_Stellmach_11', or 'Brown_Garaud_Stellmach_13'
         source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
         mesh_delta_coeff=1.,
+        include_late=False, # include "late" WD cooling phase with crystallization but no settling
         save_directory=True, # if False, don't save directory
         data_path='data/',
         ):
+    assert thermohaline_option in ['Kippenhahn', 'Traxler_Garaud_Stellmach_11', 'Brown_Garaud_Stellmach_13'], "thermohaline_option must be one of 'Kippenhahn', 'Traxler_Garaud_Stellmach_11', or 'Brown_Garaud_Stellmach_13'"
+
+    if data_path != 'data/': # TODO
+        raise NotImplementedError()
+
     run_name = f'MS{MMS_in_Msun:.3f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_w{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}'
     run_path = f'{root_path}/{run_name}'
 
@@ -28,8 +35,10 @@ def make_single_MS_HeWD(
                'rgb_wind': rgb_wind,
                'alpha_semiconvection': alpha_semiconvection,
                'thermohaline_coeff': thermohaline_coeff,
+               'thermohaline_option': thermohaline_option,
                'source_sdk': source_sdk,
                'mesh_delta_coeff': mesh_delta_coeff,
+               'include_late': include_late,
                'data_path': data_path,}
     
     # create and save work directory
@@ -43,10 +52,11 @@ def make_single_MS_HeWD(
     work.add_task(helper_single_MS_HeWD_trgb_to_zacheb(argdict))
     work.add_task(helper_single_MS_HeWD_zacheb_to_co_wd(argdict))
     work.add_task(helper_single_MS_HeWD_cool_co_wd_early(argdict))
-    work.add_task(helper_single_MS_HeWD_cool_co_wd_late(argdict))
+    if include_late:
+        work.add_task(helper_single_MS_HeWD_cool_co_wd_late(argdict))
 
     if save_directory:
-        work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
+        work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk, data_path=data_path)
 
     return work
 
@@ -95,7 +105,7 @@ def helper_single_MS_HeWD_tams_to_trgb(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('tams.mod', absdir=data_path)
+    inlist.load_model('tams.mod')
     inlist.set_Zbase(0.02)
 
     inlist.energy_eqn_option('eps_grav')
@@ -134,7 +144,7 @@ def helper_single_MS_HeWD_trgb_to_zacheb(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('trgb.mod', absdir=data_path)
+    inlist.load_model('trgb.mod')
     inlist.he_core_boundary_h1_fraction(1e-3)
 
     inlist.set_Zbase(0.02)
@@ -184,7 +194,7 @@ def helper_single_MS_HeWD_zacheb_to_co_wd(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('zacheb.mod', absdir=data_path)
+    inlist.load_model('zacheb.mod')
     inlist.he_core_boundary_h1_fraction(1e-3)
     inlist.co_core_boundary_he4_fraction(1e-3)
 
@@ -216,7 +226,9 @@ def helper_single_MS_HeWD_cool_co_wd_early(argdict):
     enable_pgstar = argdict['enable_pgstar']
     alpha_semiconvection = argdict['alpha_semiconvection']
     thermohaline_coeff = argdict['thermohaline_coeff']
+    thermohaline_option = argdict['thermohaline_option']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
+    include_late = argdict['include_late']
     data_path = argdict['data_path']
     
     inlist = MesaInlist(name='cool_co_wd_early')
@@ -228,7 +240,7 @@ def helper_single_MS_HeWD_cool_co_wd_early(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('hot_co_wd.mod', absdir=data_path)
+    inlist.load_model('hot_co_wd.mod')
     inlist.he_core_boundary_h1_fraction(1e-3)
     inlist.co_core_boundary_he4_fraction(1e-3)
 
@@ -258,7 +270,7 @@ def helper_single_MS_HeWD_cool_co_wd_early(argdict):
     inlist.use_Ledoux_criterion()
 
     inlist.alpha_semiconvection(alpha_semiconvection)
-    inlist.add_thermohaline_mixing(thermohaline_coeff=thermohaline_coeff, thermohaline_option='Brown_Garaud_Stellmach_13')
+    inlist.add_thermohaline_mixing(thermohaline_coeff=thermohaline_coeff, thermohaline_option=thermohaline_option)
 
     inlist.gravitational_settling(diffusion_class_representatives=['h1', 'he3', 'he4', 'c12', 'o16', 'ne20', 'ne22', 'mg26'],
             diffusion_use_cgs_solver=True,
@@ -267,7 +279,10 @@ def helper_single_MS_HeWD_cool_co_wd_early(argdict):
             diffusion_maxsteps_for_isolve=2000)
 
     # stop after cool down enough
-    inlist.log_L_lower_limit(0.)
+    if include_late:
+        inlist.log_L_lower_limit(0.)
+    else:
+        inlist.max_age(1e10)
     inlist.save_final_model('cool_co_wd_early.mod')
 
     return inlist
@@ -291,7 +306,7 @@ def helper_single_MS_HeWD_cool_co_wd_late(argdict):
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
 
-    inlist.load_model('cool_co_wd_early.mod', absdir=data_path)
+    inlist.load_model('cool_co_wd_early.mod')
     inlist.he_core_boundary_h1_fraction(1e-3)
     inlist.co_core_boundary_he4_fraction(1e-3)
 

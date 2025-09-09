@@ -23,9 +23,11 @@ from collections.abc import Iterable
 
 class MesaInlist:
     """
-    Stores inlist information for MESA 
+    Stores inlist information for MESA
+
+    NOTE: could generalize this and MesaPythonScrip into a single Task object
     """
-    def __init__(self, name, mesa_version=config.mesa_version):
+    def __init__(self, name, mesa_version=config.mesa_version, data_path='data/'):
         """
         name: an informative name
 
@@ -34,6 +36,7 @@ class MesaInlist:
         self.name = name
         self.rel_path = f'inlist_{name}'
         self.mesa_version = mesa_version
+        self.set_data_path(data_path)
 
         self.inlist_controls = [] # controls
         self.data_prereqs = [] # model files and other things which are required for this to work
@@ -71,6 +74,12 @@ class MesaInlist:
         # - define metal fractions
 
         # - writeout interval
+
+    def set_data_path(self, data_path):
+        if data_path[-1] != '/':
+            data_path += '/'
+
+        self.data_path = data_path
 
     def rn_string(self):
         return f'./do_one tasks/{self.rel_path} {self.LOGS_dir}'

@@ -24,6 +24,9 @@ def make_MS_single(root_path, # absolute path in which to write directory
     """
     single MS star model for comparison purposes
     """
+    if data_path != 'data/': # TODO
+        raise NotImplementedError()
+
     run_name = f'M{M_initial_in_Msun:.2f}_z{initial_z:.4f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}'
     run_path = f'{root_path}/{run_name}'
 
@@ -50,7 +53,7 @@ def make_MS_single(root_path, # absolute path in which to write directory
         work.add_task(helper_MS_mass_changer_tams_to_lower_rgb(argdict, last_task='zams_to_mt'))
 
     if save_directory:
-        work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
+        work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk, data_path=data_path)
 
     return work
 
@@ -73,6 +76,9 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
     """
     Evolve an MS star for a bit before adding / removing mass from it
     """
+    if data_path != 'data/': # TODO
+        raise NotImplementedError()
+
     run_name = f'M{M_initial_in_Msun:.2f}to{M_final_in_Msun:.2f}atX{Xcen_accrete:.2f}_dM{log_abs_Mdot_accrete:.1f}_z{initial_z:.4f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}_sc{alpha_semiconvection:.4f}'
     run_path = f'{root_path}/{run_name}'
 
@@ -102,7 +108,7 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
         work.add_task(helper_MS_mass_changer_tams_to_lower_rgb(argdict, last_task='mt_to_tams'))
 
     if save_directory:
-        work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk)
+        work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk, data_path=data_path)
 
     return work
 
@@ -149,7 +155,7 @@ def helper_MS_mass_changer_zams_to_mt(argdict):
     if Xcen_accrete is not None:
         inlist.add_xa_central_lower_limit(xa_central_lower_limit_species='h1',
                                         xa_central_lower_limit=Xcen_accrete) # stop this evolution when core drops to desired hydrogen fraction
-    inlist.save_final_model('zams_to_mt.mod', absdir=data_path)
+    inlist.save_final_model('zams_to_mt.mod')
 
     # Overshoot
     inlist.add_overshoot_zone(overshoot_scheme='exponential',
@@ -179,7 +185,7 @@ def helper_MS_mass_changer_mt_to_tams(argdict):
     inlist.use_qol_pgstar()
 
     # Initial conditions
-    inlist.load_model('zams_to_mt.mod', absdir=data_path)
+    inlist.load_model('zams_to_mt.mod')
     inlist.set_Zbase(initial_z)
 
     inlist.alpha_semiconvection(alpha_semiconvection)
@@ -204,7 +210,7 @@ def helper_MS_mass_changer_mt_to_tams(argdict):
 
     # Termination conditions
     inlist.stop_at_phase_TAMS()
-    inlist.save_final_model('mt_to_tams.mod', absdir=data_path)
+    inlist.save_final_model('mt_to_tams.mod')
 
     # Overshoot
     inlist.add_overshoot_zone(overshoot_scheme='exponential',
@@ -229,9 +235,9 @@ def helper_MS_mass_changer_tams_to_lower_rgb(argdict, last_task):
     inlist.set_Zbase(initial_z)
     match last_task:
         case 'zams_to_mt':
-            inlist.load_model('zams_to_mt.mod', absdir=data_path)
+            inlist.load_model('zams_to_mt.mod')
         case 'mt_to_tams':
-            inlist.load_model('mt_to_tams.mod', absdir=data_path)
+            inlist.load_model('mt_to_tams.mod')
         case _:
             raise ValueError(f"invalid last_task {last_task}: must be either 'zams_to_mt' or 'mt_to_tams'")
 
@@ -243,6 +249,6 @@ def helper_MS_mass_changer_tams_to_lower_rgb(argdict, last_task):
     # Termination conditions
     inlist.he_core_mass_limit(0.20)
     inlist.he_core_boundary_h1_fraction(1e-3)
-    inlist.save_final_model('tams_to_lower_rgb.mod', absdir=data_path)
+    inlist.save_final_model('tams_to_lower_rgb.mod')
 
     return inlist
