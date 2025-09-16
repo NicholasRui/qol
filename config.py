@@ -20,7 +20,7 @@ else:
     warnings.warn('No $MESA_DIR found!') # TODO: handle exception better later
 
 # slurm job defaults
-slurm_job_mail_user = 'nrui.mailing.list@gmail.com'
+slurm_job_mail_user = None
 slurm_job_time_default = '7-00:00:00'
 slurm_job_mem_per_cpu_default = '10G'
 slurm_job_nodes_default = 10
