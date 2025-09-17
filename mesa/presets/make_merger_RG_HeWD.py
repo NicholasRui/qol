@@ -33,8 +33,9 @@ def make_merger_RG_HeWD(
     This is reproducing what was done in Zhang & Jeffery 2013, MNRAS
     """
     assert thermohaline_option in ['Kippenhahn', 'Traxler_Garaud_Stellmach_11', 'Brown_Garaud_Stellmach_13'], "thermohaline_option must be one of 'Kippenhahn', 'Traxler_Garaud_Stellmach_11', or 'Brown_Garaud_Stellmach_13'"
+    tho_string_dict = {'Kippenhahn': 'K80', 'Traxler_Garaud_Stellmach_11': 'TGS11', 'Brown_Garaud_Stellmach_13': 'BGS13'}
 
-    run_name = f'RGc{Mcore_in_Msun:.3f}e{Menv_in_Msun:.3f}+HeWD{MWD_in_Msun:.3f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_mdc{mesh_delta_coeff:.2f}_hydro{int(not disable_hydro_after_ringdown)}'
+    run_name = f'RGc{Mcore_in_Msun:.3f}e{Menv_in_Msun:.3f}+HeWD{MWD_in_Msun:.3f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_tho{tho_string_dict[thermohaline_option]}_mdc{mesh_delta_coeff:.2f}_hydro{int(not disable_hydro_after_ringdown)}'
     run_path = f'{root_path}/{run_name}'
 
     argdict = {'root_path': root_path,
@@ -98,7 +99,7 @@ def make_merger_RG_HeWD(
         work.add_task(helper_merger_RG_HeWD_cool_co_wd_late(argdict))
 
     if save_directory:
-       work.save_directory(grant_perms=True, source_sdk=source_sdk, data_path=data_path)
+       work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk, data_path=data_path)
     
     return work
 
