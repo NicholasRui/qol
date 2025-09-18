@@ -131,7 +131,7 @@
    !cv ! specific heat at constant volume
    !cp ! specific heat at constant total pressure
 
-   !log_CpT
+   log_CpT
    gamma1 ! dlnP_dlnRho at constant S
    gamma3 ! gamma3 - 1 = dlnT_dlnRho at constant S
    gam ! plasma interaction parameter (> 160 or so means starting crystallization)
