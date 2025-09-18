@@ -26,7 +26,7 @@ def make_single_MS_HeWD(
     if data_path != 'data/': # TODO
         raise NotImplementedError()
 
-    run_name = f'MS{MMS_in_Msun:.3f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_tho{tho_string_dict[thermohaline_option]}_w{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}'
+    run_name = f'MS{MMS_in_Msun:.3f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_tho{tho_string_dict[thermohaline_option]}_rgbw{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}'
     run_path = f'{root_path}/{run_name}'
 
     argdict = {'root_path': root_path,
