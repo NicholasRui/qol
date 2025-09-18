@@ -504,6 +504,8 @@ class MesaWorkingDirectory:
                  mail_type=mail_type # conditions for emailing
                  )
             
+            slurm_bash_script.add_task(f'export OMP_NUM_THREADS={OMP_NUM_THREADS}')
+
             slurm_bash_script.add_task(f'cd {run_path}')
             if source_sdk:
                 slurm_bash_script.add_task('source $MESASDK_ROOT/bin/mesasdk_init.sh')
