@@ -246,7 +246,6 @@ class MesaWorkingDirectory:
         re_text = ''
         re_text += '#!/bin/bash\n\n'
         re_text += '# re script\n\n'
-        re_text += 'started=0\n\n'
 
         re_text += 'if [ ! -f "star" ]; then\n    echo "QoL Error: Did you forget to do ./mk?"\n    exit 1\n    fi\n\n' # check if ./mk was run
 
@@ -294,18 +293,19 @@ class MesaWorkingDirectory:
                     full_rn_string = f'# Try to run tasks/{task.rel_path}\n'
                     full_re_string = f'# Try to run tasks/{task.rel_path}\n'
 
-                    full_rn_string += check_if_missing(fname_list=task.data_prereqs, \
-                            if_none_missing=task.rn_string(), \
+                    full_rn_string += check_if_missing(fname_list=task.data_prereqs,
+                            if_none_missing=task.rn_string(),
                             if_some_missing=f"echo 'QoL: SOME PREREQS MISSING FOR tasks/{task.rel_path}, EXIT'\n    exit 1")
                     
-                    full_re_string += check_if_missing(fname_list=task.data_products, \
-                            if_none_missing=f"echo 'QoL: All products found, skipping tasks/{task.rel_path}'", \
+                    full_re_string += check_if_missing(fname_list=task.data_products,
+                            if_none_missing=f"echo 'QoL: All products found, skipping tasks/{task.rel_path}'",
                             if_some_missing=task.re_string())
                     
+                    # after rerunning, check again... if data is still missing, something died, so exit
                     full_re_string = f'# Check that the products of tasks/{task.rel_path} have been generated\n'
-                    full_re_string += check_if_missing(fname_list=task.data_products, \
-                            if_none_missing=f"echo 'QoL: Attempted and failed to restart tasks/{task.rel_path}, EXITING'", \
-                            if_some_missing=task.re_string())
+                    full_re_string += check_if_missing(fname_list=task.data_products,
+                            if_none_missing='true',
+                            if_some_missing=f"echo 'QoL: Attempted and failed to restart tasks/{task.rel_path}, EXITING'\n    exit 1")
 
                     rn_text += full_rn_string
                     re_text += full_re_string
