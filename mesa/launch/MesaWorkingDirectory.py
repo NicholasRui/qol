@@ -124,6 +124,7 @@ class MesaWorkingDirectory:
     def save_directory(self, grant_perms=False, make_flowchart=True, source_sdk=False,
                        slurm_job_name=None, slurm_job_time=config.slurm_job_time_default,
                        slurm_job_ntasks=config.slurm_job_ntasks_default, slurm_job_nodes=config.slurm_job_nodes_default,
+                       slurm_job_ntasks_per_node=config.slurm_job_ntasks_per_node_default,
                        slurm_job_mem_per_cpu=config.slurm_job_mem_per_cpu_default,
                        slurm_job_email_user=True, OMP_NUM_THREADS=config.mesa_OMP_NUM_THREADS,
                        data_path='data/'):
@@ -302,7 +303,7 @@ class MesaWorkingDirectory:
                             if_some_missing=task.re_string())
                     
                     # after rerunning, check again... if data is still missing, something died, so exit
-                    full_re_string = f'# Check that the products of tasks/{task.rel_path} have been generated\n'
+                    full_re_string += f'# Check that the products of tasks/{task.rel_path} have been generated\n'
                     full_re_string += check_if_missing(fname_list=task.data_products,
                             if_none_missing='true',
                             if_some_missing=f"echo 'QoL: Attempted and failed to restart tasks/{task.rel_path}, EXITING'\n    exit 1")
@@ -471,6 +472,7 @@ class MesaWorkingDirectory:
                  job_name=slurm_job_name,
                  time=slurm_job_time,
                  ntasks=slurm_job_ntasks, nodes=slurm_job_nodes,
+                 ntasks_per_node=slurm_job_ntasks_per_node,
                  mem_per_cpu=slurm_job_mem_per_cpu,
                  output=f'{run_path}/output.out', error=f'{run_path}/error.out', # absolute paths
                  mail_user=config.slurm_job_mail_user, # email address

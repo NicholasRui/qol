@@ -1,4 +1,3 @@
-
 import qol.info as info
 from matplotlib import cycler
 
@@ -33,7 +32,7 @@ vis_scatter_marker = 'o'
 vis_fontpath = f'{info.qol_path}vis/resources/fonts/HelveticaNeue-01.ttf'
 vis_fontname = 'Helvetica Neue'
 
-vis_title_size = 20#24
+vis_title_size = 20
 vis_label_size = 18
 vis_tick_size = 16
 vis_text_size = 14

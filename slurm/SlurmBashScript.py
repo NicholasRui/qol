@@ -9,6 +9,7 @@ class SlurmBashScript:
                  job_name='job',
                  time='7-00:00:00', # specify walltime as a string for now
                  ntasks=1, nodes=1,
+                 ntasks_per_node=1,
                  mem_per_cpu='10G', # specify as string for now
                  output='output.out', error='error.out', # absolute paths
                  mail_user=None, # email address
@@ -20,6 +21,7 @@ class SlurmBashScript:
         self.time = time
         self.ntasks = ntasks
         self.nodes = nodes
+        self.ntasks_per_node = ntasks_per_node
         self.mem_per_cpu = mem_per_cpu
         self.output = output
         self.error = error
@@ -39,6 +41,7 @@ class SlurmBashScript:
         text += f'#SBATCH --time={self.time}     # walltime\n' if self.time is not None else ''
         text += f'#SBATCH --ntasks={self.ntasks}     # number of processor cores (i.e. tasks)\n' if self.ntasks is not None else ''
         text += f'#SBATCH --nodes={self.nodes}     # number of nodes\n' if self.nodes is not None else ''
+        text += f'#SBATCH --ntasks-per-node={self.ntasks_per_node}     # number of tasks per node\n' if self.ntasks_per_node is not None else ''
         text += f'#SBATCH --mem-per-cpu={self.mem_per_cpu}     # memory per CPU core\n' if self.mem_per_cpu is not None else ''
         text += f'#SBATCH -J "{self.job_name}"     # job name\n' if self.job_name is not None else ''
         text += f'#SBATCH --output={self.output}\n' if self.output is not None else ''
