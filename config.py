@@ -1,6 +1,7 @@
 # This is the only file that should be modified by the user, except in development
 import os
 import warnings
+import socket
 
 ####################
 ###  MESA PATHS  ###
@@ -20,10 +21,27 @@ else:
     warnings.warn('No $MESA_DIR found!') # TODO: handle exception better later
 
 # slurm job defaults
-slurm_job_mail_user = None
-slurm_job_time_default = '2-00:00:00'
-slurm_job_mem_per_cpu_default = '7500M'
-slurm_job_nodes_default = 1 # for Princeton Stellar TODO pre-program this in for some computing clusters
-slurm_job_ntasks_per_node_default = 96 * slurm_job_nodes_default
-slurm_job_ntasks_default = None #96 * slurm_job_nodes_default
-mesa_OMP_NUM_THREADS = slurm_job_ntasks_default
+import socket
+
+hostname = socket.gethostname() # try to detect which computer
+match hostname:
+    # Princeton Stellar
+    # https://researchcomputing.princeton.edu/systems/stellar
+    case 'stellar-intel.princeton.edu':
+        slurm_job_mail_user = None
+        slurm_job_time_default = '2-00:00:00'
+        slurm_job_mem_per_cpu_default = '7500M'
+        slurm_job_nodes_default = 1
+        slurm_job_ntasks_per_node_default = 96 * slurm_job_nodes_default
+        slurm_job_ntasks_default = None
+        mesa_OMP_NUM_THREADS = slurm_job_ntasks_per_node_default * slurm_job_nodes_default
+
+    # default for any others
+    case _:
+        slurm_job_mail_user = None
+        slurm_job_time_default = '7-00:00:00'
+        slurm_job_mem_per_cpu_default = '10G'
+        slurm_job_nodes_default = 1
+        slurm_job_ntasks_per_node_default = 2 * slurm_job_nodes_default
+        slurm_job_ntasks_default = None
+        mesa_OMP_NUM_THREADS = slurm_job_ntasks_per_node_default * slurm_job_nodes_default
