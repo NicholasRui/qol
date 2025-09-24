@@ -13,7 +13,7 @@ mesa_paths = {}
 if 'MESA_DIR' in os.environ:
     MESA_DIR = os.environ['MESA_DIR']
 
-    if os.path.exists(os.path.join(MESA_DIR, '/data/version_number')):
+    if os.path.exists(os.path.join(MESA_DIR, 'data/version_number')):
         with open(os.path.join(MESA_DIR, 'data/version_number'), 'r') as f:
             mesa_version = f.read().replace('\n', '')
         mesa_paths[mesa_version] = MESA_DIR
