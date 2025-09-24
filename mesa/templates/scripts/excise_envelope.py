@@ -7,6 +7,8 @@ import sys
 from qol.mesa.read import read_mod
 from qol.tools import formatter
 
+import os
+
 # skip argv[0], which is the script path itself
 assert len(sys.argv) == 7
 
@@ -20,13 +22,9 @@ min_boundary_fraction = sys.argv[5] if len(sys.argv) >= 6 else '0.1D0'
 
 absdir = sys.argv[6]
 
-# sanitize absdir by adding / if needed
-if absdir[-1] != '/':
-    absdir += '/'
-
 assert coretype in ['he', 'co', 'one']
-orig_mod_fname = f'{absdir}{orig_mod_fname}'
-write_mod_fname = f'{absdir}{write_mod_fname}'
+orig_mod_fname = os.path.join(absdir, orig_mod_fname)
+write_mod_fname = os.path.join(absdir, write_mod_fname)
 bad_frac_thresh = formatter.mesa_num_to_float(bad_frac_thresh)
 min_boundary_fraction = formatter.mesa_num_to_float(min_boundary_fraction)
 

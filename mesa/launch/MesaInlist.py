@@ -18,6 +18,8 @@ import qol.mesa.controls.timestep as timestep
 import qol.mesa.controls.coredef as coredef
 import qol.mesa.controls.wind as wind
 
+import os
+
 import numpy as np
 from collections.abc import Iterable
 
@@ -36,7 +38,7 @@ class MesaInlist:
         self.name = name
         self.rel_path = f'inlist_{name}'
         self.mesa_version = mesa_version
-        self.set_data_path(data_path)
+        self.data_path = data_path
 
         self.inlist_controls = [] # controls
         self.data_prereqs = [] # model files and other things which are required for this to work
@@ -74,12 +76,6 @@ class MesaInlist:
         # - define metal fractions
 
         # - writeout interval
-
-    def set_data_path(self, data_path):
-        if data_path[-1] != '/':
-            data_path += '/'
-
-        self.data_path = data_path
 
     def rn_string(self):
         return f'./do_one tasks/{self.rel_path} {self.LOGS_dir}'
@@ -212,9 +208,9 @@ class MesaInlist:
         inlist_text += ''.join(namelist_texts)
 
         if absdir is None:
-            abs_path = f'{run_path}/{subdir}/{self.rel_path}'
+            abs_path = os.path.join(run_path, subdir, self.rel_path)
         else:
-            abs_path = f'{absdir}/{self.rel_path}'
+            abs_path = os.path.join(absdir, self.rel_path)
 
         #if abs_path is not None:
         with open(abs_path, 'w') as f:

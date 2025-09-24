@@ -5,6 +5,8 @@
 from qol.mesa.launcher import *
 import qol.info as info
 
+import os
+
 def make_single_MS_HeWD(
         root_path, # absolute path in which to write directory
         MMS_in_Msun, # ZAMS mass
@@ -27,7 +29,7 @@ def make_single_MS_HeWD(
         raise NotImplementedError()
 
     run_name = f'MS{MMS_in_Msun:.3f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_tho{tho_string_dict[thermohaline_option]}_rgbw{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}'
-    run_path = f'{root_path}/{run_name}'
+    run_path = os.path.join(root_path, run_name)
 
     argdict = {'root_path': root_path,
                'MMS_in_Msun': MMS_in_Msun,
@@ -44,8 +46,10 @@ def make_single_MS_HeWD(
     
     # create and save work directory
     work = MesaWorkingDirectory(run_path=run_path)
-    work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns_hewd_ms.list')
-    work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns_qol.list')
+    work.copy_history_columns_list(os.path.join(info.qol_path,
+            'mesa/resources/r24.08.1/history_columns_hewd_ms.list'))
+    work.copy_profile_columns_list(os.path.join(info.qol_path,
+            'mesa/resources/r24.08.1/profile_columns_qol.list'))
     work.load_qol_pgstar()
 
     work.add_task(helper_single_MS_HeWD_zams_to_tams(argdict))

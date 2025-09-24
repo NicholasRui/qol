@@ -1,6 +1,8 @@
 from qol.mesa.launcher import *
 import qol.info as info
 
+import os
+
 # controlling dX limits during main sequence
 dX_div_X_limit_min_X = 1e-4
 dX_div_X_limit = 1e-2
@@ -28,7 +30,7 @@ def make_MS_single(root_path, # absolute path in which to write directory
         raise NotImplementedError()
 
     run_name = f'M{M_initial_in_Msun:.2f}_z{initial_z:.4f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}'
-    run_path = f'{root_path}/{run_name}'
+    run_path = os.path.join(root_path, run_name)
 
     argdict = {'root_path': root_path,
                'M_initial_in_Msun': M_initial_in_Msun,
@@ -44,8 +46,8 @@ def make_MS_single(root_path, # absolute path in which to write directory
 
     # Put it together
     work = MesaWorkingDirectory(run_path=run_path)
-    work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns_qol.list')
-    work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns_qol.list')
+    work.copy_history_columns_list(os.path.join(info.qol_path, 'mesa/resources/r24.08.1/history_columns_qol.list'))
+    work.copy_profile_columns_list(os.path.join(info.qol_path, 'mesa/resources/r24.08.1/profile_columns_qol.list'))
     work.load_qol_pgstar()
 
     work.add_task(helper_MS_mass_changer_zams_to_mt(argdict))
@@ -80,7 +82,7 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
         raise NotImplementedError()
 
     run_name = f'M{M_initial_in_Msun:.2f}to{M_final_in_Msun:.2f}atX{Xcen_accrete:.2f}_dM{log_abs_Mdot_accrete:.1f}_z{initial_z:.4f}_osf{overshoot_f:.4f}_osf0{overshoot_f0:.4f}_sc{alpha_semiconvection:.4f}'
-    run_path = f'{root_path}/{run_name}'
+    run_path = os.path.join(root_path, run_name)
 
     argdict = {'root_path': root_path,
                'M_initial_in_Msun': M_initial_in_Msun,
@@ -98,8 +100,8 @@ def make_MS_mass_changer(root_path, # absolute path in which to write directory
 
     # Put it together
     work = MesaWorkingDirectory(run_path=run_path)
-    work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns_qol.list')
-    work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns_qol.list')
+    work.copy_history_columns_list(os.path.join(info.qol_path, 'mesa/resources/r24.08.1/history_columns_qol.list'))
+    work.copy_profile_columns_list(os.path.join(info.qol_path, 'mesa/resources/r24.08.1/profile_columns_qol.list'))
     work.load_qol_pgstar()
 
     work.add_task(helper_MS_mass_changer_zams_to_mt(argdict))

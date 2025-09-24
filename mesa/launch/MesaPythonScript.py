@@ -1,5 +1,6 @@
 import qol.tools.formatter as formatter
 
+import os
 import shutil
 
 class MesaPythonScript:
@@ -19,7 +20,7 @@ class MesaPythonScript:
         fed into script using sys package
         """
         self.name = name
-        self.set_data_path(data_path)
+        self.data_path = data_path
         
         self.rel_path = f'script_{name}.py'
         self.template = template
@@ -33,17 +34,11 @@ class MesaPythonScript:
         self.LOGS_dir = None
         self.photos_dir = None
         
-    def set_data_path(self, data_path):
-        if data_path[-1] != '/':
-            data_path += '/'
-
-        self.data_path = data_path
-
     def rn_string(self):
         return f'ipython tasks/{self.rel_path} ' + ' '.join([formatter.to_fortran(arg_in) for arg_in in self.args_in])
 
     re_string = rn_string # restarting this is the same as running
 
     def save(self, run_path):
-        abs_path = f'{run_path}/tasks/{self.rel_path}'
+        abs_path = os.path.join(run_path, 'tasks/', self.rel_path)
         shutil.copy(self.template, abs_path)

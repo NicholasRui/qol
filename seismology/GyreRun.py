@@ -49,11 +49,9 @@ class GyreRun:
         input_profile_rel_path = relative path to input MESA profile in GYRE format
         """
         # store gyre_path
-        if gyre_path[-1] != '/':
-            gyre_path += '/'
         self.gyre_path = gyre_path
         
-        assert os.path.exists(f'{gyre_path}{summary_file}')
+        assert os.path.exists(os.path.join(gyre_path, summary_file))
         self.summary_file = summary_file
 
         # Read summary file
@@ -67,7 +65,7 @@ class GyreRun:
         self.detail_cache_dict = {}
     
     def read_input_profile(self, rel_path):
-        input_profile_abs_path = f'{self.gyre_path}{self.input_profile_rel_path}'
+        input_profile_abs_path = os.path.join(self.gyre_path, self.input_profile_rel_path)
         assert os.path.exists(input_profile_abs_path)
 
         with open(input_profile_abs_path, 'r') as f:
@@ -124,7 +122,7 @@ class GyreRun:
             data = self.detail_cache_dict[cache_key]
             return data
 
-        abs_path = f'{self.gyre_path}{rel_path}'
+        abs_path = os.path.join(self.gyre_path}, {rel_path})
         assert os.path.exists(abs_path)
 
         cols = []

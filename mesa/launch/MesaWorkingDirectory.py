@@ -37,8 +37,8 @@ class MesaWorkingDirectory:
         self.rel_paths_root_prereq = []
         self.tasks = []
 
-        self.submit_job_path = f'{run_path}/submit_job.sh'
-        self.restart_job_path = f'{run_path}/restart_job.sh'
+        self.submit_job_path = os.path.join(run_path, 'submit_job.sh')
+        self.restart_job_path = os.path.join(run_path, 'restart_job.sh')
 
     def add_root_prereq(self, copy_from_abs_path, rel_path):
         """
@@ -69,7 +69,7 @@ class MesaWorkingDirectory:
         """
         load default qol inlist_pgstar, need to do this before doing use_qol_pgstar
         """
-        self.add_root_prereq(copy_from_abs_path=f'{info.qol_path}mesa/resources/r24.08.1/inlist_pgstar', rel_path='inlist_pgstar')
+        self.add_root_prereq(copy_from_abs_path=os.path.join(info.qol_path, 'mesa/resources/r24.08.1/inlist_pgstar'), rel_path='inlist_pgstar')
 
     def check_needed_prereqs(self, task):
         """
@@ -143,50 +143,49 @@ class MesaWorkingDirectory:
         run_path = self.run_path
 
         # copy important files from $MESA_DIR/star/work, remove files which we want to write explicitly
-        if run_path[-1] != '/':
-            run_path += '/'
-        
-        if data_path[-1] != '/':
-            data_path += '/'
-
         if os.path.exists(run_path):
             raise ValueError(f'Path already exists: {run_path}')
         os.mkdir(run_path)
-        os.mkdir(f'{run_path}make')
-        os.mkdir(f'{run_path}src')
-        os.mkdir(f'{run_path}tasks') # store inlists and python scripts here
+        os.mkdir(os.path.join(run_path, 'make'))
+        os.mkdir(os.path.join(run_path, 'src'))
+        os.mkdir(os.path.join(run_path, 'tasks')) # store inlists and python scripts here
 
         if data_path[0] != '/': # if not absolute path, store prereqs and products here
-            os.mkdir(f'{run_path}data')
+            os.mkdir(os.path.join(run_path, 'data'))
 
         mesadir = config.mesa_paths[self.mesa_version]
-        workdir = f'{mesadir}/star/work/'
+        workdir = os.path.join(mesadir, 'star/work')
 
-        shutil.copy(f'{workdir}clean', f'{run_path}clean')
-        shutil.copy(f'{workdir}make/makefile', f'{run_path}make/makefile')
-        shutil.copy(f'{workdir}mk', f'{run_path}mk')
+        shutil.copy(os.path.join(workdir, 'clean'),
+                    os.path.join(run_path, 'clean'))
+        shutil.copy(os.path.join(workdir, 'make/makefile'),
+                    os.path.join(run_path, 'make/makefile'))
+        shutil.copy(os.path.join(workdir, 'mk'),
+                    os.path.join(run_path, 'mk'))
 
         # copy run_star_extras, but explicitly substitute standard_run_star_extras.inc for convenience
-        if os.path.exists(f'{workdir}src/run.f90'):
-            shutil.copy(f'{workdir}src/run.f90', f'{run_path}src/run.f90')
-        elif os.path.exists(f'{workdir}src/run.f'):
-            shutil.copy(f'{workdir}src/run.f', f'{run_path}src/run.f')
+        if os.path.exists(os.path.join(workdir, 'src/run.f90')):
+            shutil.copy(os.path.join(workdir, 'src/run.f90'),
+                        os.path.join(run_path, 'src/run.f90'))
+        elif os.path.exists(os.path.join(workdir, 'src/run.f')):
+            shutil.copy(os.path.join(workdir, 'src/run.f'),
+                        os.path.join(run_path, 'src/run.f'))
         else:
             raise ValueError('Neither src/run.f90 and src/run.f found')
         
-        if os.path.exists(f'{workdir}src/run_star_extras.f90'):
-            RSE_in_path = f'{workdir}src/run_star_extras.f90'
-            RSE_out_path = f'{run_path}src/run_star_extras.f90'
-        elif os.path.exists(f'{workdir}src/run_star_extras.f'):
-            RSE_in_path = f'{workdir}src/run_star_extras.f'
-            RSE_out_path = f'{run_path}src/run_star_extras.f'
+        if os.path.exists(os.path.join(workdir, 'src/run_star_extras.f90')):
+            RSE_in_path = os.path.join(workdir, 'src/run_star_extras.f90')
+            RSE_out_path = os.path.join(run_path, 'src/run_star_extras.f90')
+        elif os.path.exists(os.path.join(workdir, 'src/run_star_extras.f')):
+            RSE_in_path = os.path.join(workdir, 'src/run_star_extras.f')
+            RSE_out_path = os.path.join(run_path, 'src/run_star_extras.f')
         else:
             raise ValueError('Neither src/run_star_extras.f90 and src/run_star_extras.f found')
         
         newlines = []
         with open(RSE_in_path, 'r') as f:
             lines = f.readlines()
-        with open(f'{mesadir}/include/standard_run_star_extras.inc', 'r') as f:
+        with open(os.path.join(mesadir, 'include/standard_run_star_extras.inc'), 'r') as f:
             standard_RSE_text = f.read()
 
         for line in lines:
@@ -202,14 +201,19 @@ class MesaWorkingDirectory:
         
         # copy over history and profile columns files, if specified
         if self.history_columns_path is not None:
-            shutil.copy(self.history_columns_path, f'{run_path}history_columns.list')
+            shutil.copy(self.history_columns_path,
+                        os.path.join(run_path, 'history_columns.list'))
         if self.profile_columns_path is not None:
-            shutil.copy(self.profile_columns_path, f'{run_path}profile_columns.list')
+            shutil.copy(self.profile_columns_path,
+                        os.path.join(run_path, 'profile_columns.list'))
 
         # copy over helper files
-        shutil.copy(f'{info.qol_path}mesa/resources/bash/do_one', f'{run_path}do_one')
-        shutil.copy(f'{info.qol_path}mesa/resources/bash/re_one', f'{run_path}re_one')
-        shutil.copy(f'{info.qol_path}mesa/resources/bash/any_missing', f'{run_path}any_missing')
+        shutil.copy(os.path.join(info.qol_path, 'mesa/resources/bash/do_one'),
+                    os.path.join(run_path, 'do_one'))
+        shutil.copy(os.path.join(info.qol_path, 'mesa/resources/bash/re_one'),
+                    os.path.join(run_path, 're_one'))
+        shutil.copy(os.path.join(info.qol_path, 'mesa/resources/bash/any_missing'),
+                    os.path.join(run_path, 'any_missing'))
 
         # create rn and re
         # rn will call any_missing and do things if False, and terminate if not
@@ -226,7 +230,7 @@ class MesaWorkingDirectory:
         check_missing_template += 'fi\n\n'
 
         check_if_missing = lambda fname_list, if_none_missing, if_some_missing: \
-          check_missing_template.replace('<<FILES>>', ' '.join([formatter.to_fortran(f'{data_path}{fname}') for fname in fname_list])) \
+          check_missing_template.replace('<<FILES>>', ' '.join([formatter.to_fortran(os.path.join(data_path, fname)) for fname in fname_list])) \
                                 .replace('<<NONE_MISSING>>', if_none_missing) \
                                 .replace('<<SOME_MISSING>>', if_some_missing)
 
@@ -261,9 +265,9 @@ class MesaWorkingDirectory:
 
             # do different behavior depending on whether data_path is absolute or not
             if data_path[0] == '/': # absolute path
-                shutil.copy(copy_from_abs_path, f'{data_path}{rel_path}')
+                shutil.copy(copy_from_abs_path, os.path.join(data_path, rel_path))
             else:
-                shutil.copy(copy_from_abs_path, f'{self.run_path}/{data_path}{rel_path}')
+                shutil.copy(copy_from_abs_path, os.path.join(self.run_path, data_path, rel_path))
 
         # LOOP OVER TASKS AND RUN THEM IN ORDER
         vlevels = [] # vertical level in chart
@@ -281,7 +285,7 @@ class MesaWorkingDirectory:
             new_tasks = 0
 
             for ii, task in enumerate(self.tasks):
-                task.set_data_path(data_path=data_path) # set data_path of task
+                task.data_path = data_path # set data_path of task
 
                 # if task visited before, skip it
                 if ii in task_ids:
@@ -340,7 +344,7 @@ class MesaWorkingDirectory:
         rn_text += "echo 'QoL: All tasks successfully completed!'\n"
         rn_text += 'exit 0\n'
 
-        with open(f'{run_path}rn', 'w') as f:
+        with open(os.path.join(run_path, 'rn'), 'w') as f:
             f.write(rn_text)
         
         ### End re text and save re file
@@ -350,15 +354,15 @@ class MesaWorkingDirectory:
                             if_none_missing="echo 'QoL: All tasks successfully completed!'\n    exit 0", \
                             if_some_missing=f"echo 'QoL: Some products missing -- at least one task failed'\n    exit 1")
 
-        with open(f'{run_path}re', 'w') as f:
+        with open(os.path.join(run_path, 're'), 'w') as f:
             f.write(re_text)
         
         if grant_perms:
-            os.chmod(f'{run_path}do_one', 0o755)
-            os.chmod(f'{run_path}re_one', 0o755)
-            os.chmod(f'{run_path}any_missing', 0o755)
-            os.chmod(f'{run_path}rn', 0o755)
-            os.chmod(f'{run_path}re', 0o755)
+            os.chmod(os.path.join(run_path, 'do_one'), 0o755)
+            os.chmod(os.path.join(run_path, 're_one'), 0o755)
+            os.chmod(os.path.join(run_path, 'any_missing'), 0o755)
+            os.chmod(os.path.join(run_path, 'rn'), 0o755)
+            os.chmod(os.path.join(run_path, 're'), 0o755)
 
         # if desired, make flowchart which plots all of the tasks
         # and shows dependencies of different inputs and outputs
@@ -462,7 +466,7 @@ class MesaWorkingDirectory:
             plt.axis('off')
             plt.tight_layout()
 
-            plt.savefig(f'{run_path}/flowchart.pdf')
+            plt.savefig(os.path.join(run_path, 'flowchart.pdf'))
             plt.close()
 
         # if desired, save bash scripts
@@ -474,7 +478,8 @@ class MesaWorkingDirectory:
                  ntasks=slurm_job_ntasks, nodes=slurm_job_nodes,
                  ntasks_per_node=slurm_job_ntasks_per_node,
                  mem_per_cpu=slurm_job_mem_per_cpu,
-                 output=f'{run_path}/output.out', error=f'{run_path}/error.out', # absolute paths
+                 output=os.path.join(run_path, 'output.out'),
+                 error=os.path.join(run_path, 'error.out'), # absolute paths
                  mail_user=config.slurm_job_mail_user, # email address
                  mail_type='BEGIN,FAIL,END' # conditions for emailing
                  )
@@ -501,7 +506,8 @@ class MesaWorkingDirectory:
                  time=slurm_job_time,
                  ntasks=slurm_job_ntasks, nodes=slurm_job_nodes,
                  mem_per_cpu=slurm_job_mem_per_cpu,
-                 output=f'{run_path}/output.out', error=f'{run_path}/error.out', # absolute paths
+                 output=os.path.join(run_path, 'output.out'),
+                 error=os.path.join(run_path, 'error.out'), # absolute paths
                  mail_user=mail_user, # email address
                  mail_type=mail_type # conditions for emailing
                  )

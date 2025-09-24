@@ -1,6 +1,8 @@
 from qol.mesa.launcher import *
 import qol.info as info
 
+import os
+
 def make_merger_MS_HeWD(
         root_path, # absolute path in which to write directory
         MWD_in_Msun, # WD mass
@@ -28,7 +30,7 @@ def make_merger_MS_HeWD(
     tho_string_dict = {'Kippenhahn': 'K80', 'Traxler_Garaud_Stellmach_11': 'TGS11', 'Brown_Garaud_Stellmach_13': 'BGS13'}
 
     run_name = f'MS{MMS_in_Msun:.3f}+HeWD{MWD_in_Msun:.3f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_tho{tho_string_dict[thermohaline_option]}_rgbw{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}_hydro{int(not disable_hydro_after_ringdown)}'
-    run_path = f'{root_path}/{run_name}'
+    run_path = os.path.join(root_path, run_name)
 
     argdict = {'root_path': root_path,
                'MWD_in_Msun': MWD_in_Msun,
@@ -48,14 +50,12 @@ def make_merger_MS_HeWD(
                'data_path': data_path,
                'id_str': '-', # # appended to by each function to keep track of used inputs
                }
-
-    if data_path[-1] != '/':
-        data_path += '/'
-
     # create and save work directory
     work = MesaWorkingDirectory(run_path=run_path)
-    work.copy_history_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/history_columns_hewd_ms.list')
-    work.copy_profile_columns_list(f'{info.qol_path}mesa/resources/r24.08.1/profile_columns_qol.list')
+    work.copy_history_columns_list(os.path.join(info.qol_path,
+         'mesa/resources/r24.08.1/history_columns_hewd_ms.list'))
+    work.copy_profile_columns_list(os.path.join(info.qol_path,
+         'mesa/resources/r24.08.1/profile_columns_qol.list'))
     work.load_qol_pgstar()
 
     # create HeWD
@@ -210,7 +210,7 @@ def helper_merger_MS_HeWD_inner_bc(argdict):
     id_str0 = argdict['id_str0']
 
     script = MesaPythonScript(name='inner_bc',
-            template=f'{info.qol_path}mesa/templates/scripts/call_create_env_inlist_from_core.py',
+            template=os.path.join(info.qol_path, 'mesa/templates/scripts/call_create_env_inlist_from_core.py'),
             const_args=[MMS_in_Msun, data_path],
             prereqs=[f'cool_he_wd.mod{id_str0}'],
             products=[f'inlist_env_inner_bc{id_str}'],
@@ -277,7 +277,7 @@ def helper_merger_MS_HeWD_merge(argdict):
     id_str0 = argdict['id_str0']
 
     script = MesaPythonScript(name='merge',
-            template=f'{info.qol_path}mesa/templates/scripts/call_create_shell_burning_remnant.py',
+            template=os.path.join(info.qol_path, 'mesa/templates/scripts/call_create_shell_burning_remnant.py'),
             const_args=['excise', 'change_m', data_path],
             prereqs=[f'cool_he_wd.mod{id_str0}', f'env_th_eq.mod{id_str}'],
             products=[f'remnant_init.mod{id_str}'],

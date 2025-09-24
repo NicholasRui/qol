@@ -11,13 +11,9 @@ old_species_arr = sys.argv[5:]
 
 run_path = '.'
 
-# sanitize absdir by adding / if needed
-if absdir[-1] != '/':
-    absdir += '/'
-
 # Append data path to the front of all of these
-write_mod_fname = f'{absdir}{write_mod_fname}'
-init_mod_fname = f'{absdir}{init_mod_fname}'
+write_mod_fname = os.path.join(absdir, write_mod_fname)
+init_mod_fname = os.path.join(absdir, init_mod_fname)
 
 replace_elements(write_mod_fname,
                  init_mod_fname,

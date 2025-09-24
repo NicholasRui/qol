@@ -6,6 +6,8 @@ import qol.mesa.const as const
 import qol.info as info
 import qol.tools.formatter as formatter
 
+import os
+
 class MesaTable(Table):
     """
     Generalized astropy.table.Table object which adds additional functionality
@@ -219,7 +221,7 @@ class MesaTable(Table):
 
         match model_setting:
             case 36:
-                template_path = f'{info.qol_path}mesa/templates/model/model36.mod'
+                template_path = os.path.join(info.qol_path, 'mesa/templates/model/model36.mod')
 
                 version_number = self.attr['version_number']
                 M_in_Msun = self.attr['M/Msun']
