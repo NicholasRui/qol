@@ -31,7 +31,7 @@ vis_scatter_linewidth = 1.5
 vis_scatter_marker = 'o'
 
 # default font info
-vis_fontpath = os.path.join(info.qol_path, vis/resources/fonts/HelveticaNeue-01.ttf)
+vis_fontpath = os.path.join(info.qol_path, 'vis/resources/fonts/HelveticaNeue-01.ttf')
 vis_fontname = 'Helvetica Neue'
 
 vis_title_size = 20
