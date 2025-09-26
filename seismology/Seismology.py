@@ -153,6 +153,9 @@ class Seismology:
             else:
                 self.N = self.mesa_table.N
 
+        # Required field
+        assert self.N is not None
+
         # Clip zero N to a finite value, so zero-division doesn't happen
         self.N = np.clip(self.N, a_min=N_floor, a_max=None)
 
@@ -160,9 +163,6 @@ class Seismology:
         self.N_div_2pi = self.N / (2 * const.pi)
         self.N_in_uHz = 1e6 * self.N
         self.N_div_2pi_in_uHz = 1e6 * self.N_div_2pi
-
-        # Required field
-        assert self.N is not None
 
     def initialize_Sl(self, Sl1, Sl1_in_uHz):
         self.Sl1 = np.array(Sl1) if Sl1 is not None else None
