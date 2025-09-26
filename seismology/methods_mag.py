@@ -1,4 +1,4 @@
-# Methods for Seismo`log`y class
+# Methods for Seismology class
 # Calculate basic quantities related to seismic magnetometry
 from qol.seismology.helper import get_ω, get_magnetic_acrit
 from qol.tools.integrate import trapz_cond
@@ -44,7 +44,7 @@ def get_magnetic_cumK(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=Non
 
 def get_magnetic_scriptI(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, use_f_corr_RFH25=False):
     """
-    Magnetic sensitivity function \mathscr{I} = int_N3_div_Rho_r3_dr / int_N_div_r_dr
+    Magnetic sensitivity function scriptI = int_N3_div_Rho_r3_dr / int_N_div_r_dr
     """
     ω = get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
 
