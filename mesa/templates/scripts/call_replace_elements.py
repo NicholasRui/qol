@@ -2,6 +2,8 @@
 import sys
 from qol.mesa.sculpt import replace_elements
 
+import os
+
 # skip argv[0], which is the script path itself
 init_mod_fname = sys.argv[1]
 write_mod_fname = sys.argv[2]
