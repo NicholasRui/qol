@@ -2,6 +2,8 @@
 import sys
 from qol.mesa.sculpt import create_shell_burning_remnant
 
+import os
+
 # skip argv[0], which is the script path itself
 assert len(sys.argv) == 7
 
