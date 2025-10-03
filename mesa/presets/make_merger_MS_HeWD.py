@@ -546,6 +546,11 @@ def helper_merger_MS_HeWD_cool_co_wd_early(argdict):
             diffusion_steps_hard_limit=2000,
             diffusion_maxsteps_for_isolve=2000)
 
+    # overshoot for very late thermal pulses
+    inlist.add_overshoot_zone(overshoot_scheme='exponential', overshoot_zone_type='burn_He',
+                       overshoot_zone_loc='shell', overshoot_bdy_loc='top',
+                       overshoot_f=0.015, overshoot_f0=0.005)
+
     # stop after cool down enough
     if include_late:
         inlist.log_L_lower_limit(0.)
@@ -619,6 +624,11 @@ def helper_merger_MS_HeWD_cool_co_wd_late(argdict):
 
     # phase separation
     inlist.phase_separation(phase_separation_option='CO', do_phase_separation_heating=True, phase_separation_mixing_use_brunt=True)
+
+    # overshoot for very late thermal pulses
+    inlist.add_overshoot_zone(overshoot_scheme='exponential', overshoot_zone_type='burn_He',
+                       overshoot_zone_loc='shell', overshoot_bdy_loc='top',
+                       overshoot_f=0.015, overshoot_f0=0.005)
 
     # stop after a long time, if needed... okay to fail here, if sufficiently cooled
     inlist.max_age(1e10)

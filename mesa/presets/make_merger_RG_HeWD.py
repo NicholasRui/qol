@@ -808,6 +808,11 @@ def helper_merger_RG_HeWD_cool_co_wd_early(argdict):
             diffusion_steps_hard_limit=2000,
             diffusion_maxsteps_for_isolve=2000)
 
+    # overshoot for very late thermal pulses
+    inlist.add_overshoot_zone(overshoot_scheme='exponential', overshoot_zone_type='burn_He',
+                       overshoot_zone_loc='shell', overshoot_bdy_loc='top',
+                       overshoot_f=0.015, overshoot_f0=0.005)
+
     tho_string_dict = {'Kippenhahn': 'K80', 'Traxler_Garaud_Stellmach_11': 'TGS11', 'Brown_Garaud_Stellmach_13': 'BGS13'}
     argdict['id_str'] += f'_sc{alpha_semiconvection:.2f}_th{thermohaline_coeff:.1f}_tho{tho_string_dict[thermohaline_option]}_il{int(include_late)}'
     id_str = argdict['id_str']
@@ -877,6 +882,11 @@ def helper_merger_RG_HeWD_cool_co_wd_late(argdict):
 
     # phase separation
     inlist.phase_separation(phase_separation_option='CO', do_phase_separation_heating=True, phase_separation_mixing_use_brunt=True)
+
+    # overshoot for very late thermal pulses
+    inlist.add_overshoot_zone(overshoot_scheme='exponential', overshoot_zone_type='burn_He',
+                       overshoot_zone_loc='shell', overshoot_bdy_loc='top',
+                       overshoot_f=0.015, overshoot_f0=0.005)
 
     # stop after a long time, if needed... okay to fail here, if sufficiently cooled
     inlist.max_age(1e10)
