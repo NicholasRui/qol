@@ -1,5 +1,6 @@
 import numpy as np
-from astropy.table import Table, Column, unique
+
+from qol.athena.table.AthenaTable import AthenaTable
 
 import glob
 import os
@@ -9,7 +10,7 @@ import os
 
 class AthenaRun:
     """
-    Holds information about a given Athena run.
+    Holds information about a given Athena++ run.
     """
     def __init__(self, athinput_fname, run_path='.'):
         """
@@ -20,7 +21,6 @@ class AthenaRun:
 
         self.parse_athinput()
 
-    
     def parse_athinput(self):
         """
         Read the athinput file and store all the arguments. An input like:
@@ -30,8 +30,7 @@ class AthenaRun:
 
         Intended to be used as a helper for __init__.
         """
-        # read the file in
-        assert os.path.exists(self.athinput_fname)
+        # read the file
         with open(self.athinput_fname, 'r') as f:
             lines = f.readlines()
 
@@ -71,6 +70,10 @@ class AthenaRun:
 
             # if you got here, throw an error because we have failed to interpret the line
             raise RuntimeError(f'Failed to interpret following line:\n  > {line}')
+
+
+
+
 
 
 
