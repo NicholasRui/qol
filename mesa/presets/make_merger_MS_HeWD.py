@@ -560,6 +560,9 @@ def helper_merger_MS_HeWD_cool_co_wd_early(argdict):
     # disable hydro, since this seems to cause issues during the thermal pulse
     inlist.disable_hydrodynamics()
 
+    # convergence?
+    inlist.use_gold_tolerances(False)
+
     tho_string_dict = {'Kippenhahn': 'K80', 'Traxler_Garaud_Stellmach_11': 'TGS11', 'Brown_Garaud_Stellmach_13': 'BGS13'}
     argdict['id_str'] += f'_sc{alpha_semiconvection:.2f}_th{thermohaline_coeff:.1f}_tho{tho_string_dict[thermohaline_option]}_il{int(include_late)}'
     id_str = argdict['id_str']
@@ -632,6 +635,9 @@ def helper_merger_MS_HeWD_cool_co_wd_late(argdict):
     inlist.add_overshoot_zone(overshoot_scheme='exponential', overshoot_zone_type='burn_He',
                        overshoot_zone_loc='shell', overshoot_bdy_loc='top',
                        overshoot_f=0.015, overshoot_f0=0.005)
+
+    # convergence?
+    inlist.use_gold_tolerances(False)
 
     # stop after a long time, if needed... okay to fail here, if sufficiently cooled
     inlist.max_age(1e10)
