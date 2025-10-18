@@ -37,8 +37,7 @@ model_attr_data_underscores = {key.replace(' ', '_'): value for key, value in zi
 
 def read_data(fname, remove_duplicates=True):
     """
-    Function which takes in .data files written by MESA/GYRE and return
-    an astropy table.
+    Takes in .data files written by MESA/GYRE and returns a MesaTable.
     
     ARGUMENTS
     ---------
@@ -53,12 +52,10 @@ def read_data(fname, remove_duplicates=True):
     
     RETURNS
     -------
-    tab: astropy.table.Table
-      summary table
+    mesatab: MesaTable
     """
-    f = open(fname, 'r')
-    text = f.read().split('\n')
-    f.close()
+    with open(fname, 'r') as f:
+        text = f.read().split('\n')
 
     # Get data table
     colname_row = text[5]
