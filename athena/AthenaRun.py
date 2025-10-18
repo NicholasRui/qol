@@ -1,6 +1,7 @@
 import numpy as np
 
-from qol.athena.table.AthenaTable import AthenaTable
+#from qol.athena.table.AthenaTable import AthenaTable
+from qol.athena.read import read_tab
 
 import glob
 import os
@@ -17,7 +18,10 @@ class AthenaRun:
         athinput_fname: path to the athinput file used
         """
         self.athinput_fname = athinput_fname
+        self.run_path = run_path
         self.athinput_args = {}
+
+        self.athoutput_cache = {} # keys are (output_number, block_number, output_index)
 
         self.parse_athinput()
 
@@ -70,13 +74,56 @@ class AthenaRun:
 
             # if you got here, throw an error because we have failed to interpret the line
             raise RuntimeError(f'Failed to interpret following line:\n  > {line}')
+    
+    def get_output_fnames(self, output_number, block_number=0):
+        """
+        return list of fnames within a given numbered output
 
+        output_number: The number of the output, i.e., <output3> in athinput has output_number=3
+        block_number: block number
+        """
+        if self.athinput_args[f'output{output_number}.file_type'] != 'tab':
+            raise NotImplementedError(f"Currently file_type must be 'tab': {self.athinput_args[f'output{output_number}.file_type']} not supported.")
 
+        output_pattern = f"{self.athinput_args['job.problem_id']}.block{block_number}.out{output_number}.*.tab"
+        output_pattern = os.path.join(self.run_path, output_pattern)
 
+        output_fnames = glob.glob(output_pattern)
+        output_fnames.sort()
+        return output_fnames
 
+    def get_output_indices(self, output_number, block_number=0):
+        """
+        return list of indices within a given numbered output
 
+        output_number: The number of the output, i.e., <output3> in athinput has output_number=3
+        block_number: block number
+        """
+        output_fnames = self.get_output_fnames(output_number, block_number)
 
+        output_indices = [int(output_fname.split('.tab')[0].split('.')[-1]) for output_fname in output_fnames]
 
+        return output_indices
 
+    def get_output_tab(self, output_number, output_index, block_number=0, cache=True):
+        """
+        Retrieve AthenaTable version of output tab
 
+        output_number: The number of the output, i.e., <output3> in athinput has output_number=3
+        block_number: block number
+        """
+        if self.athinput_args[f'output{output_number}.file_type'] != 'tab':
+            raise NotImplementedError(f"Currently file_type must be 'tab': {self.athinput_args[f'output{output_number}.file_type']} not supported.")
+        
+        # check if it's in cache and return if so
+        if (output_number, block_number, output_index) in self.athoutput_cache.keys():
+            return self.athoutput_cache[(output_number, block_number, output_index)]
 
+        # retrieve table
+        tab = read_tab(f"{self.athinput_args['job.problem_id']}.block{block_number}.out{output_number}.{str(output_index).zfill(5)}.tab")
+
+        # cache if this is desired
+        if cache:
+            self.athoutput_cache[(output_number, block_number, output_index)] = tab
+        
+        return tab
