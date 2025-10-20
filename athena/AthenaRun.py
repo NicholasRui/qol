@@ -82,6 +82,8 @@ class AthenaRun:
         output_number: The number of the output, i.e., <output3> in athinput has output_number=3
         block_number: block number
         """
+        if f'output{output_number}.file_type' not in self.athinput_args.keys():
+            raise ValueError(f'Output {output_number} does not exist. (not specified in athinput file)')
         if self.athinput_args[f'output{output_number}.file_type'] != 'tab':
             raise NotImplementedError(f"Currently file_type must be 'tab': {self.athinput_args[f'output{output_number}.file_type']} not supported.")
 
@@ -111,7 +113,11 @@ class AthenaRun:
 
         output_number: The number of the output, i.e., <output3> in athinput has output_number=3
         block_number: block number
+
+        # TODO: make it so either output_number or output_index can be array-like, and return a list of tables
         """
+        if f'output{output_number}.file_type' not in self.athinput_args.keys():
+            raise ValueError(f'Output {output_number} does not exist. (not specified in athinput file)')
         if self.athinput_args[f'output{output_number}.file_type'] != 'tab':
             raise NotImplementedError(f"Currently file_type must be 'tab': {self.athinput_args[f'output{output_number}.file_type']} not supported.")
         
