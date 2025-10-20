@@ -6,6 +6,10 @@ make log spaced ticks that are good
 
 Make hr diagram easily
 
+Reprogram axhline and axvline to use desired formatting, as well as text in plt.colorbar.
+
+Add something which keeps track of what papers should be cited.
+
 - store crystallization curves
 
 - store bagnulo & landstreet WDs
@@ -16,12 +20,6 @@ Make hr diagram easily
 
 - store other special objects, eg GD 358, Zvrk, the fast-spinning RG from Tayar, GD 278
 
-for mesatoolkit package:
-- one possible step can be evolving a little bit to annihilate a certain element
-
-- In Python package, artificially modify certain elements
-make a custom mesa network that removes all hydrogen >:)
-
 set directory for saving plots at top of doc and never touch it again
 
 add easy capability for ticking by 2, 5, 10, or 1, 3, 10, etc.
@@ -31,8 +29,6 @@ add to mesatoolkit ability to change surface composition easily
 add ability to write text parallel to plot
 
 - include option to just read environment variables for MESA and mesasdk directories, without having to change config.py manually
-
-TODO: Bug: Currently, if ./re fails, it does not terminate the script but simply goes to the next one, which may not need the one that failed. Then, if it saves a photo, it will never run the failed component. Make it so the products of a run MUST exist before moving on, or break.
 
 TODO: add warning when there is no opacity setting specified -- since MESA will crash if this is not specified
 
