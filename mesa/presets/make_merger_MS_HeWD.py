@@ -19,6 +19,7 @@ def make_merger_MS_HeWD(
         source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
         mesh_delta_coeff=1.,
         include_late=False, # include "late" WD cooling phase with crystallization but no settling
+        include_overshoot=True, # include overshoot during COWD phase
         save_directory=True, # if False, don't save directory
         data_path='data/',
         ):
@@ -29,7 +30,7 @@ def make_merger_MS_HeWD(
     assert thermohaline_option in ['Kippenhahn', 'Traxler_Garaud_Stellmach_11', 'Brown_Garaud_Stellmach_13'], "thermohaline_option must be one of 'Kippenhahn', 'Traxler_Garaud_Stellmach_11', or 'Brown_Garaud_Stellmach_13'"
     tho_string_dict = {'Kippenhahn': 'K80', 'Traxler_Garaud_Stellmach_11': 'TGS11', 'Brown_Garaud_Stellmach_13': 'BGS13'}
 
-    run_name = f'MS{MMS_in_Msun:.3f}+HeWD{MWD_in_Msun:.3f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_tho{tho_string_dict[thermohaline_option]}_rgbw{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}_hydro{int(not disable_hydro_after_ringdown)}_il{int(include_late)}'
+    run_name = f'MS{MMS_in_Msun:.3f}+HeWD{MWD_in_Msun:.3f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_tho{tho_string_dict[thermohaline_option]}_rgbw{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}_hydro{int(not disable_hydro_after_ringdown)}_il{int(include_late)}_ov{int(include_overshoot)}'
     run_path = os.path.join(root_path, run_name)
 
     argdict = {'root_path': root_path,
@@ -47,6 +48,7 @@ def make_merger_MS_HeWD(
                'source_sdk': source_sdk,
                'mesh_delta_coeff': mesh_delta_coeff,
                'include_late': include_late,
+               'include_overshoot': include_overshoot,
                'data_path': data_path,
                'id_str': '-', # # appended to by each function to keep track of used inputs
                }
@@ -492,6 +494,7 @@ def helper_merger_MS_HeWD_cool_co_wd_early(argdict):
     thermohaline_option = argdict['thermohaline_option']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
     include_late = argdict['include_late']
+    include_overshoot = argdict['include_overshoot']
     data_path = argdict['data_path']
     
     id_str = argdict['id_str']
@@ -547,9 +550,10 @@ def helper_merger_MS_HeWD_cool_co_wd_early(argdict):
             diffusion_maxsteps_for_isolve=2000)
 
     # overshoot for very late thermal pulses
-    inlist.add_overshoot_zone(overshoot_scheme='exponential', overshoot_zone_type='burn_He',
-                       overshoot_zone_loc='shell', overshoot_bdy_loc='top',
-                       overshoot_f=0.015, overshoot_f0=0.005)
+    if include_overshoot:
+        inlist.add_overshoot_zone(overshoot_scheme='exponential', overshoot_zone_type='any',
+                        overshoot_zone_loc='any', overshoot_bdy_loc='any',
+                        overshoot_f=0.015, overshoot_f0=0.005)
 
     # stop after cool down enough
     if include_late:
@@ -580,6 +584,7 @@ def helper_merger_MS_HeWD_cool_co_wd_late(argdict):
     thermohaline_coeff = argdict['thermohaline_coeff']
     thermohaline_option = argdict['thermohaline_option']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
+    include_overshoot = argdict['include_overshoot']
     data_path = argdict['data_path']
     
     id_str = argdict['id_str']
@@ -632,9 +637,10 @@ def helper_merger_MS_HeWD_cool_co_wd_late(argdict):
     inlist.phase_separation(phase_separation_option='CO', do_phase_separation_heating=True, phase_separation_mixing_use_brunt=True)
 
     # overshoot for very late thermal pulses
-    inlist.add_overshoot_zone(overshoot_scheme='exponential', overshoot_zone_type='burn_He',
-                       overshoot_zone_loc='shell', overshoot_bdy_loc='top',
-                       overshoot_f=0.015, overshoot_f0=0.005)
+    if include_overshoot:
+        inlist.add_overshoot_zone(overshoot_scheme='exponential', overshoot_zone_type='any',
+                        overshoot_zone_loc='any', overshoot_bdy_loc='any',
+                        overshoot_f=0.015, overshoot_f0=0.005)
 
     # convergence?
     inlist.use_gold_tolerances(False)
