@@ -1,4 +1,4 @@
-# Copied from MESA version r24.08.1
+# Copied from MESA version r24.08.1, $MESA_DIR/const/public/const_def.f90
 
 # mathematical and physical constants (in cgs)
 
