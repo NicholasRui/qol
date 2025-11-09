@@ -113,6 +113,12 @@ class FancyAxes(plt.Axes):
         return self.annotate(text, xy=(x, y), xycoords='axes fraction',
                 ha=ha, va=va, **kwargs)
 
+    def xticks_off(self):
+        self.tick_params(labelbottom=False)
+    
+    def xticks_off(self):
+        self.tick_params(labelleft=False)
+
     # Re-define some matplotlib methods to have better defaults
     # TODO: put this in a different file
     def set_title(self, label, fontdict=None, loc='center', pad=None, **kwargs):
