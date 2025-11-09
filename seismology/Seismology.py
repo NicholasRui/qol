@@ -34,7 +34,9 @@ class Seismology:
     get_avg_Br2 = methods_mag.get_avg_Br2
     get_δω_mag = methods_mag.get_δω_mag
     get_f_corr_RFH25 = methods_mag.get_f_corr_RFH25
-    get_Brshift_RFH25 = methods_mag.get_Brshift_RFH25
+    get_Brshift_RFH25 = methods_mag.get_Brshift_from_νB_RFH25
+    get_νB_uHz_from_ν1_ν2_ν3_RFH25 = methods_mag.get_νB_uHz_from_ν1_ν2_ν3_RFH25
+    get_Brshift_from_ν1_ν2_ν3_RFH25 = methods_mag.get_Brshift_from_ν1_ν2_ν3_RFH25
 
     get_Ωrot_g = methods_rot.get_Ωrot_g
 

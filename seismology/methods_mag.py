@@ -1,6 +1,6 @@
 # Methods for Seismology class
 # Calculate basic quantities related to seismic magnetometry
-from qol.seismology.helper import get_ω, get_magnetic_acrit
+from qol.seismology.helper import get_ω, get_magnetic_acrit, get_magnetic_aasym, compute_Δasym
 from qol.tools.integrate import trapz_cond
 import qol.mesa.const as const
 
@@ -176,9 +176,12 @@ def get_f_corr_RFH25(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None
 
     return f_corr_RFH25
 
-def get_Brshift_RFH25(self, νB_uHz, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, use_f_corr_RFH25=False):
+def get_Brshift_from_νB_RFH25(self, νB_uHz, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, use_f_corr_RFH25=False):
     """
     For a given νB^l, calculate Brshift, as in RFH25 -- Equation 11, Figs. 3 and 7
+
+    Note that Equation 11 has a typo and is missing a factor of (2l+1) in the denominator under the root.
+    However, this doesn't matter here because we aren't involving the asymmetry.
     """
     ω = get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
     P = 2 * const.pi / ω
@@ -190,6 +193,111 @@ def get_Brshift_RFH25(self, νB_uHz, l, ω=None, ν=None, ω_uHz=None, ν_uHz=No
     Brshift = 8 * const.pi ** 2.5 * np.sqrt(νB / (Al * magnetic_scriptI * P ** 3))
 
     return Brshift
+
+def get_νB_uHz_from_ν1_ν2_ν3_RFH25(self, l, m1, m2, m3,
+                  ω1=None, ν1=None, ω1_uHz=None, ν1_uHz=None, P1=None,
+                  ω2=None, ν2=None, ω2_uHz=None, ν2_uHz=None, P2=None,
+                  ω3=None, ν3=None, ω3_uHz=None, ν3_uHz=None, P3=None,
+                  return_uncertainty=False,
+                  δω1=None, δν1=None, δω1_uHz=None, δν1_uHz=None, δP1=None,
+                  δω2=None, δν2=None, δω2_uHz=None, δν2_uHz=None, δP2=None,
+                  δω3=None, δν3=None, δω3_uHz=None, δν3_uHz=None, δP3=None,
+                  asym_ref='RFH+25'):
+    """
+    Convert three frequencies within a multiplet and their quantum numbers to νB, as in RFH25 -- Equation 11 (note typo).
+    """
+    aasym = get_magnetic_aasym(l, m1, m2, m3, asym_ref=asym_ref)
+
+    if return_uncertainty:
+        Δasym, δΔasym = compute_Δasym(l, m1, m2, m3,
+                    ω1=ω1, ν1=ν1, ω1_uHz=ω1_uHz, ν1_uHz=ν1_uHz, P1=P1,
+                    ω2=ω2, ν2=ν2, ω2_uHz=ω2_uHz, ν2_uHz=ν2_uHz, P2=P2,
+                    ω3=ω3, ν3=ν3, ω3_uHz=ω3_uHz, ν3_uHz=ν3_uHz, P3=P3,
+                    return_uncertainty=True,
+                    δω1=δω1, δν1=δν1, δω1_uHz=δω1_uHz, δν1_uHz=δν1_uHz, δP1=δP1,
+                    δω2=δω2, δν2=δν2, δδω2_uHz=δω2_uHz, δν2_uHz=δν2_uHz, δP2=δP2,
+                    δω3=δω3, δν3=δν3, δω3_uHz=δω3_uHz, δν3_uHz=δν3_uHz, δP3=δP3)
+
+        νB_uHz = 1e6 * Δasym / aasym / (2 * l + 1)
+        δνB_uHz = 1e6 * δΔasym / aasym / (2 * l + 1)
+
+        return νB_uHz, δνB_uHz
+
+    else:
+        Δasym = compute_Δasym(l, m1, m2, m3,
+                    ω1=ω1, ν1=ν1, ω1_uHz=ω1_uHz, ν1_uHz=ν1_uHz, P1=P1,
+                    ω2=ω2, ν2=ν2, ω2_uHz=ω2_uHz, ν2_uHz=ν2_uHz, P2=P2,
+                    ω3=ω3, ν3=ν3, ω3_uHz=ω3_uHz, ν3_uHz=ν3_uHz, P3=P3,
+                    return_uncertainty=False)
+        
+        νB_uHz = 1e6 * Δasym / aasym / (2 * l + 1)
+
+        return νB_uHz
+
+def get_Brshift_from_ν1_ν2_ν3_RFH25(self, l, m1, m2, m3,
+                  ω1=None, ν1=None, ω1_uHz=None, ν1_uHz=None, P1=None,
+                  ω2=None, ν2=None, ω2_uHz=None, ν2_uHz=None, P2=None,
+                  ω3=None, ν3=None, ω3_uHz=None, ν3_uHz=None, P3=None,
+                  include_uncertainty=True,
+                  Nsigma=2,
+                  δω1=None, δν1=None, δω1_uHz=None, δν1_uHz=None, δP1=None,
+                  δω2=None, δν2=None, δω2_uHz=None, δν2_uHz=None, δP2=None,
+                  δω3=None, δν3=None, δω3_uHz=None, δν3_uHz=None, δP3=None,
+                  asym_ref='RFH+25', use_f_corr_RFH25=False):
+    """
+    For three frequencies within a multiplet and their quantum numbers, calculate Brshift, as in RFH25 -- Equation 11.
+    Note that Equation 11 has a typo and is missing a factor of (2l+1) in the denominator under the root.
+
+    Nsigma describes the number of sigma to use when computing the most conservative bound on Brshift.
+    Default is 2 following RFH+25.
+    """
+    # Get νB in uHz by calculating dimensionful asymmetry with assumed dimensionless asymmetry
+    if include_uncertainty:
+        νB_uHz, δνB_uHz = self.get_νB_uHz_from_ν1_ν2_ν3_RFH25(self, l, m1, m2, m3,
+                  ω1=None, ν1=None, ω1_uHz=None, ν1_uHz=None, P1=None,
+                  ω2=None, ν2=None, ω2_uHz=None, ν2_uHz=None, P2=None,
+                  ω3=None, ν3=None, ω3_uHz=None, ν3_uHz=None, P3=None,
+                  return_uncertainty=True,
+                  δω1=None, δν1=None, δω1_uHz=None, δν1_uHz=None, δP1=None,
+                  δω2=None, δν2=None, δω2_uHz=None, δν2_uHz=None, δP2=None,
+                  δω3=None, δν3=None, δω3_uHz=None, δν3_uHz=None, δP3=None,
+                  asym_ref='RFH+25')
+    
+    else:
+        νB_uHz = self.get_νB_uHz_from_ν1_ν2_ν3_RFH25(self, l, m1, m2, m3,
+                  ω1=None, ν1=None, ω1_uHz=None, ν1_uHz=None, P1=None,
+                  ω2=None, ν2=None, ω2_uHz=None, ν2_uHz=None, P2=None,
+                  ω3=None, ν3=None, ω3_uHz=None, ν3_uHz=None, P3=None,
+                  return_uncertainty=False,
+                  asym_ref='RFH+25')
+        δνB_uHz = 0.
+    
+    # Take most conservative absolute value of νB_uHz, according to specified Nsigma
+    νB_uHz = np.abs(νB_uHz) + Nsigma * δνB_uHz
+
+    # Find linear fit to get value of νi at m=0 for some approximation of central value
+    ω1 = get_ω(ω=ω1, ν=ν1, ω_uHz=ω1_uHz, ν_uHz=ν1_uHz, P=P1)
+    ω2 = get_ω(ω=ω2, ν=ν2, ω_uHz=ω2_uHz, ν_uHz=ν2_uHz, P=P2)
+    ω3 = get_ω(ω=ω3, ν=ν3, ω_uHz=ω3_uHz, ν_uHz=ν3_uHz, P=P3)
+    ν1, ν2, ν3 = ω1 / (2 * np.pi), ω2 / (2 * np.pi), ω3 / (2 * np.pi)
+
+    ms, νs = np.array([m1, m2, m3]), np.array([ν1, ν2, ν3])
+
+    ν0 = (3 * np.sum(ms * νs) - np.sum(ms) * np.sum(νs)) \
+       / (3 * np.sum(ms ** 2) - np.sum(ms) ** 2) # from y-intercept formula for (x, y) -> (m, ν)
+    
+    Brshift = self.get_Brshift_from_νB_RFH25(νB_uHz, l, ν=ν0, use_f_corr_RFH25=use_f_corr_RFH25)
+
+    return Brshift
+
+    
+
+
+
+
+
+
+
 
 
 
