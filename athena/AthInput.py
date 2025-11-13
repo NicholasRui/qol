@@ -24,7 +24,7 @@ class AthInput:
     def __init__(self):
         self.athargs = []
 
-    def add_argument(self, block, name, value, comment=None):
+    def add_arg(self, block, name, value, comment=None):
         """
         Add an argument
         """
