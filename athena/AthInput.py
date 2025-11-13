@@ -64,7 +64,8 @@ class AthInput:
             # add each argument to outstr, making sure equal and comment signs are aligned with each other
             max_len_name = max([len(name) for name in atharg_names])
             atharg_strs = [f'{atharg.name.ljust(max_len_name)} = {str(atharg.value)}' for atharg in athargs_block]
-            max_len_atharg_str = max([len(atharg_str) for atharg_str in atharg_strs])
+            atharg_comments_not_None = [comment for comment in atharg_comments if comment is not None]
+            max_len_atharg_str = max([len(comment) for comment in atharg_comments_not_None]) if len(atharg_comments_not_None) > 0 else 0
             atharg_strs = [f'{atharg_str.ljust(max_len_atharg_str)} # {atharg_comments[ii]}\n' if atharg_comments[ii] is not None else f'{atharg_str}\n' for ii, atharg_str in enumerate(atharg_strs)]
 
             outstr += ''.join(atharg_strs) + '\n'
