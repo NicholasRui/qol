@@ -13,7 +13,7 @@ class AthenaRun:
     """
     Holds information about a given Athena++ run.
     """
-    def __init__(self, athinput_fname, run_path='.'):
+    def __init__(self, athinput_fname, run_path='.'): # TODO: connect this to AthInput and don't use this notation
         """
         athinput_fname: path to the athinput file used
         """
