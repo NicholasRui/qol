@@ -82,6 +82,8 @@ def get_magnetic_aasym(l, m1, m2, m3, asym_ref='RFH+25'):
     # Flip all signs if majority are negative, since asymmetry is invariant under this
     if (m1 < 0) + (m2 < 0) + (m3 < 0) >= 2:
         m1, m2, m3 = -m1, -m2, -m3
+    
+    m_tuple = tuple(sorted([m1, m2, m3]))
 
     # Use set type to ignore order of (m1, m2, m3)
     match asym_ref:
@@ -90,21 +92,21 @@ def get_magnetic_aasym(l, m1, m2, m3, asym_ref='RFH+25'):
 
             match l:
                 case 1: # DIPOLE
-                    match set([m1, m2, m3]):
-                        case set([-1, 0, 1]):
+                    match m_tuple: # TODO: tihs does'nt work
+                        case (-1, 0, 1):
                             aasym = P2cosβ_rms * 2/5
                         case _:
                             raise ValueError(f'(m1, m2, m3) is not valid: {(m1, m2, m3)}')
                 
                 case 2: # QUADRUPOLE
-                    match set([m1, m2, m3]):
-                        case set([-1, 0, 1]) | set([0, 1, 2]):
+                    match m_tuple:
+                        case (-1, 0, 1) | (0, 1, 2):
                             aasym = P2cosβ_rms * -2/35
-                        case set([-2, 0, 1]) | set([-1, 0, 2]) | set([-1, 1, 2]):
+                        case (-2, 0, 1) | (-1, 0, 2) | (-1, 1, 2):
                             aasym = P2cosβ_rms * -6/35
-                        case set([-2, 1, 2]):
+                        case (-2, 1, 2):
                             aasym = P2cosβ_rms * -12/35
-                        case set([-2, 0, 2]):
+                        case (-2, 0, 2):
                             aasym = P2cosβ_rms * -8/35
                         case _:
                             raise ValueError(f'(m1, m2, m3) is not valid: {(m1, m2, m3)}')

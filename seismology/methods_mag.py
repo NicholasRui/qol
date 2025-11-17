@@ -215,7 +215,7 @@ def get_νB_uHz_from_ν1_ν2_ν3_RFH25(self, l, m1, m2, m3,
                     ω3=ω3, ν3=ν3, ω3_uHz=ω3_uHz, ν3_uHz=ν3_uHz, P3=P3,
                     return_uncertainty=True,
                     δω1=δω1, δν1=δν1, δω1_uHz=δω1_uHz, δν1_uHz=δν1_uHz, δP1=δP1,
-                    δω2=δω2, δν2=δν2, δδω2_uHz=δω2_uHz, δν2_uHz=δν2_uHz, δP2=δP2,
+                    δω2=δω2, δν2=δν2, δω2_uHz=δω2_uHz, δν2_uHz=δν2_uHz, δP2=δP2,
                     δω3=δω3, δν3=δν3, δω3_uHz=δω3_uHz, δν3_uHz=δν3_uHz, δP3=δP3)
 
         νB_uHz = 1e6 * Δasym / aasym / (2 * l + 1)
@@ -253,21 +253,21 @@ def get_Brshift_from_ν1_ν2_ν3_RFH25(self, l, m1, m2, m3,
     """
     # Get νB in uHz by calculating dimensionful asymmetry with assumed dimensionless asymmetry
     if include_uncertainty:
-        νB_uHz, δνB_uHz = self.get_νB_uHz_from_ν1_ν2_ν3_RFH25(self, l, m1, m2, m3,
-                  ω1=None, ν1=None, ω1_uHz=None, ν1_uHz=None, P1=None,
-                  ω2=None, ν2=None, ω2_uHz=None, ν2_uHz=None, P2=None,
-                  ω3=None, ν3=None, ω3_uHz=None, ν3_uHz=None, P3=None,
+        νB_uHz, δνB_uHz = self.get_νB_uHz_from_ν1_ν2_ν3_RFH25(l, m1, m2, m3,
+                  ω1=ω1, ν1=ν1, ω1_uHz=ω1_uHz, ν1_uHz=ν1_uHz, P1=P1,
+                  ω2=ω2, ν2=ν2, ω2_uHz=ω2_uHz, ν2_uHz=ν2_uHz, P2=P2,
+                  ω3=ω3, ν3=ν3, ω3_uHz=ω3_uHz, ν3_uHz=ν3_uHz, P3=P3,
                   return_uncertainty=True,
-                  δω1=None, δν1=None, δω1_uHz=None, δν1_uHz=None, δP1=None,
-                  δω2=None, δν2=None, δω2_uHz=None, δν2_uHz=None, δP2=None,
-                  δω3=None, δν3=None, δω3_uHz=None, δν3_uHz=None, δP3=None,
+                  δω1=δω1, δν1=δν1, δω1_uHz=δω1_uHz, δν1_uHz=δν1_uHz, δP1=δP1,
+                  δω2=δω2, δν2=δν2, δω2_uHz=δω2_uHz, δν2_uHz=δν2_uHz, δP2=δP2,
+                  δω3=δω3, δν3=δν3, δω3_uHz=δω3_uHz, δν3_uHz=δν3_uHz, δP3=δP3,
                   asym_ref='RFH+25')
     
     else:
-        νB_uHz = self.get_νB_uHz_from_ν1_ν2_ν3_RFH25(self, l, m1, m2, m3,
-                  ω1=None, ν1=None, ω1_uHz=None, ν1_uHz=None, P1=None,
-                  ω2=None, ν2=None, ω2_uHz=None, ν2_uHz=None, P2=None,
-                  ω3=None, ν3=None, ω3_uHz=None, ν3_uHz=None, P3=None,
+        νB_uHz = self.get_νB_uHz_from_ν1_ν2_ν3_RFH25(l, m1, m2, m3,
+                  ω1=ω1, ν1=ν1, ω1_uHz=ω1_uHz, ν1_uHz=ν1_uHz, P1=P1,
+                  ω2=ω2, ν2=ν2, ω2_uHz=ω2_uHz, ν2_uHz=ν2_uHz, P2=P2,
+                  ω3=ω3, ν3=ν3, ω3_uHz=ω3_uHz, ν3_uHz=ν3_uHz, P3=P3,
                   return_uncertainty=False,
                   asym_ref='RFH+25')
         δνB_uHz = 0.
