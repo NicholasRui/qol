@@ -1,6 +1,6 @@
 # Methods for Seismology class
 # Calculate basic quantities related to seismic magnetometry
-from qol.seismology.helper import get_ω, get_magnetic_acrit, get_magnetic_aasym, compute_Δasym
+from qol.seismology.helper import get_ω, get_δω, get_magnetic_acrit, get_magnetic_aasym, compute_Δasym
 from qol.tools.integrate import trapz_cond
 import qol.mesa.const as const
 
@@ -263,6 +263,16 @@ def get_Brshift_from_ν1_ν2_ν3_RFH25(self, l, m1, m2, m3,
                   δω3=δω3, δν3=δν3, δω3_uHz=δω3_uHz, δν3_uHz=δν3_uHz, δP3=δP3,
                   asym_ref='RFH+25')
     
+        δω1 = get_δω(δω=δω1, δν=δν1, δω_uHz=δω1_uHz, δν_uHz=δν1_uHz, δP=δP1,
+            P=P1)
+        δω2 = get_δω(δω=δω2, δν=δν2, δω_uHz=δω2_uHz, δν_uHz=δν2_uHz, δP=δP2,
+            P=P1)
+        δω3 = get_δω(δω=δω3, δν=δν3, δω_uHz=δω3_uHz, δν_uHz=δν3_uHz, δP=δP3,
+            P=P3)
+        δν1, δν2, δν3 = δω1 / (2 * np.pi), δω2 / (2 * np.pi), δω3 / (2 * np.pi)
+        δνs = np.array([δν1, δν2, δν3])
+        ws = 1 / δνs**2 # for linear fit -- chi square weighting
+
     else:
         νB_uHz = self.get_νB_uHz_from_ν1_ν2_ν3_RFH25(l, m1, m2, m3,
                   ω1=ω1, ν1=ν1, ω1_uHz=ω1_uHz, ν1_uHz=ν1_uHz, P1=P1,
@@ -271,6 +281,7 @@ def get_Brshift_from_ν1_ν2_ν3_RFH25(self, l, m1, m2, m3,
                   return_uncertainty=False,
                   asym_ref='RFH+25')
         δνB_uHz = 0.
+        ws = np.ones(3) # for linear fit -- equal fit
     
     # Take most conservative absolute value of νB_uHz, according to specified Nsigma
     νB_uHz = np.abs(νB_uHz) + Nsigma * δνB_uHz
@@ -282,30 +293,16 @@ def get_Brshift_from_ν1_ν2_ν3_RFH25(self, l, m1, m2, m3,
     ν1, ν2, ν3 = ω1 / (2 * np.pi), ω2 / (2 * np.pi), ω3 / (2 * np.pi)
 
     ms, νs = np.array([m1, m2, m3]), np.array([ν1, ν2, ν3])
+    mbar = np.sum(ws * ms) / np.sum(ws)
+    νbar = np.sum(ws * νs) / np.sum(ws)
+    dν_dm = np.sum(ws * (ms - mbar) * (νs - νbar)) / np.sum(ws * (ms - mbar)**2)
+    ν0 = νbar - dν_dm * mbar
 
-    ν0 = (3 * np.sum(ms * νs) - np.sum(ms) * np.sum(νs)) \
-       / (3 * np.sum(ms ** 2) - np.sum(ms) ** 2) # from y-intercept formula for (x, y) -> (m, ν)
-    
     Brshift = self.get_Brshift_from_νB_RFH25(νB_uHz, l, ν=ν0, use_f_corr_RFH25=use_f_corr_RFH25)
 
     return Brshift
 
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
