@@ -29,13 +29,21 @@ class AthInput:
     """
     def __init__(self):
         self.athargs = []
+        self.header = ''
 
     def add_arg(self, block, name, value, comment=None):
         """
         Add an argument
         """
         self.athargs.append(AthArg(block=block, name=name, value=value, comment=comment))
-            
+        
+    def add_header_line(self, line):
+        """
+        Add a comment line at the top of the document
+        """
+        assert '\n' not in line
+        self.header += f'# {line}\n'
+
     def get_blocks(self):
         blocks = list(set([arg.block for arg in self.athargs]))
 
@@ -78,4 +86,6 @@ class AthInput:
             outstr += ''.join(atharg_strs) + '\n'
 
         with open(fname, 'w') as f:
+            f.write(self.header)
+            f.write('\n')
             f.write(outstr)
