@@ -573,6 +573,9 @@ def helper_merger_MS_HeWD_cool_co_wd_early(argdict):
 
     inlist.save_final_model(f'cool_co_wd_early.mod{id_str}')
 
+    # also stop at "crystallization"
+    inlist.gamma_center_limit(175)
+
     return inlist
 
 def helper_merger_MS_HeWD_cool_co_wd_late(argdict):

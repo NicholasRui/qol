@@ -831,6 +831,9 @@ def helper_merger_RG_HeWD_cool_co_wd_early(argdict):
         inlist.max_age(1e10)
     inlist.save_final_model(f'cool_co_wd_early.mod{id_str}')
 
+    # also stop at "crystallization"
+    inlist.gamma_center_limit(175)
+
     return inlist
 
 def helper_merger_RG_HeWD_cool_co_wd_late(argdict):
