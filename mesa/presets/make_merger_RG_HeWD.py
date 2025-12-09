@@ -63,9 +63,9 @@ def make_merger_RG_HeWD(
     # create and save work directory
     work = MesaWorkingDirectory(run_path=run_path)
     work.copy_history_columns_list(os.path.join(info.qol_path,
-         'mesa/resources/r24.08.1/history_columns_hewd_ms.list'))
+         'mesa/resources/r24.08.1/history_columns_sbr.list'))
     work.copy_profile_columns_list(os.path.join(info.qol_path,
-         'mesa/resources/r24.08.1/profile_columns_qol.list'))
+         'mesa/resources/r24.08.1/profile_columns_sbr.list'))
     work.load_qol_pgstar()
 
     # forming and cooling the HeWD
@@ -751,7 +751,7 @@ def helper_merger_RG_HeWD_zacheb_to_co_wd(argdict):
 
 def helper_merger_RG_HeWD_cool_co_wd_early(argdict):
     """
-    cool leftover CO WD through "early" stages -- include elemental diffusion but not phase separation
+    cool leftover CO WD through "early" stages
     """
     enable_pgstar = argdict['enable_pgstar']
     alpha_semiconvection = argdict['alpha_semiconvection']
@@ -824,21 +824,24 @@ def helper_merger_RG_HeWD_cool_co_wd_early(argdict):
     # convergence?
     inlist.use_gold_tolerances(False)
 
-    # stop after cool down enough
+    # stop after cool down enough, if include_late
     if include_late:
-        inlist.log_L_lower_limit(0.)
+        inlist.log_Teff_lower_limit(4.4)
     else:
         inlist.max_age(1e10)
     inlist.save_final_model(f'cool_co_wd_early.mod{id_str}')
 
+    # increase write-out interval to get the moment of crystallization
+    inlist.profile_interval(1)
+
     # also stop at "crystallization"
-    inlist.gamma_center_limit(175)
+    # inlist.gamma_center_limit(175)
 
     return inlist
 
 def helper_merger_RG_HeWD_cool_co_wd_late(argdict):
     """
-    cool leftover CO WD through "late" stages -- include phase separation but not elemental diffusion
+    cool leftover CO WD through "late" stages -- use table atmosphere for cool WD phase
     """
     enable_pgstar = argdict['enable_pgstar']
     alpha_semiconvection = argdict['alpha_semiconvection']
@@ -855,6 +858,9 @@ def helper_merger_RG_HeWD_cool_co_wd_late(argdict):
         inlist.enable_pgstar()
     inlist.save_pgstar(write_path='Grid1/cool_co_wd_late/')
     inlist.use_qol_pgstar()
+
+    # Use tabulated WD atmosphere (Rohrmann+2011)
+    inlist.use_table_atmosphere('WD_tau_25')
 
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
@@ -878,6 +884,13 @@ def helper_merger_RG_HeWD_cool_co_wd_late(argdict):
     # average composition of outer layers for write-out
     inlist.surface_avg_abundance_dq(1e-2)
 
+    # include settling
+    inlist.gravitational_settling(diffusion_class_representatives=['h1', 'he3', 'he4', 'c12', 'o16', 'ne20', 'ne22', 'mg26'],
+            diffusion_use_cgs_solver=True,
+            show_diffusion_info=True,
+            diffusion_steps_hard_limit=2000,
+            diffusion_maxsteps_for_isolve=2000)
+
     # wind
     inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
     inlist.cool_wind_AGB(scheme='Blocker', scaling_factor=0.1)
@@ -892,7 +905,7 @@ def helper_merger_RG_HeWD_cool_co_wd_late(argdict):
     inlist.add_thermohaline_mixing(thermohaline_coeff=thermohaline_coeff, thermohaline_option=thermohaline_option)
 
     # phase separation
-    inlist.phase_separation(phase_separation_option='CO', do_phase_separation_heating=True, phase_separation_mixing_use_brunt=True)
+    # inlist.phase_separation(phase_separation_option='CO', do_phase_separation_heating=True, phase_separation_mixing_use_brunt=True)
 
     # overshoot for very late thermal pulses
     if include_overshoot:
@@ -902,6 +915,9 @@ def helper_merger_RG_HeWD_cool_co_wd_late(argdict):
 
     # convergence?
     inlist.use_gold_tolerances(False)
+
+    # increase write-out interval to get the moment of crystallization
+    inlist.profile_interval(1)
 
     # stop after a long time, if needed... okay to fail here, if sufficiently cooled
     inlist.max_age(1e10)

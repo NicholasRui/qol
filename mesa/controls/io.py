@@ -78,5 +78,14 @@ def surface_avg_abundance_dq(self, value):
     self.add_to_controls(category='surface abundance write-out',
             control='surface_avg_abundance_dq', value=value)
 
+def history_interval(self, value):
+    category = 'data saving rate'
 
+    self.add_to_controls(category=category,
+            control='profile_interval', value=value)
 
+def profile_interval(self, value):
+    category = 'data saving rate'
+
+    self.add_to_controls(category=category,
+            control='profile_interval', value=value)

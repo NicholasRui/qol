@@ -74,7 +74,6 @@ class MesaInlist:
         # TODO
         # - disable specific nuclear reactions (or groups, like pp chain)
         # - define metal fractions
-
         # - writeout interval
 
     def rn_string(self):
@@ -233,6 +232,8 @@ class MesaInlist:
     write_model_with_profile = io.write_model_with_profile
     write_gyre_data_with_profile = io.write_gyre_data_with_profile
     surface_avg_abundance_dq = io.surface_avg_abundance_dq
+    history_interval = io.history_interval
+    profile_interval = io.profile_interval
 
     create_initial_model = init.create_initial_model
     create_pre_main_sequence_model = init.create_pre_main_sequence_model
@@ -283,6 +284,7 @@ class MesaInlist:
     okay_to_reduce_gradT_excess = mix.okay_to_reduce_gradT_excess
 
     relax_to_inner_BC = bc.relax_to_inner_BC
+    use_table_atmosphere = bc.use_table_atmosphere
 
     set_max_num_retries = solver.set_max_num_retries
     use_gold_tolerances = solver.use_gold_tolerances

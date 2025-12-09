@@ -1,4 +1,4 @@
-# Methods handling controls about boundary conditions
+# Methods handling controls about boundary conditions, including atmospheres
 
 import qol.tools.formatter as formatter
 import qol.mesa.const as const
@@ -53,3 +53,11 @@ def relax_to_inner_BC(self, M_new_Msun=None, R_center_Rsun=None, L_center_Lsun=N
         self.add_to_star_job(category=category, comment='sec', optional=True,
                 control='relax_L_center_dt', value=relax_L_center_dt)
 
+def use_table_atmosphere(self, atm_table):
+    assert atm_table in ['photosphere', 'tau_100', 'tau_10', 'tau_1', 'tau_1m1', 'WD_tau_25', 'DB_WD_tau_25']
+    category = 'atmosphere'
+
+    self.add_to_controls(category=category,
+                control='atm_option', value='table')
+    self.add_to_controls(category=category,
+                control='atm_table', value=atm_table)
