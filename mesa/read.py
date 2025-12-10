@@ -1,5 +1,5 @@
 import numpy as np
-from astropy.table import Table, Column, unique
+from astropy.table import Table, Column, unique, join
 
 from qol.mesa.table.MesaTable import MesaTable
 from qol.tools import formatter
@@ -225,3 +225,16 @@ def read_mod(fname):
 
     return mesatab
 
+def read_history_with_index(history_fname, index_fname):
+    """
+    Read history file but include profile_index and exclude lines not in both
+    """
+    h = read_data(history_fname)
+    assert h.tabtype == 'history'
+    ps = read_index(index_fname)
+
+    h = join(ps, h, join_type='inner', keys='model_number')
+    h.sort('profile_number')
+    h.tabtype = 'history'
+
+    return h
