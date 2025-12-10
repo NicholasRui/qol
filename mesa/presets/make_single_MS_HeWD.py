@@ -19,6 +19,7 @@ def make_single_MS_HeWD(
         source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
         mesh_delta_coeff=1.,
         include_late=False, # include "late" WD cooling phase with crystallization but no settling
+        include_overshoot=True, # include overshoot during COWD phase
         save_directory=True, # if False, don't save directory
         data_path='data/',
         ):
@@ -28,7 +29,7 @@ def make_single_MS_HeWD(
     if data_path != 'data/': # TODO
         raise NotImplementedError()
 
-    run_name = f'MS{MMS_in_Msun:.3f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_tho{tho_string_dict[thermohaline_option]}_rgbw{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}'
+    run_name = f'MS{MMS_in_Msun:.3f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_tho{tho_string_dict[thermohaline_option]}_rgbw{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}_il{int(include_late)}_ov{int(include_overshoot)}'
     run_path = os.path.join(root_path, run_name)
 
     argdict = {'root_path': root_path,
@@ -41,15 +42,16 @@ def make_single_MS_HeWD(
                'thermohaline_option': thermohaline_option,
                'source_sdk': source_sdk,
                'mesh_delta_coeff': mesh_delta_coeff,
+               'include_overshoot': include_overshoot,
                'include_late': include_late,
                'data_path': data_path,}
     
     # create and save work directory
     work = MesaWorkingDirectory(run_path=run_path)
     work.copy_history_columns_list(os.path.join(info.qol_path,
-            'mesa/resources/r24.08.1/history_columns_hewd_ms.list'))
+            'mesa/resources/r24.08.1/history_columns_sbr.list'))
     work.copy_profile_columns_list(os.path.join(info.qol_path,
-            'mesa/resources/r24.08.1/profile_columns_qol.list'))
+            'mesa/resources/r24.08.1/profile_columns_sbr.list'))
     work.load_qol_pgstar()
 
     work.add_task(helper_single_MS_HeWD_zams_to_tams(argdict))
@@ -233,6 +235,7 @@ def helper_single_MS_HeWD_cool_co_wd_early(argdict):
     thermohaline_coeff = argdict['thermohaline_coeff']
     thermohaline_option = argdict['thermohaline_option']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
+    include_overshoot = argdict['include_overshoot']
     include_late = argdict['include_late']
     data_path = argdict['data_path']
     
@@ -283,12 +286,23 @@ def helper_single_MS_HeWD_cool_co_wd_early(argdict):
             diffusion_steps_hard_limit=2000,
             diffusion_maxsteps_for_isolve=2000)
 
+    # overshoot for very late thermal pulses
+    if include_overshoot:
+        inlist.add_overshoot_zone(overshoot_scheme='exponential', overshoot_zone_type='any',
+                        overshoot_zone_loc='any', overshoot_bdy_loc='any',
+                        overshoot_f=0.015, overshoot_f0=0.005)
+
     # stop after cool down enough
     if include_late:
         inlist.log_L_lower_limit(0.)
     else:
         inlist.max_age(1e10)
     inlist.save_final_model('cool_co_wd_early.mod')
+
+    # increase write-out interval to get the moment of crystallization
+    inlist.history_interval(1)
+    inlist.profile_interval(1)
+    inlist.max_num_profile_models(1000)
 
     return inlist
 
@@ -300,6 +314,7 @@ def helper_single_MS_HeWD_cool_co_wd_late(argdict):
     alpha_semiconvection = argdict['alpha_semiconvection']
     thermohaline_coeff = argdict['thermohaline_coeff']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
+    include_overshoot = argdict['include_overshoot']
     data_path = argdict['data_path']
     
     inlist = MesaInlist(name='cool_co_wd_late')
@@ -343,8 +358,14 @@ def helper_single_MS_HeWD_cool_co_wd_late(argdict):
     inlist.alpha_semiconvection(alpha_semiconvection)
     inlist.add_thermohaline_mixing(thermohaline_coeff=thermohaline_coeff, thermohaline_option='Brown_Garaud_Stellmach_13')
 
+    # overshoot for very late thermal pulses
+    if include_overshoot:
+        inlist.add_overshoot_zone(overshoot_scheme='exponential', overshoot_zone_type='any',
+                        overshoot_zone_loc='any', overshoot_bdy_loc='any',
+                        overshoot_f=0.015, overshoot_f0=0.005)
+
     # phase separation
-    inlist.phase_separation(phase_separation_option='CO', do_phase_separation_heating=True, phase_separation_mixing_use_brunt=True)
+    # inlist.phase_separation(phase_separation_option='CO', do_phase_separation_heating=True, phase_separation_mixing_use_brunt=True)
 
     # stop after a long time, if needed... okay to fail here, if sufficiently cooled
     inlist.max_age(1e10)

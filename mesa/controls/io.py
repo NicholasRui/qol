@@ -85,7 +85,14 @@ def history_interval(self, value):
             control='profile_interval', value=value)
 
 def profile_interval(self, value):
-    category = 'data saving rate'
+    category = 'data saving'
 
     self.add_to_controls(category=category,
             control='profile_interval', value=value)
+
+def max_num_profile_models(self, value):
+    assert isinstance(value, int)
+    category = 'data saving'
+
+    self.add_to_controls(category=category,
+            control='max_num_profile_models', value=value)

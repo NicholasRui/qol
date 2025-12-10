@@ -627,11 +627,11 @@ def helper_merger_MS_HeWD_cool_co_wd_late(argdict):
     inlist.surface_avg_abundance_dq(1e-2)
 
     # include settling
-    inlist.gravitational_settling(diffusion_class_representatives=['h1', 'he3', 'he4', 'c12', 'o16', 'ne20', 'ne22', 'mg26'],
-            diffusion_use_cgs_solver=True,
-            show_diffusion_info=True,
-            diffusion_steps_hard_limit=2000,
-            diffusion_maxsteps_for_isolve=2000)
+    # inlist.gravitational_settling(diffusion_class_representatives=['h1', 'he3', 'he4', 'c12', 'o16', 'ne20', 'ne22', 'mg26'],
+    #         diffusion_use_cgs_solver=True,
+    #         show_diffusion_info=True,
+    #         diffusion_steps_hard_limit=2000,
+    #         diffusion_maxsteps_for_isolve=2000)
 
     # add artificial damping to outermost layers
     # inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
@@ -662,6 +662,7 @@ def helper_merger_MS_HeWD_cool_co_wd_late(argdict):
     inlist.use_gold_tolerances(False)
 
     # increase write-out interval to get the moment of crystallization
+    inlist.history_interval(1)
     inlist.profile_interval(1)
 
     # stop after a long time, if needed... okay to fail here, if sufficiently cooled

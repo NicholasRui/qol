@@ -234,6 +234,7 @@ class MesaInlist:
     surface_avg_abundance_dq = io.surface_avg_abundance_dq
     history_interval = io.history_interval
     profile_interval = io.profile_interval
+    max_num_profile_models = io.max_num_profile_models
 
     create_initial_model = init.create_initial_model
     create_pre_main_sequence_model = init.create_pre_main_sequence_model
