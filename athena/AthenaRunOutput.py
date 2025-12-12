@@ -9,7 +9,7 @@ import os
 # this is a continuing work in progress -- will continue to generalize this as it fits my use cases
 
 
-class AthenaRun:
+class AthenaRunOutput:
     """
     Holds information about a given Athena++ run.
     """
