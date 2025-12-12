@@ -1,7 +1,7 @@
 import qol.config as config
 import qol.info as info
 import qol.tools.formatter as formatter
-from qol.slurm.SlurmBashScript import SlurmBashScript
+from qol.bash.SlurmBashScript import SlurmBashScript
 
 import numpy as np
 
@@ -131,15 +131,16 @@ class MesaWorkingDirectory:
         """
         Create MESA directory
 
-        grant_perms: if True, grants permissions for bash files that need to be run
-        slurm_job_name: if not None, saves a bash script for sending this job with this arg as job_name
-        source_sdk: if True, have submit/restart files do 'source $MESASDK_ROOT/bin/mesasdk_init.sh'
+        :param grant_perms: if True, grants permissions for bash files that need to be run
+        :param slurm_job_name: if not None, saves a bash script for sending this job with this arg as job_name
+        :param source_sdk: if True, have submit/restart files do 'source $MESASDK_ROOT/bin/mesasdk_init.sh'
 
-        data_path: write all data to this path (can be absolute) --
+        :param data_path: write all data to this path (can be absolute) --
                    non-default choices of *absolute* path are intended to allow multiple runs to share
                       data in order to avoid redoing runs with the exact same parameters
+        
+        TODO consider moving run_path here instead of in __init__
         """
-        # CREATE NEW MESA DIRECTORY
         run_path = self.run_path
 
         # copy important files from $MESA_DIR/star/work, remove files which we want to write explicitly
@@ -471,6 +472,13 @@ class MesaWorkingDirectory:
 
         # if desired, save bash scripts
         if slurm_job_name is not None:
+            # only email user if say so; get email from config.py file
+            if slurm_job_email_user:
+                mail_user = config.slurm_job_mail_user
+                mail_type = 'BEGIN,FAIL,END'
+            else:
+                mail_user = mail_type = None
+
             # script to start job
             slurm_bash_script = SlurmBashScript(
                  job_name=slurm_job_name,
@@ -480,8 +488,8 @@ class MesaWorkingDirectory:
                  mem_per_cpu=slurm_job_mem_per_cpu,
                  output=os.path.join(run_path, 'output.out'),
                  error=os.path.join(run_path, 'error.out'), # absolute paths
-                 mail_user=config.slurm_job_mail_user, # email address
-                 mail_type='BEGIN,FAIL,END' # conditions for emailing
+                 mail_user=mail_user, # email address
+                 mail_type=mail_type # conditions for emailing
                  )
             
             slurm_bash_script.add_task(f'export OMP_NUM_THREADS={OMP_NUM_THREADS}')
@@ -495,12 +503,6 @@ class MesaWorkingDirectory:
             slurm_bash_script.save(self.submit_job_path)
 
             # script to restart job
-            if slurm_job_email_user: # only email user if say so; get email from config.py file
-                mail_user = config.slurm_job_mail_user
-                mail_type = 'BEGIN,FAIL,END'
-            else:
-                mail_user = mail_type = None
-
             slurm_bash_script = SlurmBashScript(
                  job_name=slurm_job_name,
                  time=slurm_job_time,

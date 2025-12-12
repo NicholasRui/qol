@@ -5,6 +5,8 @@ import numpy as np
 
 import warnings
 
+import qol.athena.alias as alias
+
 
 class AthArg:
     """
@@ -36,7 +38,18 @@ class AthInput:
         Add an argument
         """
         self.athargs.append(AthArg(block=block, name=name, value=value, comment=comment))
-        
+    
+    # Aliases to call add_arg for common athinput blocks
+    add_arg_comment = alias.add_arg_comment
+    add_arg_job = alias.add_arg_job
+    add_arg_mesh = alias.add_arg_mesh
+    add_arg_time = alias.add_arg_time
+    add_arg_problem = alias.add_arg_problem
+    add_arg_hydro = alias.add_arg_hydro
+    add_arg_radiation = alias.add_arg_radiation
+    add_arg_output1 = alias.add_arg_output1
+    add_arg_output2 = alias.add_arg_output2
+
     def add_header_line(self, line):
         """
         Add a comment line at the top of the document
