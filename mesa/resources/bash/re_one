@@ -18,6 +18,7 @@ else
     # if photo does exist, copy it to the work directory as restart_photo and run
     echo "Most recent photo found: restarting from photo $photo"
     cp "$photo_directory/$photo" restart_photo
+    cp "$1" inlist
 
     date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
     ./star
