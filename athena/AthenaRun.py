@@ -79,11 +79,11 @@ class AthenaRun:
         bash_script.add_task('  make clean')
         bash_script.add_task('  make -j')
         bash_script.add_task(f"  cp configure.log {os.path.join(run_path, 'configure.log')}")
-        bash_script.add_task(f"  cp bin/athena {os.path.join(run_path, 'athena')}")
         bash_script.add_task('  cd -')
         bash_script.add_task('fi')
         bash_script.add_task('')
         bash_script.add_task('# run')
+        bash_script.add_task(f"cp bin/athena {os.path.join(run_path, 'athena')}")
         bash_script.add_task('./athena -i athinput')
 
         bash_script.save(os.path.join(run_path, 'run_athena.sh'))
@@ -110,7 +110,7 @@ class AthenaRun:
                  mail_type=mail_type # conditions for emailing
                  )
             
-            slurm_bash_script.add_task('./run_athena.sh')
+            slurm_bash_script.add_task(os.path.join(run_path, 'run_athena.sh'))
             slurm_bash_script.save(os.path.join(run_path, 'slurm_run_athena.sh'))
         
         # if specified, copy given configure.log file over
