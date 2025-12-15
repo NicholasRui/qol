@@ -68,9 +68,9 @@ class AthenaRun:
         bash_script = BashScript()
 
         bash_script.add_task('# clean and compile (only do if need to compile with new settings)')
-        bash_script.add_task('if ! cmp -s configure.log $ATHENA_DIR/configure_hydro.log || ! [ -f $ATHENA_DIR/bin/athena_hydro ] || ! cmp -s full_mesa_blast.cpp $ATHENA_DIR/src/pgen/full_mesa_blast.cpp; then')
+        bash_script.add_task(f"if ! cmp -s {os.path.join(run_path, 'configure.log')} $ATHENA_DIR/configure_hydro.log || ! [ -f $ATHENA_DIR/bin/athena_hydro ] || ! cmp -s {os.path.join(run_path, 'full_mesa_blast.cpp')} $ATHENA_DIR/src/pgen/full_mesa_blast.cpp; then")
         bash_script.add_task('  # copy pgen file')
-        bash_script.add_task(f'  cp {pgen_path_basename} $ATHENA_DIR/src/pgen')
+        bash_script.add_task(f"  cp {os.path.join(run_path, pgen_path_basename)} $ATHENA_DIR/src/pgen")
         bash_script.add_task('  ')
         bash_script.add_task('  # configure and compile')
         bash_script.add_task('  cd $ATHENA_DIR')
@@ -83,8 +83,10 @@ class AthenaRun:
         bash_script.add_task('fi')
         bash_script.add_task('')
         bash_script.add_task('# run')
-        bash_script.add_task(f"cp bin/athena {os.path.join(run_path, 'athena')}")
+        bash_script.add_task(f'cd {run_path}')
+        bash_script.add_task('cp $ATHENA_DIR/bin/athena athena')
         bash_script.add_task('./athena -i athinput')
+        bash_script.add_task('cd -')
 
         bash_script.save(os.path.join(run_path, 'run_athena.sh'))
 
