@@ -13,7 +13,7 @@ def make_single_SBR(
         enable_pgstar=True,
         rgb_wind=True,
         alpha_semiconvection=0., #4e-2, # semiconvection
-        thermohaline_coeff=1., # thermohaline -- probably more important
+        thermohaline_coeff=2., # thermohaline -- probably more important
         thermohaline_option='Brown_Garaud_Stellmach_13', # can be 'Kippenhahn', 'Traxler_Garaud_Stellmach_11', or 'Brown_Garaud_Stellmach_13'
         source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
         mesh_delta_coeff=1.,
