@@ -24,12 +24,3 @@ def set_max_num_retries(self, value):
         control='max_number_retries', value=value)
     self.add_to_controls(category='retry limit',
         control='relax_max_number_retries', value=value)
-
-
-
-
-
-
-
-
-
