@@ -2,6 +2,7 @@ from qol.mesa.launcher import *
 import qol.info as info
 
 import os
+import warnings
 
 def make_merger_MS_HeWD(
         root_path, # absolute path in which to write directory
@@ -29,6 +30,8 @@ def make_merger_MS_HeWD(
     """
     assert thermohaline_option in ['Kippenhahn', 'Traxler_Garaud_Stellmach_11', 'Brown_Garaud_Stellmach_13'], "thermohaline_option must be one of 'Kippenhahn', 'Traxler_Garaud_Stellmach_11', or 'Brown_Garaud_Stellmach_13'"
     tho_string_dict = {'Kippenhahn': 'K80', 'Traxler_Garaud_Stellmach_11': 'TGS11', 'Brown_Garaud_Stellmach_13': 'BGS13'}
+    if thermohaline_option == 'Brown_Garaud_Stellmach_13':
+        warnings.warn('BGS13 prescription does not take into account electron conduction and will give wrong results for COWD phase.')
 
     run_name = f'MS{MMS_in_Msun:.3f}+HeWD{MWD_in_Msun:.3f}TWD{T_WD/1000.:.1f}_sc{alpha_semiconvection:.4f}_th{thermohaline_coeff:.4f}_tho{tho_string_dict[thermohaline_option]}_rgbw{int(rgb_wind)}_mdc{mesh_delta_coeff:.2f}_hydro{int(not disable_hydro_after_ringdown)}_il{int(include_late)}_ov{int(include_overshoot)}'
     run_path = os.path.join(root_path, run_name)
@@ -583,7 +586,11 @@ def helper_merger_MS_HeWD_cool_co_wd_early(argdict):
 
 def helper_merger_MS_HeWD_cool_co_wd_late(argdict):
     """
-    cool leftover CO WD through "late" stages -- use table atmosphere for cool WD phase
+    cool leftover CO WD through "late" stages
+
+    disable:
+    - Ledoux criterion -- this fixes an unphysical helium mixing event at cooler WD temperatures
+    - gravitational settling
     """
     enable_pgstar = argdict['enable_pgstar']
     alpha_semiconvection = argdict['alpha_semiconvection']
@@ -602,7 +609,7 @@ def helper_merger_MS_HeWD_cool_co_wd_late(argdict):
     inlist.use_qol_pgstar()
 
     # Use tabulated WD atmosphere (Rohrmann+2011)
-    inlist.use_table_atmosphere('WD_tau_25')
+    # inlist.use_table_atmosphere('WD_tau_25')
 
     # Write GYRE model files
     inlist.write_gyre_data_with_profile()
@@ -620,21 +627,8 @@ def helper_merger_MS_HeWD_cool_co_wd_late(argdict):
     inlist.min_dq(1e-25)
     inlist.max_surface_cell_dq(1e-18)
 
-    # MLT++ to get through late thermal pulses
-    inlist.okay_to_reduce_gradT_excess()
-
     # average composition of outer layers for write-out
     inlist.surface_avg_abundance_dq(1e-2)
-
-    # include settling
-    # inlist.gravitational_settling(diffusion_class_representatives=['h1', 'he3', 'he4', 'c12', 'o16', 'ne20', 'ne22', 'mg26'],
-    #         diffusion_use_cgs_solver=True,
-    #         show_diffusion_info=True,
-    #         diffusion_steps_hard_limit=2000,
-    #         diffusion_maxsteps_for_isolve=2000)
-
-    # add artificial damping to outermost layers
-    # inlist.add_hydrodynamical_drag(drag_coefficient=1., min_q_for_drag=0.95)
 
     # wind
     inlist.cool_wind_RGB(scheme='Reimers', scaling_factor=0.5)
@@ -644,7 +638,7 @@ def helper_merger_MS_HeWD_cool_co_wd_late(argdict):
     inlist.hot_wind_full_on_T(1.e10)
 
     # mixing
-    inlist.use_Ledoux_criterion()
+    # inlist.use_Ledoux_criterion()
 
     inlist.alpha_semiconvection(alpha_semiconvection)
     inlist.add_thermohaline_mixing(thermohaline_coeff=thermohaline_coeff, thermohaline_option=thermohaline_option)

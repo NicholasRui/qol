@@ -1,13 +1,12 @@
-# Purpose: make a single-star model with similar parameters to those used in the MS+HeWD project, for comparison purposes
-# 
-#
+# Purpose: make a single-star model with similar parameters to those used in the shell_burning_remnant (SBR) project, for comparison purposes
+# (Rui & Fuller 2025, subm.)
 
 from qol.mesa.launcher import *
 import qol.info as info
 
 import os
 
-def make_single_MS_HeWD(
+def make_single_SBR(
         root_path, # absolute path in which to write directory
         MMS_in_Msun, # ZAMS mass
         net_name='cno_extras_o18_to_mg26.net', # net
@@ -54,20 +53,20 @@ def make_single_MS_HeWD(
             'mesa/resources/r24.08.1/profile_columns_sbr.list'))
     work.load_qol_pgstar()
 
-    work.add_task(helper_single_MS_HeWD_zams_to_tams(argdict))
-    work.add_task(helper_single_MS_HeWD_tams_to_trgb(argdict))
-    work.add_task(helper_single_MS_HeWD_trgb_to_zacheb(argdict))
-    work.add_task(helper_single_MS_HeWD_zacheb_to_co_wd(argdict))
-    work.add_task(helper_single_MS_HeWD_cool_co_wd_early(argdict))
+    work.add_task(helper_single_SBR_zams_to_tams(argdict))
+    work.add_task(helper_single_SBR_tams_to_trgb(argdict))
+    work.add_task(helper_single_SBR_trgb_to_zacheb(argdict))
+    work.add_task(helper_single_SBR_zacheb_to_co_wd(argdict))
+    work.add_task(helper_single_SBR_cool_co_wd_early(argdict))
     if include_late:
-        work.add_task(helper_single_MS_HeWD_cool_co_wd_late(argdict))
+        work.add_task(helper_single_SBR_cool_co_wd_late(argdict))
 
     if save_directory:
         work.save_directory(slurm_job_name=run_name, grant_perms=True, source_sdk=source_sdk, data_path=data_path)
 
     return work
 
-def helper_single_MS_HeWD_zams_to_tams(argdict):
+def helper_single_SBR_zams_to_tams(argdict):
     enable_pgstar = argdict['enable_pgstar']
     MMS_in_Msun = argdict['MMS_in_Msun']
     net_name = argdict['net_name']
@@ -97,7 +96,7 @@ def helper_single_MS_HeWD_zams_to_tams(argdict):
 
     return inlist
 
-def helper_single_MS_HeWD_tams_to_trgb(argdict):
+def helper_single_SBR_tams_to_trgb(argdict):
     enable_pgstar = argdict['enable_pgstar']
     rgb_wind = argdict['rgb_wind']
     mesh_delta_coeff = argdict['mesh_delta_coeff']
@@ -133,7 +132,7 @@ def helper_single_MS_HeWD_tams_to_trgb(argdict):
 
     return inlist
 
-def helper_single_MS_HeWD_trgb_to_zacheb(argdict):
+def helper_single_SBR_trgb_to_zacheb(argdict):
     """
     run remnant through He flash to ZACHeB
     """
@@ -184,7 +183,7 @@ def helper_single_MS_HeWD_trgb_to_zacheb(argdict):
 
     return inlist
 
-def helper_single_MS_HeWD_zacheb_to_co_wd(argdict):
+def helper_single_SBR_zacheb_to_co_wd(argdict):
     """
     run remnant from ZACHEB to CO WD
     """
@@ -226,7 +225,7 @@ def helper_single_MS_HeWD_zacheb_to_co_wd(argdict):
 
     return inlist
 
-def helper_single_MS_HeWD_cool_co_wd_early(argdict):
+def helper_single_SBR_cool_co_wd_early(argdict):
     """
     cool leftover CO WD through "early" stages -- include elemental diffusion but not phase separation
     """
@@ -306,9 +305,13 @@ def helper_single_MS_HeWD_cool_co_wd_early(argdict):
 
     return inlist
 
-def helper_single_MS_HeWD_cool_co_wd_late(argdict):
+def helper_single_SBR_cool_co_wd_late(argdict):
     """
-    cool leftover CO WD through "late" stages -- include phase separation but not elemental diffusion
+    cool leftover CO WD through "late" stages
+
+    disable:
+    - Ledoux criterion -- this fixes an unphysical helium mixing event at cooler WD temperatures
+    - gravitational settling
     """
     enable_pgstar = argdict['enable_pgstar']
     alpha_semiconvection = argdict['alpha_semiconvection']
@@ -339,9 +342,6 @@ def helper_single_MS_HeWD_cool_co_wd_late(argdict):
     inlist.min_dq(1e-25)
     inlist.max_surface_cell_dq(1e-18)
 
-    # MLT++ to get through late thermal pulses
-    inlist.okay_to_reduce_gradT_excess()
-
     # average composition of outer layers for write-out
     inlist.surface_avg_abundance_dq(1e-2)
 
@@ -353,8 +353,6 @@ def helper_single_MS_HeWD_cool_co_wd_late(argdict):
     inlist.hot_wind_full_on_T(1.e10)
 
     # mixing
-    inlist.use_Ledoux_criterion()
-
     inlist.alpha_semiconvection(alpha_semiconvection)
     inlist.add_thermohaline_mixing(thermohaline_coeff=thermohaline_coeff, thermohaline_option='Brown_Garaud_Stellmach_13')
 

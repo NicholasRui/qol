@@ -32,12 +32,12 @@ def run_mesa_tests():
         tests_failed += 1
 
     ###########################################################################################
-    from qol.mesa.presets import make_single_MS_HeWD
+    from qol.mesa.presets import make_single_SBR
 
     tests_total += 1
-    name = 'qol.mesa.presets.make_single_MS_HeWD.make_single_MS_HeWD'
+    name = 'qol.mesa.presets.make_single_SBR.make_single_SBR'
     try:
-        _ = make_single_MS_HeWD.make_single_MS_HeWD(root_path='.', MMS_in_Msun=1., net_name='cno_extras_o18_to_mg26.net', enable_pgstar=True, rgb_wind=True, alpha_semiconvection=4e-2, thermohaline_coeff=1., thermohaline_option='Brown_Garaud_Stellmach_13', source_sdk=True, mesh_delta_coeff=1., save_directory=False,)
+        _ = make_single_SBR.make_single_SBR(root_path='.', MMS_in_Msun=1., net_name='cno_extras_o18_to_mg26.net', enable_pgstar=True, rgb_wind=True, alpha_semiconvection=4e-2, thermohaline_coeff=1., thermohaline_option='Brown_Garaud_Stellmach_13', source_sdk=True, mesh_delta_coeff=1., save_directory=False,)
         print(f'passed: {name}')
     except Exception as e:
         print(f'**FAILED**: {name}')
