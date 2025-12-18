@@ -36,7 +36,7 @@ def make_merger_RG_HeWD(
     This is reproducing what was done in Zhang & Jeffery 2013, MNRAS
     """
     assert thermohaline_option in ['Kippenhahn', 'Traxler_Garaud_Stellmach_11', 'Brown_Garaud_Stellmach_13'], "thermohaline_option must be one of 'Kippenhahn', 'Traxler_Garaud_Stellmach_11', or 'Brown_Garaud_Stellmach_13'"
-    tho_string_dict = {'Kippenhahn': 'K80', 'Traxler_Garaud_Stellmach_11': 'TGS11', 'Brown_Garaud_Stellmach_13': 'BGS13'}
+    tho_string_dict = {'Kippenhahn': 'KRT80', 'Traxler_Garaud_Stellmach_11': 'TGS11', 'Brown_Garaud_Stellmach_13': 'BGS13'}
     if thermohaline_option == 'Brown_Garaud_Stellmach_13':
         warnings.warn('BGS13 prescription does not take into account electron conduction and will give wrong results for COWD phase.')
 
@@ -820,7 +820,7 @@ def helper_merger_RG_HeWD_cool_co_wd_early(argdict):
                         overshoot_zone_loc='any', overshoot_bdy_loc='any',
                         overshoot_f=0.015, overshoot_f0=0.005)
 
-    tho_string_dict = {'Kippenhahn': 'K80', 'Traxler_Garaud_Stellmach_11': 'TGS11', 'Brown_Garaud_Stellmach_13': 'BGS13'}
+    tho_string_dict = {'Kippenhahn': 'KRT80', 'Traxler_Garaud_Stellmach_11': 'TGS11', 'Brown_Garaud_Stellmach_13': 'BGS13'}
     argdict['id_str'] += f'_sc{alpha_semiconvection:.2f}_th{thermohaline_coeff:.1f}_tho{tho_string_dict[thermohaline_option]}_il{int(include_late)}'
     id_str = argdict['id_str']
 
