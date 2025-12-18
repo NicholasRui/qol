@@ -311,7 +311,6 @@ def helper_single_SBR_cool_co_wd_late(argdict):
 
     disable:
     - Ledoux criterion -- this fixes an unphysical helium mixing event at cooler WD temperatures
-    - gravitational settling
     """
     enable_pgstar = argdict['enable_pgstar']
     alpha_semiconvection = argdict['alpha_semiconvection']
@@ -353,6 +352,12 @@ def helper_single_SBR_cool_co_wd_late(argdict):
     inlist.hot_wind_full_on_T(1.e10)
 
     # mixing
+    inlist.gravitational_settling(diffusion_class_representatives=['h1', 'he3', 'he4', 'c12', 'o16', 'ne20', 'ne22', 'mg26'],
+            diffusion_use_cgs_solver=True,
+            show_diffusion_info=True,
+            diffusion_steps_hard_limit=2000,
+            diffusion_maxsteps_for_isolve=2000)
+
     inlist.alpha_semiconvection(alpha_semiconvection)
     inlist.add_thermohaline_mixing(thermohaline_coeff=thermohaline_coeff, thermohaline_option='Brown_Garaud_Stellmach_13')
 
