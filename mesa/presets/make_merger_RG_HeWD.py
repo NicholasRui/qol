@@ -829,7 +829,7 @@ def helper_merger_RG_HeWD_cool_co_wd_early(argdict):
 
     # stop after cool down enough, if include_late
     if include_late:
-        inlist.log_Teff_lower_limit(4.4)
+        inlist.log_Teff_lower_limit(4.2)
     else:
         inlist.max_age(1e10)
     inlist.save_final_model(f'cool_co_wd_early.mod{id_str}')
