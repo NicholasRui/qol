@@ -37,7 +37,7 @@ class MesaWorkingDirectory:
         self.rel_paths_root_prereq = []
         self.tasks = []
 
-        self.submit_job_path = os.path.join(run_path, 'submit_job.sh')
+        self.start_job_path = os.path.join(run_path, 'start_job.sh')
         self.restart_job_path = os.path.join(run_path, 'restart_job.sh')
 
     def add_root_prereq(self, copy_from_abs_path, rel_path):
@@ -500,7 +500,7 @@ class MesaWorkingDirectory:
             slurm_bash_script.add_task(f'./mk')
             slurm_bash_script.add_task(f'./rn')
 
-            slurm_bash_script.save(self.submit_job_path)
+            slurm_bash_script.save(self.start_job_path)
 
             # script to restart job
             slurm_bash_script = SlurmBashScript(
