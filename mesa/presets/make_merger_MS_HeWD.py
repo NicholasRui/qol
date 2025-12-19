@@ -16,7 +16,7 @@ def make_merger_MS_HeWD(
         rgb_wind=True,
         alpha_semiconvection=0., #4e-2, # semiconvection
         thermohaline_coeff=2., # thermohaline -- probably more important
-        thermohaline_option='Brown_Garaud_Stellmach_13', # can be 'Kippenhahn', 'Traxler_Garaud_Stellmach_11', or 'Brown_Garaud_Stellmach_13'
+        thermohaline_option='Kippenhahn', # can be 'Kippenhahn', 'Traxler_Garaud_Stellmach_11', or 'Brown_Garaud_Stellmach_13'
         source_sdk=True, # manually activate sdk, since Caltech HPC doesn't seem to like it
         mesh_delta_coeff=1.,
         include_late=False, # include "late" WD cooling phase with crystallization but no settling
