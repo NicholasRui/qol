@@ -517,7 +517,8 @@ class MesaWorkingDirectory:
             
             slurm_bash_script.add_task(f'export OMP_NUM_THREADS={OMP_NUM_THREADS}')
 
-            slurm_bash_script.add_task(f'cd {run_path}')
+            if os.path.isabs(run_path):
+                slurm_bash_script.add_task(f'cd {run_path}')
             if source_sdk:
                 slurm_bash_script.add_task('source $MESASDK_ROOT/bin/mesasdk_init.sh')
             slurm_bash_script.add_task(f'./mk')
