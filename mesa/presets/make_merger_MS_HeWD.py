@@ -571,7 +571,7 @@ def helper_merger_MS_HeWD_cool_co_wd_early(argdict):
     inlist.use_gold_tolerances(False)
 
     tho_string_dict = {'Kippenhahn': 'KRT80', 'Traxler_Garaud_Stellmach_11': 'TGS11', 'Brown_Garaud_Stellmach_13': 'BGS13'}
-    argdict['id_str'] += f'_sc{alpha_semiconvection:.2f}_th{thermohaline_coeff:.1f}_tho{tho_string_dict[thermohaline_option]}_il{int(include_late)}'
+    argdict['id_str'] += f'_sc{alpha_semiconvection:.2f}_th{thermohaline_coeff:.1f}_tho{tho_string_dict[thermohaline_option]}_il{int(include_late)}_ov{int(include_overshoot)}'
     id_str = argdict['id_str']
 
     inlist.save_final_model(f'cool_co_wd_early.mod{id_str}')

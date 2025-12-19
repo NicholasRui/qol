@@ -821,7 +821,7 @@ def helper_merger_RG_HeWD_cool_co_wd_early(argdict):
                         overshoot_f=0.015, overshoot_f0=0.005)
 
     tho_string_dict = {'Kippenhahn': 'KRT80', 'Traxler_Garaud_Stellmach_11': 'TGS11', 'Brown_Garaud_Stellmach_13': 'BGS13'}
-    argdict['id_str'] += f'_sc{alpha_semiconvection:.2f}_th{thermohaline_coeff:.1f}_tho{tho_string_dict[thermohaline_option]}_il{int(include_late)}'
+    argdict['id_str'] += f'_sc{alpha_semiconvection:.2f}_th{thermohaline_coeff:.1f}_tho{tho_string_dict[thermohaline_option]}_il{int(include_late)}_ov{int(include_overshoot)}'
     id_str = argdict['id_str']
 
     # convergence?
