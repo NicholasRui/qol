@@ -372,6 +372,7 @@ def helper_single_SBR_cool_co_wd_late(argdict):
 
     # stop after a long time, if needed... okay to fail here, if sufficiently cooled
     inlist.max_age(1e10)
+    inlist.log_Teff_lower_limit(3.7)
     inlist.save_final_model('cool_co_wd_late.mod')
 
     return inlist
