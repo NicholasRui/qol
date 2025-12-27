@@ -1,4 +1,5 @@
 import numpy as np
+import astropy
 
 def trapz_cond(x, y, c=None):
     """
@@ -7,11 +8,15 @@ def trapz_cond(x, y, c=None):
 
     All must be equal-sized arrays
     """
+    # Check that inputs are recognized array-likes
+    allowed_types = [np.ndarray, astropy.table.Column]
+    assert type(x) in allowed_types
+    assert type(y) in allowed_types
+    assert (type(c) in allowed_types) or (c is None)
+
     # Make sure things are arrays
     x, y = np.array(x), np.array(y)
     if c is not None:
-        assert type(c) is np.ndarray # must be array
-
         if c.dtype == np.bool_:
             c = c.astype(float) - 0.5
         elif np.issubdtype(c.dtype, np.number):
