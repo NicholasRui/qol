@@ -74,11 +74,15 @@ class MesaTable(Table):
             self.dM = const.Msun * self.dM_in_Msun
             self.dq = self.dM / self.M[0]
 
-        if 'logR' in self.colnames:
-            self.logR_in_Rsun = self['logR']
-            self.lnR = const.ln10 * self.logR_in_Rsun + np.log(const.Rsun)
+        if ('logR' in self.colnames) or ('radius' in self.colnames):
+            if 'logR' in self.colnames:
+                self.logR_in_Rsun = self['logR']
+                self.R_in_Rsun = 10 ** self.logR_in_Rsun
+            elif 'radius' in self.colnames:
+                self.R_in_Rsun = self['radius']
+                self.logR_in_Rsun = np.log10(self.R_in_Rsun)
 
-            self.R_in_Rsun = 10 ** self.logR_in_Rsun
+            self.lnR = const.ln10 * self.logR_in_Rsun + np.log(const.Rsun)
             self.dR_in_Rsun = -np.diff(self.R_in_Rsun, append=0)
 
             self.R = const.Rsun * self.R_in_Rsun

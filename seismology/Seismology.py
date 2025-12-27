@@ -183,6 +183,10 @@ class Seismology:
             else:
                 self.Sl1 = self.mesa_table.Sl1
 
+        # If all fails, use csound
+        if (self.Sl1 is None) and 'csound' in self.mesa_table.colnames:
+            self.Sl1 = np.sqrt(2) * self.mesa_table['csound'] / self.R
+
         # Calculate other helper quantities
         self.Sl2 = np.sqrt(3) * self.Sl1
         self.Sl3 = np.sqrt(6) * self.Sl1

@@ -183,6 +183,7 @@ def get_Brshift_from_νB_RFH25(self, νB_uHz, l, ω=None, ν=None, ω_uHz=None, 
     Note that Equation 11 has a typo and is missing a factor of (2l+1) in the denominator under the root.
     However, this doesn't matter here because we aren't involving the asymmetry.
     """
+    # TODO: change νB to δν_mag
     ω = get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
     P = 2 * const.pi / ω
     νB = 1e-6 * νB_uHz
