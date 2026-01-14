@@ -239,6 +239,7 @@ class MesaInlist:
     create_initial_model = init.create_initial_model
     create_pre_main_sequence_model = init.create_pre_main_sequence_model
     relax_initial_mass = init.relax_initial_mass
+    relax_initial_mass_to_remove_H_env = init.relax_initial_mass_to_remove_H_env
     initial_mass = init.initial_mass
     initial_y = init.initial_y
     initial_z = init.initial_z

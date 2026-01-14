@@ -42,6 +42,12 @@ def relax_initial_mass(self, M_new_Msun, lg_max_abs_mdot=None):
     self.add_to_star_job(category='relax mass', optional=True,
         control='lg_max_abs_mdot', value=lg_max_abs_mdot)
 
+def relax_initial_mass_to_remove_H_env(self, extra_mass_retained_by_remove_H_env=None):
+    self.add_to_star_job(category='relax mass',
+        control='relax_initial_mass_to_remove_H_env', value=True)    
+    self.add_to_star_job(category='relax mass', optional=True,
+        control='extra_mass_retained_by_remove_H_env', value=extra_mass_retained_by_remove_H_env)
+
 def reset_age(self):
     self.add_to_star_job(category='reset age',
         control='set_initial_age', value=True)
