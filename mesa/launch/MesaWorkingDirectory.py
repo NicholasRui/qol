@@ -83,7 +83,7 @@ class MesaWorkingDirectory:
             existing_products += task.data_products
         existing_products += self.rel_paths_root_prereq
 
-        if not np.in1d(task_prereqs, existing_products).all():
+        if not np.isin(task_prereqs, existing_products).all():
             raise ValueError('task requests prereqs which do not exist')
         
         return
@@ -294,7 +294,7 @@ class MesaWorkingDirectory:
 
                 # if all prereqs are in existing_products exist,
                 # run task, then add task to sorted_tasks and increment
-                if np.in1d(task.data_prereqs, existing_products).all():
+                if np.isin(task.data_prereqs, existing_products).all():
                     # Add strings to rn and re
                     full_rn_string = f'# Try to run tasks/{task.rel_path}\n'
                     full_re_string = f'# Try to run tasks/{task.rel_path}\n'

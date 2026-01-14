@@ -171,7 +171,7 @@ def read_mod(fname):
             line = line.replace(key, key.replace(' ', '_'))
         items = line.split()
 
-        if np.in1d(items, list(model_attr_data_underscores.keys())).any():
+        if np.isin(items, list(model_attr_data_underscores.keys())).any():
             # loop through items
             # if one matches the name of an attr,
             # convert the next one into the desired datatype and
