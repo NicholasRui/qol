@@ -29,6 +29,7 @@ model_attr_data_raw = \
  'timestep (seconds)': 'float',
   'dt_next (seconds)': 'float',
            'R_center': 'float',
+           'L_center': 'float',
              'xmstar': 'float',
                'time': 'float'}
 
