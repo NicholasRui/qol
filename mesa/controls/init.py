@@ -28,7 +28,11 @@ def initial_y(self, value):
         
     if not self.make_new_model:
         warnings.warn('not used yet, need to make model from scratch (e.g., pre-MS)')
-    
+
+def initial_he3(self, value):
+    self.add_to_controls(category='initial mass and composition',
+            control='initial_he3', value=value)
+
 def initial_z(self, value):
     self.add_to_controls(category='initial mass and composition',
             control='initial_z', value=value)

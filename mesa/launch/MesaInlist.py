@@ -242,6 +242,7 @@ class MesaInlist:
     relax_initial_mass_to_remove_H_env = init.relax_initial_mass_to_remove_H_env
     initial_mass = init.initial_mass
     initial_y = init.initial_y
+    initial_he3 = init.initial_he3
     initial_z = init.initial_z
     reset_age = init.reset_age
     reset_model_number = init.reset_model_number
