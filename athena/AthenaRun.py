@@ -26,6 +26,9 @@ class AthenaRun:
 
         if os.path.exists(run_path):
             raise ValueError(f'Path already exists: {run_path}')
+        if compile_log_fname is not None:
+            assert os.path.exists(os.path.dirname(compile_log_fname))
+
         assert os.path.exists(pgen_path)
         assert pgen_path[-4:] == '.cpp'
         assert isinstance(athinput, AthInput)
