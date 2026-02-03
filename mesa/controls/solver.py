@@ -18,9 +18,3 @@ def convergence_ignore_equL_residuals(self, value=True):
 def limit_for_rel_error_in_energy_conservation(self, value):
     self.add_to_controls(category='solver',
             control='limit_for_rel_error_in_energy_conservation', value=value)
-
-def set_max_num_retries(self, value):
-    self.add_to_controls(category='retry limit',
-        control='max_number_retries', value=value)
-    self.add_to_controls(category='retry limit',
-        control='relax_max_number_retries', value=value)

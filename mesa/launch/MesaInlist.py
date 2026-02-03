@@ -289,7 +289,6 @@ class MesaInlist:
     relax_to_inner_BC = bc.relax_to_inner_BC
     use_table_atmosphere = bc.use_table_atmosphere
 
-    set_max_num_retries = solver.set_max_num_retries
     use_gold_tolerances = solver.use_gold_tolerances
     energy_eqn_option = solver.energy_eqn_option
     convergence_ignore_equL_residuals = solver.convergence_ignore_equL_residuals
@@ -380,6 +379,7 @@ class MesaInlist:
     power_z_burn_lower_limit = stop.power_z_burn_lower_limit
     max_abs_rel_run_E_err = stop.max_abs_rel_run_E_err
     max_number_retries = stop.max_number_retries
+    set_max_num_retries = stop.set_max_num_retries
     min_timestep_limit = stop.min_timestep_limit
     center_Ye_lower_limit = stop.center_Ye_lower_limit
     center_R_lower_limit = stop.center_R_lower_limit

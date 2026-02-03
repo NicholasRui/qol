@@ -367,6 +367,12 @@ def max_number_retries(self, value):
     self.add_to_controls(category='termination conditions',
             control='max_number_retries', value=value)
 
+def set_max_num_retries(self, value):
+    self.add_to_controls(category='retry limit',
+        control='max_number_retries', value=value)
+    self.add_to_controls(category='retry limit',
+        control='relax_max_number_retries', value=value)
+
 def min_timestep_limit(self, value):
     self.add_to_controls(category='termination conditions',
             control='min_timestep_limit', value=value)
