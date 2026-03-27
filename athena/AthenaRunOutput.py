@@ -15,7 +15,7 @@ class AthenaRunOutput:
     """
     def __init__(self, athinput_fname, run_path='.'): # TODO: connect this to AthInput and don't use this notation
         """
-        athinput_fname: path to the athinput file used
+        athinput_fname: relative path to the athinput file used
         """
         self.athinput_fname = athinput_fname
         self.run_path = run_path
@@ -35,7 +35,7 @@ class AthenaRunOutput:
         Intended to be used as a helper for __init__.
         """
         # read the file
-        with open(self.athinput_fname, 'r') as f:
+        with open(os.path.join(self.run_path, self.athinput_fname), 'r') as f:
             lines = f.readlines()
 
         # loop through all lines
@@ -126,10 +126,64 @@ class AthenaRunOutput:
             return self.athoutput_cache[(output_number, block_number, output_index)]
 
         # retrieve table
-        tab = read_tab(f"{self.athinput_args['job.problem_id']}.block{block_number}.out{output_number}.{str(output_index).zfill(5)}.tab")
+        tab_fname = os.path.join(self.run_path, f"{self.athinput_args['job.problem_id']}.block{block_number}.out{output_number}.{str(output_index).zfill(5)}.tab")
+        tab = read_tab(tab_fname)
 
         # cache if this is desired
         if cache:
             self.athoutput_cache[(output_number, block_number, output_index)] = tab
         
         return tab
+
+    def get_output_time(self, output_number, output_index, block_number=0):
+        """
+        read 'time' from first line of output file
+        """
+        if f'output{output_number}.file_type' not in self.athinput_args.keys():
+            raise ValueError(f'Output {output_number} does not exist. (not specified in athinput file)')
+        if self.athinput_args[f'output{output_number}.file_type'] != 'tab':
+            raise NotImplementedError(f"Currently file_type must be 'tab': {self.athinput_args[f'output{output_number}.file_type']} not supported.")
+        
+        tab_fname = os.path.join(self.run_path, f"{self.athinput_args['job.problem_id']}.block{block_number}.out{output_number}.{str(output_index).zfill(5)}.tab")
+        with open(tab_fname, 'r') as f:
+            line = f.readline()
+        
+        time = float(line.split('time=')[1].split('cycle=')[0].replace(' ', ''))
+        return time
+
+    def get_output_cycle(self, output_number, output_index, block_number=0):
+        """
+        read 'cycle' from first line of output file
+        """
+        if f'output{output_number}.file_type' not in self.athinput_args.keys():
+            raise ValueError(f'Output {output_number} does not exist. (not specified in athinput file)')
+        if self.athinput_args[f'output{output_number}.file_type'] != 'tab':
+            raise NotImplementedError(f"Currently file_type must be 'tab': {self.athinput_args[f'output{output_number}.file_type']} not supported.")
+        
+        tab_fname = os.path.join(self.run_path, f"{self.athinput_args['job.problem_id']}.block{block_number}.out{output_number}.{str(output_index).zfill(5)}.tab")
+        with open(tab_fname, 'r') as f:
+            line = f.readline()
+        
+        cycle = int(line.split('cycle=')[1].split('variables=')[0].replace(' ', ''))
+        return cycle
+    
+    def get_all_output_tabs(self, output_number, block_number=0):
+        iis = self.get_output_indices(output_number=output_number, block_number=block_number)
+        tabs = [self.get_output_tab(output_number=output_number, output_index=ii, block_number=block_number) for ii in iis]
+        return tabs
+
+    def get_all_output_times(self, output_number, block_number=0):
+        iis = self.get_output_indices(output_number=output_number, block_number=block_number)
+        times = np.array([self.get_output_time(output_number=output_number, output_index=ii, block_number=block_number) for ii in iis])
+        return times
+
+    def get_all_output_cycles(self, output_number, block_number=0):
+        iis = self.get_output_indices(output_number=output_number, block_number=block_number)
+        cycles = np.array([self.get_output_cycle(output_number=output_number, output_index=ii, block_number=block_number) for ii in iis])
+        return cycles
+
+
+
+
+
+

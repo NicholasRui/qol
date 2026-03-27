@@ -71,7 +71,7 @@ class AthenaRun:
         bash_script = BashScript()
 
         bash_script.add_task('# clean and compile (only do if need to compile with new settings)')
-        bash_script.add_task(f"if ! cmp -s {os.path.join(run_path, 'configure.log')} $ATHENA_DIR/configure_hydro.log || ! [ -f $ATHENA_DIR/bin/athena_hydro ] || ! cmp -s {os.path.join(run_path, 'full_mesa_blast.cpp')} $ATHENA_DIR/src/pgen/full_mesa_blast.cpp; then")
+        bash_script.add_task(f"if ! cmp -s {os.path.join(run_path, 'configure.log')} $ATHENA_DIR/configure.log || ! [ -f $ATHENA_DIR/bin/athena_hydro ] || ! cmp -s {os.path.join(run_path, 'full_mesa_blast.cpp')} $ATHENA_DIR/src/pgen/full_mesa_blast.cpp; then")
         bash_script.add_task('  # copy pgen file')
         bash_script.add_task(f"  cp {os.path.join(run_path, pgen_path_basename)} $ATHENA_DIR/src/pgen")
         bash_script.add_task('  ')
