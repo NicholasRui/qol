@@ -1,5 +1,4 @@
 # Redefine some functions in pyplot to make handling FancyFigure and FancyAxes object as simple as possible
-
 from qol.vis.FancyAxes import FancyAxes
 import qol.defaults as defaults
 
@@ -37,7 +36,7 @@ from matplotlib.collections import (
 fe = fm.FontEntry(fname=defaults.vis_fontpath, name=defaults.vis_fontname)
 fm.fontManager.ttflist.insert(0, fe)
 matplotlib.rcParams['font.family'] = fe.name
-params = {'mathtext.default': 'regular' }
+params = {'mathtext.default': 'regular'}
 plt.rcParams.update(params)
 
 # Import all pyplot functions and only overwrite those which we want to change
