@@ -7,6 +7,7 @@ import qol.mesa.const as const
 import numpy as np
 from scipy.integrate import cumulative_trapezoid
 
+import warnings
 
 
 def get_magnetic_K(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, normed=True):
@@ -61,15 +62,32 @@ def get_magnetic_scriptI(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=
 
     return magnetic_scriptI
 
-def get_Bcrit(self, l, m=None, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, acrit_ref='F+15'):
+def get_Bcrit(self, l, m=None, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None,
+        acrit_ref='F15', custom_acrit_const=None):
     """
     Calculate critical (radial) magnetic field Bcrit needed to suppress g modes,
-        according to Fuller et al. 2015 (F+15)
+        according to Fuller et al. 2015 (F15)
+    
+    options for acrit_ref:
+    - F15 -- Fuller+2015
+    - custom -- must specify custom_acrit_const
     """
+    # Checks to make sure everything needed is specified
+    assert acrit_ref in ['F15', 'custom']
+    if acrit_ref == 'custom':
+        assert custom_acrit_const is not None
+    else:
+        if custom_acrit_const is not None:
+            warnings.warn("custom_acrit_const keyword specified will not be used, since acrit_ref != 'custom'")
+
     assert self.Rho is not None
 
+    # Calculate Bcrit
     ω = get_ω(ω=ω, ν=ν, ω_uHz=ω_uHz, ν_uHz=ν_uHz, P=P)
-    acrit = get_magnetic_acrit(l=l, m=m, acrit_ref=acrit_ref)
+    if acrit_ref == 'F15':
+        acrit = get_magnetic_acrit(l=l, m=m, acrit_ref=acrit_ref)
+    elif acrit_ref == 'custom':
+        acrit = custom_acrit_const
     
     Bcrit = acrit * np.sqrt(4 * np.pi * self.Rho) * ω ** 2 * self.R / self.N
 
@@ -79,7 +97,7 @@ def get_Bcrit(self, l, m=None, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=Non
 
     return Bcrit
 
-def get_ωB(self, l, m=None, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, acrit_ref='F+15', units='ωB'):
+def get_ωB(self, l, m=None, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=None, acrit_ref='F15', units='ωB'):
     """
     Get maximum suppressed frequency ωB (this is the RF23 definition, NOT the Li et al. 2022 one)
 

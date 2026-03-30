@@ -48,18 +48,18 @@ def get_δω(δω=None, δν=None, δω_uHz=None, δν_uHz=None, δP=None,
     
     return δω
 
-def get_magnetic_acrit(l, m=None, acrit_ref='F+15'):
+def get_magnetic_acrit(l, m=None, acrit_ref='F15'):
     """
     acrit_ref: sets uncertain dimensionless parameter for magnetic g-mode suppression,
               with 'a' defined in RF+23
-       'F+15': Fuller+2015 normalization
+       'F15': Fuller+2015 normalization
     """
     match acrit_ref: # critical a_c parameter, which is fixed by certain papers but not known
-        case 'F+15':
+        case 'F15':
             acrit = 0.5 / np.sqrt(l * (l + 1))
-        case 'L+17':
+        case 'L17':
             raise NotImplementedError('acrit_ref for L+17 option not implemented yet') # TODO
-        case 'RF+23':
+        case 'RF23':
             raise NotImplementedError('acrit_ref for RF+23 option not implemented yet') # TODO
         case _:
             raise ValueError(f'acrit_ref is not valid: {acrit_ref}')
