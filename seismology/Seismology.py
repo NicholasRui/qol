@@ -207,6 +207,9 @@ class Seismology:
         self.Sl3_div_2pi_in_uHz = 1e6 * self.Sl3_div_2pi
         self.Sl_div_2pi_in_uHz = lambda l: 1e6 * self.Sl_div_2pi(l)
 
+        if 'csound' in self.mesa_table.colnames:
+            self.csound = self.mesa_table['csound']
+
         # Required field
         assert self.Sl1 is not None
 
