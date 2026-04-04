@@ -37,9 +37,9 @@ def get_magnetic_cumK(self, l, ω=None, ν=None, ω_uHz=None, ν_uHz=None, P=Non
     magnetic_K = self.get_magnetic_K(l=l, ω=ω, normed=normed)
 
     if self.increasing_R:
-        magnetic_cumK = cumulative_trapezoid(x=self.R, y=magnetic_K)
-    if self.increasing_R:
-        magnetic_cumK = np.flip(cumulative_trapezoid(x=np.flip(self.R), y=np.flip(magnetic_K)))
+        magnetic_cumK = cumulative_trapezoid(x=self.R, y=magnetic_K, initial=0)
+    else:
+        magnetic_cumK = np.flip(cumulative_trapezoid(x=np.flip(self.R), y=np.flip(magnetic_K), initial=0))
     
     return magnetic_cumK
 
