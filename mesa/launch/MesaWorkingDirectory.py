@@ -508,6 +508,7 @@ class MesaWorkingDirectory:
                  job_name=slurm_job_name,
                  time=slurm_job_time,
                  ntasks=slurm_job_ntasks, nodes=slurm_job_nodes,
+                 ntasks_per_node=slurm_job_ntasks_per_node,
                  mem_per_cpu=slurm_job_mem_per_cpu,
                  output=os.path.join(run_path, 'output.out'),
                  error=os.path.join(run_path, 'error.out'), # absolute paths
