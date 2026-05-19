@@ -2,11 +2,12 @@ import numpy as np
 
 #from qol.athena.table.AthenaTable import AthenaTable
 from qol.athena.read import read_tab
+import qol.athena.const as athconst
 
 import glob
 import os
 
-# this is a continuing work in progress -- will continue to generalize this as it fits my use cases
+# NOTE: this is a continuing work in progress -- will continue to generalize this as it fits my use cases
 
 
 class AthenaRunOutput:
@@ -19,11 +20,44 @@ class AthenaRunOutput:
         """
         self.athinput_fname = athinput_fname
         self.run_path = run_path
-        self.athinput_args = {}
+        self.athinput_args = athinput_args = {}
 
         self.athoutput_cache = {} # keys are (output_number, block_number, output_index)
 
         self.parse_athinput()
+
+        ###############################################
+        ## DEFINE CONVENIENT ATTRIBUTES IF AVAILABLE ##
+        ###############################################
+
+        # if T0, rho0, L0, mu0 are specified for implicit radiation units
+        self.has_radiation_units = False
+        if set(['radiation.T_unit', 'radiation.density_unit', 'radiation.length_unit', 'radiation.molecular_weight']).issubset(athinput_args.keys()):
+            self.T0 = T0 = athinput_args['radiation.T_unit']
+            self.rho0 = rho0 = athinput_args['radiation.density_unit']
+            self.L0 = L0 = athinput_args['radiation.length_unit']
+            self.mu0 = mu0 = athinput_args['radiation.molecular_weight']
+
+            # derived units
+            arad = athconst.radiation_aconst_cgs
+            clight = 2.99792458e10
+
+            self.Rgas = Rgas = 8.314462618e7 / mu0
+            self.v0 = v0 = np.sqrt(Rgas * T0)
+            self.press0 = press0 = rho0 * Rgas * T0
+            self.t0 = t0 = L0 / v0
+
+            self.E0 = E0 = arad * T0 ** 4
+            self.F0 = F0 = E0 * clight
+
+            self.has_radiation_units = True
+
+
+
+
+
+
+
 
     def parse_athinput(self):
         """

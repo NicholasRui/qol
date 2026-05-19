@@ -17,6 +17,6 @@ class AthenaTable(Table):
         super().__init__(data=data, masked=masked, names=names, dtype=dtype, meta=meta, copy=copy, rows=rows, copy_indices=copy_indices, units=units, descriptions=descriptions, **kwargs)
 
         self.file_type = file_type
-        self.time = time
+        self.time = time # code units
         self.cycle = cycle
         self.variables = variables # either 'prim' or 'cons'
