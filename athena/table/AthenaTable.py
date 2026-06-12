@@ -10,7 +10,7 @@ class AthenaTable(Table):
     file_type: output data type, e.g., 'tab'
     time,cycle,variables: variables stored in the header of the 'tab' file
 
-    Note: Right now, can ONLY accommodate 'tab' data_type for one-dimensional data
+    Note: Right now, can ONLY accommodate 'tab' data_type if one-dimensional data
     """
     def __init__(self, data=None, file_type='tab', time=None, cycle=None, variables=None,
                  masked=False, names=None, dtype=None, meta=None, copy=True, rows=None, copy_indices=True, units=None, descriptions=None,

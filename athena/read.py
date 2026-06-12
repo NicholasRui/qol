@@ -3,6 +3,7 @@ from astropy.table import Table, Column, unique
 
 from qol.athena.table.AthenaTable import AthenaTable
 
+import pyvista as pv
 
 def read_tab(fname, 
              colnames=None, # sometimes need to specify this manually, since header is not accurate...
@@ -70,3 +71,34 @@ def read_tab(fname,
 
     return athenatab
 
+def read_vtk(fname):
+    """
+    Read Athena++ output as VTK table
+    """
+    # Read file and access colnames
+    mesh = pv.read(fname)
+    colnames = mesh.cell_data.keys()
+
+    # Convert to AthenaTable format
+    col_list = []
+    existing_colnames = []
+
+    for ii, colname in enumerate(colnames):
+        coldata = mesh.cell_data[colname]
+
+        colname = colnames[ii]
+        append_num = 0
+        while colname in existing_colnames:
+            colname = f'{colnames[ii]}{append_num}'
+            append_num += 1
+
+        existing_colnames.append(colname)
+        
+        col = Column(coldata, name=colname)
+        col_list.append(col)
+
+    tab = Table(col_list)
+
+    athenatab = AthenaTable(tab, file_type='vtk')
+
+    return athenatab
