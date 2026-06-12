@@ -4,7 +4,9 @@ from astropy.table import Table, Column, unique
 from qol.athena.table.AthenaTable import AthenaTable
 
 
-def read_tab(fname):
+def read_tab(fname, 
+             colnames=None, # sometimes need to specify this manually, since header is not accurate...
+            ):
     """
     Takes in .tab files written by Athena++ and returns an AthenaTable.
     
@@ -22,12 +24,10 @@ def read_tab(fname):
 
     # Get data table
     attr_row = text[0].replace('# ', '')
-    colname_row = text[1].replace('# ', '')
     data_rows = text[2:-1]
 
     # Remove all duplicate and leading/trailing spaces
     attr_row = ' '.join(attr_row.split()).strip()
-    colname_row = ' '.join(colname_row.split()).strip()
     data_rows = [' '.join(data_rows[ii].split()).strip() for ii in range(len(data_rows))]
 
     # Pull out attributes
@@ -35,7 +35,12 @@ def read_tab(fname):
     cycle = int(attr_row.split('cycle=')[1].split(' ')[0])
     variables = attr_row.split('variables=')[1]
 
-    colnames = colname_row.split()
+    # Get column names
+    if colnames is None:
+        colname_row = text[1].replace('# ', '')
+        colname_row = ' '.join(colname_row.split()).strip()
+        colnames = colname_row.split()
+    assert len(colnames) == len(data_rows[0].split()) # ensure number of colnames matches columns
 
     # Build each column, assemble table, save
     col_list = []
