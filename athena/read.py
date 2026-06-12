@@ -83,6 +83,17 @@ def read_vtk(fname):
     col_list = []
     existing_colnames = []
 
+    # add column for x1v, x2v, x3v
+    cell_centers = mesh.cell_centers().points
+    Ndim = cell_centers.shape[1]
+
+    col_list.append(Column(cell_centers[:,0], name='x1v'))
+    if Ndim >= 2:
+        col_list.append(Column(cell_centers[:,1], name='x2v'))
+    if Ndim >= 3:
+        col_list.append(Column(cell_centers[:,2], name='x3v'))
+
+    # read other columns
     for ii, colname in enumerate(colnames):
         coldata = mesh.cell_data[colname]
 

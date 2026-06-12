@@ -1,7 +1,7 @@
 import numpy as np
 
 #from qol.athena.table.AthenaTable import AthenaTable
-from qol.athena.read import read_tab
+from qol.athena.read import read_tab, read_vtk
 import qol.athena.const as athconst
 
 import glob
@@ -129,7 +129,7 @@ class AthenaRunOutput:
         output_fnames.sort()
         return output_fnames
 
-    def get_output_indices(self, output_number, block_number=0, ext='tab'):
+    def get_output_indices(self, output_number, block_number=0):
         """
         return list of indices within a given numbered output
 
@@ -138,6 +138,9 @@ class AthenaRunOutput:
         """
         output_fnames = self.get_output_fnames(output_number, block_number)
 
+        ext = self.athinput_args[f'output{output_number}.file_type']
+        assert ext in ['tab', 'vtk']
+        
         output_indices = [int(output_fname.split(f'.{ext}')[0].split('.')[-1]) for output_fname in output_fnames]
 
         return output_indices
@@ -163,7 +166,10 @@ class AthenaRunOutput:
 
         # retrieve table
         tab_fname = os.path.join(self.run_path, f"{self.athinput_args['job.problem_id']}.block{block_number}.out{output_number}.{str(output_index).zfill(5)}.{ext}")
-        tab = read_tab(tab_fname)
+        if ext == 'tab':
+            tab = read_tab(tab_fname)
+        else:
+            tab = read_vtk(tab_fname)
 
         # cache if this is desired
         if cache:
