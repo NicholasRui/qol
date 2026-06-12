@@ -118,17 +118,18 @@ class AthenaRunOutput:
         """
         if f'output{output_number}.file_type' not in self.athinput_args.keys():
             raise ValueError(f'Output {output_number} does not exist. (not specified in athinput file)')
-        if self.athinput_args[f'output{output_number}.file_type'] != 'tab':
-            raise NotImplementedError(f"Currently file_type must be 'tab': {self.athinput_args[f'output{output_number}.file_type']} not supported.")
-
-        output_pattern = f"{self.athinput_args['job.problem_id']}.block{block_number}.out{output_number}.*.tab"
+        
+        ext = self.athinput_args[f'output{output_number}.file_type']
+        assert ext in ['tab', 'vtk']
+        
+        output_pattern = f"{self.athinput_args['job.problem_id']}.block{block_number}.out{output_number}.*.{ext}"
         output_pattern = os.path.join(self.run_path, output_pattern)
 
         output_fnames = glob.glob(output_pattern)
         output_fnames.sort()
         return output_fnames
 
-    def get_output_indices(self, output_number, block_number=0):
+    def get_output_indices(self, output_number, block_number=0, ext='tab'):
         """
         return list of indices within a given numbered output
 
@@ -137,7 +138,7 @@ class AthenaRunOutput:
         """
         output_fnames = self.get_output_fnames(output_number, block_number)
 
-        output_indices = [int(output_fname.split('.tab')[0].split('.')[-1]) for output_fname in output_fnames]
+        output_indices = [int(output_fname.split(f'.{ext}')[0].split('.')[-1]) for output_fname in output_fnames]
 
         return output_indices
 
@@ -152,15 +153,16 @@ class AthenaRunOutput:
         """
         if f'output{output_number}.file_type' not in self.athinput_args.keys():
             raise ValueError(f'Output {output_number} does not exist. (not specified in athinput file)')
-        if self.athinput_args[f'output{output_number}.file_type'] != 'tab':
-            raise NotImplementedError(f"Currently file_type must be 'tab': {self.athinput_args[f'output{output_number}.file_type']} not supported.")
+        
+        ext = self.athinput_args[f'output{output_number}.file_type']
+        assert ext in ['tab', 'vtk']
         
         # check if it's in cache and return if so
         if (output_number, block_number, output_index) in self.athoutput_cache.keys():
             return self.athoutput_cache[(output_number, block_number, output_index)]
 
         # retrieve table
-        tab_fname = os.path.join(self.run_path, f"{self.athinput_args['job.problem_id']}.block{block_number}.out{output_number}.{str(output_index).zfill(5)}.tab")
+        tab_fname = os.path.join(self.run_path, f"{self.athinput_args['job.problem_id']}.block{block_number}.out{output_number}.{str(output_index).zfill(5)}.{ext}")
         tab = read_tab(tab_fname)
 
         # cache if this is desired
@@ -201,18 +203,18 @@ class AthenaRunOutput:
         cycle = int(line.split('cycle=')[1].split('variables=')[0].replace(' ', ''))
         return cycle
     
-    def get_all_output_tabs(self, output_number, block_number=0):
-        iis = self.get_output_indices(output_number=output_number, block_number=block_number)
+    def get_all_output_tabs(self, output_number, block_number=0, ext='tab'):
+        iis = self.get_output_indices(output_number=output_number, block_number=block_number, ext=ext)
         tabs = [self.get_output_tab(output_number=output_number, output_index=ii, block_number=block_number) for ii in iis]
         return tabs
 
     def get_all_output_times(self, output_number, block_number=0):
-        iis = self.get_output_indices(output_number=output_number, block_number=block_number)
+        iis = self.get_output_indices(output_number=output_number, block_number=block_number, ext='tab')
         times = np.array([self.get_output_time(output_number=output_number, output_index=ii, block_number=block_number) for ii in iis])
         return times
 
     def get_all_output_cycles(self, output_number, block_number=0):
-        iis = self.get_output_indices(output_number=output_number, block_number=block_number)
+        iis = self.get_output_indices(output_number=output_number, block_number=block_number, ext='tab')
         cycles = np.array([self.get_output_cycle(output_number=output_number, output_index=ii, block_number=block_number) for ii in iis])
         return cycles
 
