@@ -95,21 +95,36 @@ def read_vtk(fname):
 
     # read other columns
     for ii, colname in enumerate(colnames):
-        coldata = mesh.cell_data[colname]
+        # check if elements of column are themselves arrays
+        # if so, write each element as its own element for convenience
+        coldata_full = mesh.cell_data[colname]
+        colshape = coldata_full.shape
+        assert len(colshape) in [1, 2]
 
-        colname = colnames[ii]
-        append_num = 0
-        while colname in existing_colnames:
-            colname = f'{colnames[ii]}{append_num}'
-            append_num += 1
+        if len(colshape) == 1:
+            n_items = 1
+            coldata = coldata_full
+        elif len(colshape) == 2:
+            n_items = colshape[1]
 
-        existing_colnames.append(colname)
+        for n_item in range(n_items):
+            colname = colnames[ii]
+
+            if len(colshape) == 2:
+                coldata = [row[n_item] for row in coldata_full]
+                colname += f'{n_item+1}' # 1-index so vel vector matches x1v, x2v, x3v variable names
+
+            append_num = 0
+            while colname in existing_colnames:
+                colname = f'{colnames[ii]}_{append_num}'
+                append_num += 1
+
+            existing_colnames.append(colname)
         
-        col = Column(coldata, name=colname)
-        col_list.append(col)
+            col = Column(coldata, name=colname)
+            col_list.append(col)
 
     tab = Table(col_list)
-
     athenatab = AthenaTable(tab, file_type='vtk')
 
     return athenatab
