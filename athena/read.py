@@ -62,7 +62,7 @@ def read_tab(fname,
 
         existing_colnames.append(colname)
         
-        col = Column(coldata, name=colname)
+        col = Column(coldata, name=colname, dtype=np.float64)
         col_list.append(col)
 
     tab = Table(col_list)
@@ -87,11 +87,11 @@ def read_vtk(fname):
     cell_centers = mesh.cell_centers().points
     Ndim = cell_centers.shape[1]
 
-    col_list.append(Column(cell_centers[:,0], name='x1v'))
+    col_list.append(Column(cell_centers[:,0], name='x1v', dtype=np.float64))
     if Ndim >= 2:
-        col_list.append(Column(cell_centers[:,1], name='x2v'))
+        col_list.append(Column(cell_centers[:,1], name='x2v', dtype=np.float64))
     if Ndim >= 3:
-        col_list.append(Column(cell_centers[:,2], name='x3v'))
+        col_list.append(Column(cell_centers[:,2], name='x3v', dtype=np.float64))
 
     # read other columns
     for ii, colname in enumerate(colnames):
@@ -121,10 +121,18 @@ def read_vtk(fname):
 
             existing_colnames.append(colname)
         
-            col = Column(coldata, name=colname)
+            col = Column(coldata, name=colname, dtype=np.float64)
             col_list.append(col)
 
+    # extract attributes from second line of file
+    with open(fname, 'rb') as f:
+        next(f) # skip first line
+        attr_row = f.readline().decode('utf-8')
+        time = float(attr_row.split('time=')[1].split(' ')[0])
+        cycle = int(attr_row.split('cycle=')[1].split(' ')[0])
+        variables = attr_row.split('variables=')[1]
+
     tab = Table(col_list)
-    athenatab = AthenaTable(tab, file_type='vtk')
+    athenatab = AthenaTable(tab, file_type='vtk', time=time, cycle=cycle, variables=variables)
 
     return athenatab

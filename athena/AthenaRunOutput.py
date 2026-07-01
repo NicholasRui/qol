@@ -214,13 +214,13 @@ class AthenaRunOutput:
         tabs = [self.get_output_tab(output_number=output_number, output_index=ii, block_number=block_number) for ii in iis]
         return tabs
 
-    def get_all_output_times(self, output_number, block_number=0):
-        iis = self.get_output_indices(output_number=output_number, block_number=block_number, ext='tab')
+    def get_all_output_times(self, output_number, block_number=0, ext='tab'):
+        iis = self.get_output_indices(output_number=output_number, block_number=block_number, ext=ext)
         times = np.array([self.get_output_time(output_number=output_number, output_index=ii, block_number=block_number) for ii in iis])
         return times
 
-    def get_all_output_cycles(self, output_number, block_number=0):
-        iis = self.get_output_indices(output_number=output_number, block_number=block_number, ext='tab')
+    def get_all_output_cycles(self, output_number, block_number=0, ext='tab'):
+        iis = self.get_output_indices(output_number=output_number, block_number=block_number, ext=ext)
         cycles = np.array([self.get_output_cycle(output_number=output_number, output_index=ii, block_number=block_number) for ii in iis])
         return cycles
 
