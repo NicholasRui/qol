@@ -62,29 +62,21 @@ def read_data(fname, remove_duplicates=True):
     colname_row = text[5]
     data_rows = text[6:-1]
 
-    # Remove all duplicate spaces
-    colname_row = ' '.join(colname_row.split())
-    data_rows = [' '.join(data_rows[ii].split()) for ii in range(len(data_rows))]
-
-    colnames = colname_row.split()
-
-    # Build each column, assemble table, save
-    col_list = []
-    existing_colnames = []
-
-    for ii in range(len(colnames)):
-        coldata = [float(data_rows[jj].split()[ii]) for jj in range(len(data_rows))]
-
-        colname = colnames[ii]
+    # Get unambiguous column data
+    raw_colnames = colname_row.split()
+    colnames = []
+    for raw_colname in raw_colnames:
+        colname = raw_colname
         append_num = 0
-        while colname in existing_colnames:
-            colname = f'{colnames[ii]}{append_num}'
+        while colname in colnames:
+            colname = f'{raw_colname}{append_num}'
             append_num += 1
-
-        existing_colnames.append(colname)
-        
-        col = Column(coldata, name=colname)
-        col_list.append(col)
+        colnames.append(colname)
+    
+    # Get column data and construct table
+    split_rows = [row.split() for row in data_rows]
+    transposed_cols = zip(*split_rows)
+    col_list = [Column([float(val) for val in col], name=name) for col, name in zip(transposed_cols, colnames)]
 
     tab = Table(col_list)
     if remove_duplicates:
