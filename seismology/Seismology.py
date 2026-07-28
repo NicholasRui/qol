@@ -45,6 +45,7 @@ class Seismology:
             mesa_table: MesaTable = None,
             R: np.ndarray = None, R_in_Rsun: np.ndarray = None,
             N: np.ndarray = None, N_in_uHz: np.ndarray = None, N_floor: float = 1e-30,
+            csound: np.ndarray = None,
             Sl1: np.ndarray = None, Sl1_in_uHz: np.ndarray = None,
 
             Rho: np.ndarray = None,
@@ -78,6 +79,7 @@ class Seismology:
         # Read in inputs
         self.initialize_R(R=R, R_in_Rsun=R_in_Rsun)
         self.initialize_N(N=N, N_in_uHz=N_in_uHz, N_floor=N_floor)
+        self.initialize_csound(csound=csound)
         self.initialize_Sl(Sl1=Sl1, Sl1_in_uHz=Sl1_in_uHz)
         self.calculate_min_max_N_Sl()
         self.initialize_Br(Br=Br, Br_kG=Br_kG, Br_MG=Br_MG)
@@ -114,12 +116,13 @@ class Seismology:
 
     def initialize_Rho(self, Rho):
         self.Rho = np.array(Rho) if Rho is not None else None
-    
-        if hasattr(self.mesa_table, 'Rho'):
-            if self.Rho is not None:
-                warnings.warn('Rho already explicitly defined, so not using column in mesa_table')
-            else:
-                self.Rho = self.mesa_table.Rho #10 ** self.mesa_table['logRho']
+
+        if self.mesa_table is not None:
+            if hasattr(self.mesa_table, 'Rho'):
+                if self.Rho is not None:
+                    warnings.warn('Rho already explicitly defined, so not using column in mesa_table')
+                else:
+                    self.Rho = self.mesa_table.Rho
 
     def initialize_R(self, R, R_in_Rsun):
         self.R = np.array(R) if R is not None else None
@@ -130,11 +133,12 @@ class Seismology:
 
         self.R = const.Rsun * np.array(R_in_Rsun) if self.R is None and R_in_Rsun is not None else self.R
 
-        if hasattr(self.mesa_table, 'R'):
-            if self.R is not None:
-                warnings.warn('R already explicitly defined, so not using column in mesa_table')
-            else:
-                self.R = self.mesa_table.R
+        if self.mesa_table is not None:
+            if hasattr(self.mesa_table, 'R'):
+                if self.R is not None:
+                    warnings.warn('R already explicitly defined, so not using column in mesa_table')
+                else:
+                    self.R = self.mesa_table.R
 
         # Required field
         assert self.R is not None
@@ -150,11 +154,12 @@ class Seismology:
         # Alternative inputs
         self.N = 1e-6 * np.array(N_in_uHz) if self.N is None and N_in_uHz is not None else self.N
 
-        if hasattr(self.mesa_table, 'N'):
-            if self.N is not None:
-                warnings.warn('N already explicitly defined, so not using column in mesa_table')
-            else:
-                self.N = self.mesa_table.N
+        if self.mesa_table is not None:
+            if hasattr(self.mesa_table, 'N'):
+                if self.N is not None:
+                    warnings.warn('N already explicitly defined, so not using column in mesa_table')
+                else:
+                    self.N = self.mesa_table.N
 
         # Required field
         assert self.N is not None
@@ -167,6 +172,13 @@ class Seismology:
         self.N_in_uHz = 1e6 * self.N
         self.N_div_2pi_in_uHz = 1e6 * self.N_div_2pi
 
+    def initialize_csound(self, csound):
+        self.csound = np.array(csound) if csound is not None else None
+
+        if self.mesa_table is not None:
+            if 'csound' in self.mesa_table.colnames:
+                self.csound = self.mesa_table['csound']
+
     def initialize_Sl(self, Sl1, Sl1_in_uHz):
         self.Sl1 = np.array(Sl1) if Sl1 is not None else None
 
@@ -177,15 +189,16 @@ class Seismology:
         # Alternative inputs
         self.Sl1 = 1e-6 * np.array(Sl1_in_uHz) if self.Sl1 is None and Sl1_in_uHz is not None else self.Sl1
 
-        if hasattr(self.mesa_table, 'Sl1'):
-            if self.Sl1 is not None:
-                warnings.warn('Sl1 already explicitly defined, so not using column in mesa_table')
-            else:
-                self.Sl1 = self.mesa_table.Sl1
+        if self.mesa_table is not None:
+            if hasattr(self.mesa_table, 'Sl1'):
+                if self.Sl1 is not None:
+                    warnings.warn('Sl1 already explicitly defined, so not using column in mesa_table')
+                else:
+                    self.Sl1 = self.mesa_table.Sl1
 
-        # If all fails, use csound
-        if (self.Sl1 is None) and 'csound' in self.mesa_table.colnames:
-            self.Sl1 = np.sqrt(2) * self.mesa_table['csound'] / self.R
+            # If all fails, use csound
+            if (self.Sl1 is None) and 'csound' in self.mesa_table.colnames:
+                self.Sl1 = np.sqrt(2) * self.mesa_table['csound'] / self.R
 
         # Calculate other helper quantities
         self.Sl2 = np.sqrt(3) * self.Sl1
@@ -206,9 +219,6 @@ class Seismology:
         self.Sl2_div_2pi_in_uHz = 1e6 * self.Sl2_div_2pi
         self.Sl3_div_2pi_in_uHz = 1e6 * self.Sl3_div_2pi
         self.Sl_div_2pi_in_uHz = lambda l: 1e6 * self.Sl_div_2pi(l)
-
-        if 'csound' in self.mesa_table.colnames:
-            self.csound = self.mesa_table['csound']
 
         # Required field
         assert self.Sl1 is not None
