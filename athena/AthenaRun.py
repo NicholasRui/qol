@@ -121,7 +121,8 @@ class AthenaRun:
         # if specified, copy given configure.log file over
         # This is to avoid multiple recompilations for multiple runs which have the same
         # compilation settings as each other.
-        shutil.copy(compile_log_fname, os.path.join(run_path, 'configure.log'))
+        if compile_log_fname is not None:
+            shutil.copy(compile_log_fname, os.path.join(run_path, 'configure.log'))
 
         # grant permissions if needed
         if grant_perms:
