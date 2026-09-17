@@ -48,6 +48,7 @@ class AthenaRun:
                        slurm_job_ntasks=config.slurm_job_ntasks_default, slurm_job_nodes=config.slurm_job_nodes_default,
                        slurm_job_ntasks_per_node=config.slurm_job_ntasks_per_node_default,
                        slurm_job_mem_per_cpu=config.slurm_job_mem_per_cpu_default,
+                       slurm_job_account=None, slurm_job_partition=None,
                        slurm_job_email_user=True, OMP_NUM_THREADS=config.mesa_OMP_NUM_THREADS,
                        data_path='data/'):
         run_path = self.run_path
@@ -112,7 +113,8 @@ class AthenaRun:
                  output=os.path.join(run_path, 'output.out'),
                  error=os.path.join(run_path, 'error.out'), # absolute paths
                  mail_user=mail_user, # email address
-                 mail_type=mail_type # conditions for emailing
+                 mail_type=mail_type, # conditions for emailing
+                 account=slurm_job_account, partition=slurm_job_partition
                  )
             
             slurm_bash_script.add_task(os.path.join(run_path, 'run_athena.sh'))

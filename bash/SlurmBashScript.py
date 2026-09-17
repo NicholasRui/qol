@@ -13,13 +13,16 @@ class SlurmBashScript(BashScript):
                  mem_per_cpu='10G', # specify as string for now
                  output='output.out', error='error.out', # absolute paths
                  mail_user=None, # email address
-                 mail_type='BEGIN,FAIL,END' # conditions for emailing
+                 mail_type='BEGIN,FAIL,END', # conditions for emailing
+                 account=None, partition=None
                  ):
         """
         """
         super().__init__()
 
         self.job_name = job_name
+        self.account = account
+        self.partition = partition
         self.time = time
         self.ntasks = ntasks
         self.nodes = nodes
@@ -44,6 +47,10 @@ class SlurmBashScript(BashScript):
             self.add_task(f'#SBATCH --mem-per-cpu={self.mem_per_cpu}     # memory per CPU core')
         if self.job_name is not None:
             self.add_task(f'#SBATCH -J "{self.job_name}"     # job name')
+        if self.account is not None:
+            self.add_task(f'#SBATCH --account={self.account}')
+        if self.partition is not None:
+            self.add_task(f'#SBATCH --partition={self.partition}')
         if self.output is not None:
             self.add_task(f'#SBATCH --output={self.output}')
         if self.error is not None:
