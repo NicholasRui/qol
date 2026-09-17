@@ -63,9 +63,6 @@ package should be able to import both histories and profile at the same time
 
 write a readme
 - request people make PRs when they do things
-- tell people what to cite
-- nicholas rui
-
 
 
 Draw plot locations for grid spec in ascii symbols
