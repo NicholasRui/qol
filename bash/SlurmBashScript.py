@@ -11,6 +11,7 @@ class SlurmBashScript(BashScript):
                  ntasks=1, nodes=1,
                  ntasks_per_node=1,
                  mem_per_cpu='10G', # specify as string for now
+                 mem=None, # total memory for the job (per node); specify as string, e.g. '80G'. Mutually exclusive with mem_per_cpu.
                  output='output.out', error='error.out', # absolute paths
                  mail_user=None, # email address
                  mail_type='BEGIN,FAIL,END', # conditions for emailing
@@ -20,6 +21,8 @@ class SlurmBashScript(BashScript):
         """
         super().__init__()
 
+        assert mem is None or mem_per_cpu is None, "mem and mem_per_cpu are mutually exclusive; specify only one"
+
         self.job_name = job_name
         self.account = account
         self.partition = partition
@@ -28,6 +31,7 @@ class SlurmBashScript(BashScript):
         self.nodes = nodes
         self.ntasks_per_node = ntasks_per_node
         self.mem_per_cpu = mem_per_cpu
+        self.mem = mem
         self.output = output
         self.error = error
         self.mail_user = mail_user
@@ -45,6 +49,8 @@ class SlurmBashScript(BashScript):
             self.add_task(f'#SBATCH --ntasks-per-node={self.ntasks_per_node}     # number of tasks per node')
         if self.mem_per_cpu is not None:
             self.add_task(f'#SBATCH --mem-per-cpu={self.mem_per_cpu}     # memory per CPU core')
+        if self.mem is not None:
+            self.add_task(f'#SBATCH --mem={self.mem}     # total memory per node')
         if self.job_name is not None:
             self.add_task(f'#SBATCH -J "{self.job_name}"     # job name')
         if self.account is not None:

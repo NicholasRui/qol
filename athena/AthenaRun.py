@@ -48,10 +48,14 @@ class AthenaRun:
                        slurm_job_ntasks=config.slurm_job_ntasks_default, slurm_job_nodes=config.slurm_job_nodes_default,
                        slurm_job_ntasks_per_node=config.slurm_job_ntasks_per_node_default,
                        slurm_job_mem_per_cpu=config.slurm_job_mem_per_cpu_default,
+                       slurm_job_mem=None,
                        slurm_job_account=None, slurm_job_partition=None,
                        slurm_job_email_user=True, OMP_NUM_THREADS=config.mesa_OMP_NUM_THREADS,
                        data_path='data/', mpi_ranks=None):
         """
+        :param slurm_job_mem: total memory to request for the job (e.g. '80G'), passed to slurm
+          as `--mem`. Mutually exclusive with slurm_job_mem_per_cpu: if specified, overrides the
+          latter (i.e. slurm_job_mem_per_cpu is ignored, even if it has its default value).
         :param mpi_ranks: if specified (and >1), launch Athena++ across this many MPI ranks
           (via `mpirun -np {mpi_ranks}`) instead of running it as a single serial process.
           This is required to make use of a <meshblock> block with more than one MeshBlock,
@@ -62,6 +66,10 @@ class AthenaRun:
         athinput = self.athinput
         compile_flags = self.compile_flags
         compile_log_fname = self.compile_log_fname
+
+        # slurm_job_mem takes precedence over slurm_job_mem_per_cpu if both are given
+        if slurm_job_mem is not None:
+            slurm_job_mem_per_cpu = None
 
         # treat mpi_ranks<=1 the same as not using MPI at all
         if mpi_ranks is not None and mpi_ranks <= 1:
@@ -133,6 +141,7 @@ class AthenaRun:
                  ntasks=slurm_job_ntasks, nodes=slurm_job_nodes,
                  ntasks_per_node=slurm_job_ntasks_per_node,
                  mem_per_cpu=slurm_job_mem_per_cpu,
+                 mem=slurm_job_mem,
                  output=os.path.join(run_path, 'output.out'),
                  error=os.path.join(run_path, 'error.out'), # absolute paths
                  mail_user=mail_user, # email address
