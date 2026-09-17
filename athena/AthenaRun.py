@@ -50,12 +50,24 @@ class AthenaRun:
                        slurm_job_mem_per_cpu=config.slurm_job_mem_per_cpu_default,
                        slurm_job_account=None, slurm_job_partition=None,
                        slurm_job_email_user=True, OMP_NUM_THREADS=config.mesa_OMP_NUM_THREADS,
-                       data_path='data/'):
+                       data_path='data/', mpi_ranks=None):
+        """
+        :param mpi_ranks: if specified (and >1), launch Athena++ across this many MPI ranks
+          (via `mpirun -np {mpi_ranks}`) instead of running it as a single serial process.
+          This is required to make use of a <meshblock> block with more than one MeshBlock,
+          and requires that '-mpi' be included in compile_flags.
+        """
         run_path = self.run_path
         pgen_path = self.pgen_path
         athinput = self.athinput
         compile_flags = self.compile_flags
         compile_log_fname = self.compile_log_fname
+
+        # treat mpi_ranks<=1 the same as not using MPI at all
+        if mpi_ranks is not None and mpi_ranks <= 1:
+            mpi_ranks = None
+        if mpi_ranks is not None:
+            assert '-mpi' in compile_flags, "compile_flags must include '-mpi' to run with mpi_ranks>1"
 
         # Create directories
         if os.path.exists(run_path):
@@ -89,13 +101,24 @@ class AthenaRun:
         bash_script.add_task('# run')
         bash_script.add_task(f'cd {run_path}')
         bash_script.add_task('cp $ATHENA_DIR/bin/athena athena')
-        bash_script.add_task('./athena -i athinput')
+        if mpi_ranks is not None:
+            # launch across multiple MPI ranks, e.g. to parallelize over multiple MeshBlocks;
+            # mpirun is used (rather than srun) so this also works when run_athena.sh is invoked
+            # directly, outside of a slurm allocation
+            bash_script.add_task(f'mpirun -np {mpi_ranks} ./athena -i athinput')
+        else:
+            bash_script.add_task('./athena -i athinput')
         bash_script.add_task('cd -')
 
         bash_script.save(os.path.join(run_path, 'run_athena.sh'))
 
         # Write slurm job shell
         if slurm_job_name is not None:
+            # make sure the slurm allocation requests enough tasks to satisfy the MPI launch
+            if mpi_ranks is not None and slurm_job_ntasks is not None:
+                assert slurm_job_ntasks >= mpi_ranks, \
+                    f'slurm_job_ntasks ({slurm_job_ntasks}) must be >= mpi_ranks ({mpi_ranks})'
+
             # only email user if say so; get email from config.py file
             if slurm_job_email_user:
                 mail_user = config.slurm_job_mail_user

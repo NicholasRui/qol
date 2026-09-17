@@ -16,6 +16,12 @@ def add_arg_mesh(self, name, value, comment=None):
     """
     self.add_arg(block='mesh', name=name, value=value, comment=comment)
 
+def add_arg_meshblock(self, name, value, comment=None):
+    """
+    Add arg in 'meshblock' block
+    """
+    self.add_arg(block='meshblock', name=name, value=value, comment=comment)
+
 def add_arg_time(self, name, value, comment=None):
     """
     Add arg in 'time' block

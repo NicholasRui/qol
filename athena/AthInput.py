@@ -43,6 +43,7 @@ class AthInput:
     add_arg_comment = alias.add_arg_comment
     add_arg_job = alias.add_arg_job
     add_arg_mesh = alias.add_arg_mesh
+    add_arg_meshblock = alias.add_arg_meshblock
     add_arg_time = alias.add_arg_time
     add_arg_problem = alias.add_arg_problem
     add_arg_hydro = alias.add_arg_hydro
@@ -64,7 +65,7 @@ class AthInput:
         #  1. elements in some named list
         #  2. output blocks
         #  3. everything else
-        first_blocks = ['comment', 'job', 'mesh', 'time', 'problem']
+        first_blocks = ['comment', 'job', 'mesh', 'meshblock', 'time', 'problem']
         order_map = {block: ii for ii, block in enumerate(first_blocks)}
 
         sort_func = lambda block: (0, order_map[block]) if block in first_blocks else (1, block) if block.startswith('output') else (2, block)
