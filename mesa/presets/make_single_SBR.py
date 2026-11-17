@@ -164,10 +164,6 @@ def helper_single_SBR_trgb_to_zacheb(argdict):
 
     inlist.mesh_delta_coeff(mesh_delta_coeff)
 
-    # predictive mixing
-    inlist.add_predictive_mix_zone(predictive_zone_type='any', predictive_zone_loc='core', predictive_bdy_loc='top',
-                            predictive_superad_thresh=0.01, predictive_avoid_reversal='he4')
-
     # average composition of outer layers for write-out
     inlist.surface_avg_abundance_dq(1e-2)
 
@@ -218,6 +214,10 @@ def helper_single_SBR_zacheb_to_co_wd(argdict):
     inlist.RGB_to_AGB_wind_switch(1e-4)
     inlist.cool_wind_full_on_T(9.99e9) # force usage of cool wind only
     inlist.hot_wind_full_on_T(1.e10)
+
+    # predictive mixing
+    inlist.add_predictive_mix_zone(predictive_zone_type='any', predictive_zone_loc='core', predictive_bdy_loc='top',
+                            predictive_superad_thresh=0.01, predictive_avoid_reversal='he4')
 
     # stop at WD
     inlist.stop_at_phase_WDCS()
